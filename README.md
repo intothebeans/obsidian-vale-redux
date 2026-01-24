@@ -17,30 +17,27 @@ Before using this plugin, [you need to have Vale installed on your system](https
 
 ## Installation
 
-### Manual Installation
+Currently getting plugins approved in the Obsidian Community Plugin list can take some time. In the meantime, install the Vale plugin manually or use [BRAT](https://github.com/TfTHacker/obsidian42-brat) for easier updates.
+
+### Manual installation
 
 1. Download the latest release from the releases page
 2. Extract the files to your vault's `.obsidian/plugins/obsidian-vale/` folder
 3. Reload Obsidian
 4. Enable the plugin in Settings → Community plugins
 
-### Building from Source
+### Using BRAT
 
-1. Clone this repository
-2. Install dependencies:
+[BRAT](https://github.com/TfTHacker/obsidian42-brat) (Beta Reviewers Auto-update Tester) allows you to install plugins directly from GitHub and receive automatic updates.
 
-   ```bash
-   npm install
-   ```
+1. Install the BRAT plugin from Obsidian's Community Plugins
+2. Enable BRAT in Settings → Community plugins
+3. Open BRAT settings and click "Add Beta plugin"
+4. Enter this repository URL: `https://github.com/ChrisChinchilla/obsidian-vale`
+5. Click "Add Plugin" and wait for installation
+6. Enable the Vale plugin in Settings → Community plugins
 
-3. Build the plugin:
-
-   ```bash
-   npm run build
-   ```
-
-4. Copy `main.js`, `manifest.json` to your vault's `.obsidian/plugins/obsidian-vale/` folder
-5. Reload Obsidian and enable the plugin
+BRAT automatically checks for and installs updates to the plugin.
 
 ## Configuration
 
@@ -49,12 +46,10 @@ Access the plugin settings through Settings → Plugin Options → Vale Linter:
 ### Settings
 
 - **Vale Executable Path**: Path to the Vale executable (default: `vale`)
-
   - If Vale is in your PATH, leave as `vale`
   - Otherwise, provide the full path (e.g., `/usr/local/bin/vale`)
 
 - **Vale Config File Path**: Path to your `.vale.ini` file
-
   - Leave empty to use Vale's default config discovery
   - Or specify a custom path (e.g., `/home/user/.vale.ini`)
 
@@ -74,7 +69,7 @@ The plugin provides the following commands (accessible via Command Palette - Cmd
 - **Toggle auto-check**: Enable/disable automatic checking
 - **Clear Vale issues**: Clear all highlighted issues from the editor
 
-### Visual Indicators
+### Visual indicators
 
 Issues are displayed with different underline styles based on severity:
 
@@ -82,7 +77,7 @@ Issues are displayed with different underline styles based on severity:
 - **Warnings**: Orange wavy underline (e.g., style suggestions)
 - **Suggestions**: Blue dotted underline (e.g., optional improvements)
 
-### Status Bar
+### Status bar
 
 The status bar shows a summary of issues in the current file:
 
@@ -114,43 +109,3 @@ If the plugin causes lag:
 
 1. Increase the debounce delay in settings
 2. Disable auto-check and use manual checking
-3. Check if your Vale configuration is too complex
-
-## Customizing Vale Rules
-
-Vale's behavior is controlled by its configuration file and style guides. You can:
-
-1. Use pre-made styles:
-
-   ```bash
-   # Popular styles
-   vale sync
-   ```
-
-2. Create custom rules in `.vale/styles/YourStyle/`:
-
-   ```yaml
-   # .vale/styles/YourStyle/MyRule.yml
-   extends: existence
-   message: "Consider using '%s' instead of '%s'."
-   level: warning
-   tokens:
-     - utilize: use
-     - commence: begin
-   ```
-
-3. Configure which rules to apply in `.vale.ini`:
-   ```ini
-   [*.md]
-   BasedOnStyles = Vale, YourStyle
-   Vale.Spelling = NO
-   YourStyle.MyRule = YES
-   ```
-
-## Contributing
-
-Contributions are welcome! Feel free to submit issues and pull requests.
-
-## License
-
-MIT
