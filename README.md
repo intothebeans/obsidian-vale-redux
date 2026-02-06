@@ -1,4 +1,4 @@
-# Obsidian Vale Plugin
+# Obsidian Vale Redux
 
 A plugin that integrates the [Vale](https://vale.sh/) prose linter with Obsidian, providing configurable, offline-first inline style and grammar checking directly in your editor.
 
@@ -46,12 +46,12 @@ Access the plugin settings through Settings → Plugin Options → Vale Linter:
 ### Settings
 
 - **Vale Executable Path**: Path to the Vale executable (default: `vale`)
-  - If Vale is in your PATH, leave as `vale`
-  - Otherwise, provide the full path (e.g., `/usr/local/bin/vale`)
+    - If Vale is in your PATH, leave as `vale`
+    - Otherwise, provide the full path (e.g., `/usr/local/bin/vale`)
 
 - **Vale Config File Path**: Path to your `.vale.ini` file
-  - Leave empty to use Vale's default config discovery
-  - Or specify a custom path (e.g., `/home/user/.vale.ini`)
+    - Leave empty to use Vale's default config discovery
+    - Or specify a custom path (e.g., `/home/user/.vale.ini`)
 
 - **Auto-check Enabled**: Toggle automatic checking as you type
 
@@ -109,3 +109,8 @@ If the plugin causes lag:
 
 1. Increase the debounce delay in settings
 2. Disable auto-check and use manual checking
+
+## Credits
+
+This plugin was inspired by/forked from [obsidian-vale](https://github.com/ChrisChinchilla/obsidian-vale)
+by [Chris Chinchilla](https://github.com/ChrisChinchilla). The current version is a complete rewrite with different features and implementation.
