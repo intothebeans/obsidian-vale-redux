@@ -1,10 +1,48 @@
+import { SEVERITIES } from "utils/constants";
+
 /** Represents the complete output from Vale linter for multiple files. */
 export interface ValeOutput {
 	[filename: string]: ValeAlert[];
 }
 
-/** Severity levels for Vale issues. */
-export type ValeSeverity = "suggestion" | "warning" | "error";
+export interface ValeRunnerResult {
+	success: boolean;
+	issues: ValeIssue[];
+	error?: string;
+}
+
+export class ValeSeverity {
+	private severity: string;
+	constructor(severity: string) {
+		severity = severity.toLowerCase();
+		if (SEVERITIES.includes(severity)) {
+			this.severity = severity;
+		} else {
+			throw new Error(`Invalid severity level: ${severity}`);
+		}
+	}
+
+	getIcon(): string {
+		switch (this.severity) {
+			case "suggestion":
+				return "💡";
+			case "warning":
+				return "⚠️";
+			case "error":
+				return "❌";
+			default:
+				return "";
+		}
+	}
+
+	getLabel(): string {
+		return this.severity.charAt(0).toUpperCase() + this.severity.slice(1);
+	}
+
+	getSeverity(): string {
+		return this.severity;
+	}
+}
 
 /** Mirrors the Vale JSON output format for individual alerts. */
 export interface ValeAlert {
@@ -40,7 +78,6 @@ export interface ValeIssue {
 
 /** Configuration parameters for Vale execution. */
 export interface ValeRuntimeConfig {
-	filePath: string;
 	valeBinary: string;
 	valeConfig: string;
 	workingDir: string;
