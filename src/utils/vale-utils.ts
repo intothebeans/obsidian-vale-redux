@@ -25,8 +25,7 @@ export async function testValeConnection(
 export async function getValeStylesPath(
 	binaryPath: string,
 	configPath: string,
-): Promise<void | string> {
-	try {
+): Promise<string> {
 		const cmdOutput = await spawnProcessWithOutput(binaryPath, [
 			"ls-dirs",
 			"--output=JSON",
@@ -42,11 +41,6 @@ export async function getValeStylesPath(
 			return outputJson[".vale.ini"];
 		} else {
 			throw new Error("Styles path not found in Vale output");
-		}
-	} catch (error) {
-		notifyError(
-			`Failed to resolve Vale styles path: ${error instanceof Error ? error.message : String(error)}`,
-		);
 	}
 }
 

@@ -12,7 +12,8 @@ import {
 	ensureAbsolutePath,
 	openExternalFilesystemObject,
 } from "utils/file-utils";
-import { testValeConnection } from "utils/vale-utils";
+import { getValeStylesPath, testValeConnection } from "utils/vale-utils";
+import { notifyError } from "utils/utils";
 
 // FIX - Single regex being broken up during parsing
 export const DEFAULT_VALE_CONFIG: ValeConfig = {
@@ -121,10 +122,22 @@ export class ValePluginSettingTab extends PluginSettingTab {
 		new Setting(containerEl)
 			.setName("Quick Access")
 			.addButton((button) => {
-				button
-					// TODO: Implement opening styles folder
-					.setButtonText("Open Styles Folder")
-					.onClick(async () => {});
+				button.setButtonText("Open Styles Folder").onClick(async () => {
+					try {
+						const stylesPath = await getValeStylesPath(
+							settings.valeBinaryPath,
+							settings.valeConfigPath,
+						);
+						console.debug("Opening styles path:", stylesPath);
+						await openExternalFilesystemObject(stylesPath, vault);
+					} catch (error) {
+						notifyError(
+							"Failed to open styles folder.",
+							8000,
+							`${error instanceof Error ? error.message : String(error)}`,
+						);
+					}
+				});
 			})
 			.addButton((button) => {
 				button.setButtonText("Open Config File").onClick(async () => {
