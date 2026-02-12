@@ -4,9 +4,16 @@ on:
   push:
     tags:
       - "*.*.*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to release (e.g., 1.0.0)"
+        required: true
+        type: string
 
 env:
   PLUGIN_NAME: obsidian-vale-redux
+  HUSKY: 0
 
 jobs:
   build:
@@ -16,22 +23,52 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         name: Checkout code
+        with:
+          fetch-depth: 0 # Fetch all history for changelog
+
       - uses: actions/setup-node@v6
         name: Setup Node.js
         with:
           node-version: "24.x"
           cache: "npm"
+
       - name: Build Plugin
         run: |
           npm install
           npm run build
           mkdir ${{ env.PLUGIN_NAME }}
-          cp -r main.js manifest.json styles.css ${{ env.PLUGIN_NAME }}
+          cp -r main.js manifest.json styles.css CHANGELOG.md ${{ env.PLUGIN_NAME }}
+
+      - name: Generate checksums
+        run: |
+          cd ${{ env.PLUGIN_NAME }}
+          sha256sum main.js > checksums.txt
+          sha256sum manifest.json >> checksums.txt
+          sha256sum styles.css >> checksums.txt
+          cat checksums.txt
+
       - uses: softprops/action-gh-release@v2
         name: Create Release
         with:
           generate_release_notes: true
+          body: |
+            ## Installation
+
+            Download and extract the files from the assets below into your vault's `.obsidian/plugins/obsidian-vale-redux/` directory.
+
+            ## Checksums (SHA256)
+
+            ```
+            ${{ hashFiles(format('{0}/checksums.txt', env.PLUGIN_NAME)) }}
+            ```
+
+            ---
+
+            See [CHANGELOG.md](CHANGELOG.md) for full release history.
           files: |
             ${{ env.PLUGIN_NAME }}/main.js
             ${{ env.PLUGIN_NAME }}/manifest.json
             ${{ env.PLUGIN_NAME }}/styles.css
+            ${{ env.PLUGIN_NAME }}/CHANGELOG.md
+            ${{ env.PLUGIN_NAME }}/checksums.txt
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}

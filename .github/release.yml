@@ -1,11 +1,19 @@
+# Configuration for automatic release notes generation
+# Applies to both releases and pre-releases
+# See: https://docs.github.com/en/repositories/releasing-projects-on-github/automatically-generated-release-notes
+
 changelog:
   exclude:
     labels:
       - ignore-for-release
       - dependencies
       - skip-changelog
+      - duplicate
+      - wontfix
+      - invalid
     authors:
       - intothebeans
+      - dependabot
   categories:
     - title: Breaking Changes
       labels:
@@ -23,10 +31,20 @@ changelog:
         - bug
         - fix
         - bugfix
+        - Semver-Patch
+    - title: Performance Improvements
+      labels:
+        - performance
+        - perf
+        - optimization
     - title: Documentation
       labels:
         - documentation
         - docs
+    - title: Dependency Updates
+      labels:
+        - dependencies
+        - deps
     - title: Other Changes
       labels:
         - "*"
