@@ -5,6 +5,7 @@ import { Notice } from "obsidian";
 export async function spawnProcessWithOutput(
 	command: string,
 	args: string[],
+	timeoutMs: number = 10000,
 ): Promise<string> {
 	const process = spawn(command, args);
 	let stdout = "";
@@ -33,9 +34,11 @@ export async function spawnProcessWithOutput(
 		});
 		setTimeout(() => {
 			process.kill();
-			console.error("Process timed out");
+			console.error(
+				`Process timed out after 10 seconds: ${command} ${args.join(" ")} stderr: ${stderr} stdout: ${stdout}`,
+			);
 			reject(new Error("Process timed out"));
-		}, 5000);
+		}, timeoutMs);
 	});
 }
 
