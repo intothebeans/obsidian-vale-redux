@@ -6,17 +6,17 @@ on:
   workflow_dispatch:
 
 env:
-  PLUGIN_NAME: obsidian-vale # Change this to the name of your plugin-id folder
+  PLUGIN_NAME: obsidian-vale-redux
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
-          node-version: "22"
+          node-version: "24.x"
           cache: "npm"
       - name: Build
         run: |
@@ -24,5 +24,3 @@ jobs:
           npm run build
           mkdir ${{ env.PLUGIN_NAME }}
           cp -r main.js manifest.json styles.css ${{ env.PLUGIN_NAME }}
-          # zip -r ${{ env.PLUGIN_NAME }}.zip ${{ env.PLUGIN_NAME }}
-

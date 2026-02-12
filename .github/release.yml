@@ -1,0 +1,32 @@
+changelog:
+  exclude:
+    labels:
+      - ignore-for-release
+      - dependencies
+      - skip-changelog
+    authors:
+      - intothebeans
+  categories:
+    - title: Breaking Changes
+      labels:
+        - breaking-change
+        - breaking
+        - Semver-Major
+    - title: New Features
+      labels:
+        - enhancement
+        - feature
+        - new-feature
+        - Semver-Minor
+    - title: Bug Fixes
+      labels:
+        - bug
+        - fix
+        - bugfix
+    - title: Documentation
+      labels:
+        - documentation
+        - docs
+    - title: Other Changes
+      labels:
+        - "*"
