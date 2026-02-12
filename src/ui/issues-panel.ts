@@ -227,13 +227,36 @@ export class ValeIssuesView extends ItemView {
 		const actionsContainer = container.createDiv({
 			cls: "vale-issues-panel-actions",
 		});
+
+		const disabledActions = [
+			this.addAction(
+				"list-filter",
+				"Filter issues (coming soon)",
+				() => {},
+			),
+			this.addAction(
+				"chevrons-down-up",
+				"Collapse (coming soon)",
+				() => {},
+			),
+			this.addAction("group", "Group by (coming soon)", () => {}),
+			this.addAction(
+				"arrow-down-wide-narrow",
+				"Sort issues (coming soon)",
+				() => {},
+			),
+			this.addAction(
+				"magnifying-glass",
+				"Search issues (coming soon)",
+				() => {},
+			),
+		];
+		for (const action of disabledActions) {
+			action.addClass("vale-action-disabled");
+			action.setAttribute("aria-disabled", "true");
+		}
+
 		actionsContainer.append(
-			this.addAction("list-filter", "Filter issues", () => {
-				// TODO implement severity filtering
-			}),
-			this.addAction("chevrons-down-up", "Collapse", () => {
-				// TODO implement collapsing/expanding issue groups
-			}),
 			this.addAction("refresh-cw", "Refresh issues", async () => {
 				if (this.currentFile) {
 					const notice = new Notice("Refreshing issues...", 0);
@@ -242,15 +265,7 @@ export class ValeIssuesView extends ItemView {
 					this.render();
 				}
 			}),
-			this.addAction("group", "Group by", () => {
-				// TODO implement grouping by severity, check, or frequency
-			}),
-			this.addAction("arrow-down-wide-narrow", "Sort issues", () => {
-				// TODO implement sorting by line number, severity, or check
-			}),
-			this.addAction("magnifying-glass", "Search issues", () => {
-				// TODO implement issue search
-			}),
+			...disabledActions,
 		);
 	}
 

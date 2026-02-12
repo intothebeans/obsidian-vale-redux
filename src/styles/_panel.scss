@@ -34,3 +34,8 @@
 	margin-bottom: 10px;
 	gap: 8px;
 }
+
+.vale-action-disabled {
+	opacity: 0.35;
+	pointer-events: none;
+}
