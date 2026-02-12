@@ -1,0 +1,9 @@
+.vale-issue-item {
+	padding: 8px;
+	margin-bottom: 4px;
+	border-left: 3px solid;
+	background: var(--background-secondary);
+	border-radius: 3px;
+	cursor: pointer;
+	transition: background 0.2s ease;
+}

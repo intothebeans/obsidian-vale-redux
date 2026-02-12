@@ -1,5 +1,3 @@
-export const VALE_TIMEOUT_MS = 10000;
-
 export const SEVERITY_METADATA = {
 	suggestion: {
 		icon: "💡",
@@ -16,3 +14,5 @@ export const SEVERITY_METADATA = {
 } as const;
 
 export type Severity = keyof typeof SEVERITY_METADATA;
+
+export const ISSUES_PANEL_VIEW_TYPE = "vale-issues-view";

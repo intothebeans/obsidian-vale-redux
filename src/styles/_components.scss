@@ -1,0 +1,29 @@
+.vale-issues-view {
+	padding: 10px;
+	overflow-y: auto;
+}
+
+.vale-issues-header {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 10px;
+	padding-bottom: 8px;
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.vale-issues-count {
+	font-size: 0.9em;
+	opacity: 0.7;
+}
+
+.vale-empty-state {
+	text-align: center;
+	padding: 40px 20px;
+	opacity: 0.6;
+}
+
+.vale-empty-state-icon {
+	font-size: 3em;
+	margin-bottom: 10px;
+}

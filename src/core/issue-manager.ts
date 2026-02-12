@@ -57,4 +57,8 @@ export class IssueManager extends Events {
 		this.cache.delete(filePath);
 		this.trigger("issues-updated", filePath);
 	}
+
+	getIssues(filePath: string): ValeIssue[] {
+		return this.cache.get(filePath) || [];
+	}
 }

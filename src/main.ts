@@ -1,10 +1,12 @@
 import { ValePluginSettings, ValeRuntimeConfig, ValeConfig } from "types";
-import { Plugin } from "obsidian";
+import { Plugin, WorkspaceLeaf } from "obsidian";
 import { ValePluginSettingTab } from "settings";
 import { ValeRunner } from "core/vale-runner";
 import { ensureAbsolutePath } from "utils/file-utils";
 import { IssueManager } from "core/issue-manager";
 import { getExistingConfigOptions } from "utils/vale-utils";
+import { ISSUES_PANEL_VIEW_TYPE } from "utils/constants";
+import { ValeIssuesView } from "ui/issues-panel";
 
 export const DEFAULT_SETTINGS: ValePluginSettings = {
 	valeBinaryPath: "vale",
@@ -39,6 +41,11 @@ export default class ValePlugin extends Plugin {
 		};
 		this.valeRunner = new ValeRunner(runtimeConfig);
 		this.issueManager = new IssueManager(this);
+		this.registerView(
+			ISSUES_PANEL_VIEW_TYPE,
+			(leaf: WorkspaceLeaf) =>
+				new ValeIssuesView(leaf, this.issueManager),
+		);
 		const options = await getExistingConfigOptions(
 			this.settings.valeBinaryPath,
 			this.configFullPath,
@@ -55,6 +62,22 @@ export default class ValePlugin extends Plugin {
 				await this.issueManager.refreshFile(
 					this.app.workspace.getActiveFile()?.path || "",
 				);
+			},
+		});
+		this.addCommand({
+			id: "vale-open-issues-panel",
+			name: "Open Vale Issues Panel",
+			callback: async () => {
+				await this.app.workspace.getRightLeaf(false)?.setViewState({
+					type: ISSUES_PANEL_VIEW_TYPE,
+					active: true,
+				});
+				const leaf = this.app.workspace.getLeavesOfType(
+					ISSUES_PANEL_VIEW_TYPE,
+				)[0];
+				if (leaf) {
+					await this.app.workspace.revealLeaf(leaf);
+				}
 			},
 		});
 		console.debug("Vale Plugin loaded.");
