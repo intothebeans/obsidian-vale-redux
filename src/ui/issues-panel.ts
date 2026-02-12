@@ -6,7 +6,7 @@ import {
 	Severity,
 	SEVERITY_METADATA,
 } from "utils/constants";
-import { notifyError } from "utils/utils";
+import { notifyError } from "utils/error-utils";
 
 export class ValeIssuesView extends ItemView {
 	private issueManager: IssueManager;

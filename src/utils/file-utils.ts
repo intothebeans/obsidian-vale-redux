@@ -2,7 +2,7 @@ import * as path from "path";
 import { Notice, Platform, Vault } from "obsidian";
 import { spawn } from "child_process";
 import { access, stat } from "fs/promises";
-import { notifyError } from "./utils";
+import { notifyError } from "./error-utils";
 import { release } from "os";
 
 /**

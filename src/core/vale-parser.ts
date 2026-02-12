@@ -1,6 +1,6 @@
 import { ValeAlert, ValeIssue, ValeOutput, type Severity } from "types";
 import { SEVERITY_METADATA } from "utils/constants";
-import { notifyError } from "utils/utils";
+import { notifyError } from "utils/error-utils";
 
 /** Parses the output into ValeIssue objects */
 export function parseValeOutput(output: ValeOutput): ValeIssue[] {

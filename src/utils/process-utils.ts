@@ -1,5 +1,4 @@
 import { spawn } from "child_process";
-import { Notice } from "obsidian";
 import { ValeProcess } from "types";
 import type { Buffer } from "node:buffer";
 
@@ -45,17 +44,4 @@ export async function spawnProcessWithOutput(
 			);
 		});
 	});
-}
-
-// TODO: update error messaging between the console and notices
-export function notifyError(
-	message: string,
-	duration: number = 8000,
-	devMessage?: string,
-): void {
-	console.error(
-		`Error: ${message}`,
-		devMessage ? `\nDetails: ${devMessage}` : "",
-	);
-	new Notice(`⚠️ Vale Error:\n${message}`, duration);
 }

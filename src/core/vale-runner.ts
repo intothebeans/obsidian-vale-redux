@@ -1,6 +1,6 @@
 import { ValeIssue, ValeOutput } from "types";
 import { parseValeOutput } from "./vale-parser";
-import { spawnProcessWithOutput } from "utils/utils";
+import { spawnProcessWithOutput } from "utils/process-utils";
 import { valeLintExitHandler } from "utils/vale-utils";
 
 /** Represents the results of running the linter with a ValeRunner */

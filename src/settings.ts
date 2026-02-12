@@ -2,24 +2,22 @@
 import {
 	App,
 	debounce,
+	Notice,
 	PluginSettingTab,
 	Setting,
 	SettingGroup,
 } from "obsidian";
-import { ValeConfig } from "types";
+import { ValeConfig, ValeProcess } from "types";
 import ValePlugin from "main";
 import {
 	ensureAbsolutePath,
 	openExternalFilesystemObject,
 } from "utils/file-utils";
-import {
-	getValeStylesPath,
-	returnCodeFail,
-	testValeConnection,
-} from "utils/vale-utils";
-import { notifyError } from "utils/utils";
+import { returnCodeFail } from "utils/vale-utils";
+import { notifyError } from "utils/error-utils";
+import { spawnProcessWithOutput } from "utils/process-utils";
 
-// FIX - Single regex being broken up during parsing
+// FIX: Single regex being broken up during parsing
 export const DEFAULT_VALE_CONFIG: ValeConfig = {
 	BlockIgnores: {
 		"*.{md,mdx}": [/ *(`{3,}|~{3,})\S*?[\s\S]*?(`{3,}|~{3,})/.source],
@@ -253,5 +251,48 @@ export class ValePluginSettingTab extends PluginSettingTab {
 		// Cancel any pending save operations when the settings tab is closed
 		this.debouncedSave.cancel();
 		super.hide();
+	}
+}
+
+async function testValeConnection(valeProcess: ValeProcess): Promise<boolean> {
+	const notice = new Notice("Testing Vale connection...", 0);
+
+	try {
+		const stdout = await spawnProcessWithOutput(valeProcess);
+		notice.hide();
+		new Notice(`✓ Vale connected successfully!\n${stdout.trim()}`);
+		return true;
+	} catch (error) {
+		notice.hide();
+		notifyError(
+			`Vale connection failed\n\nPlease ensure Vale is installed and the binary path is correct.`,
+			8000,
+			`${error instanceof Error ? error.message : String(error)}`,
+		);
+		return false;
+	}
+}
+
+async function getValeStylesPath(
+	binaryPath: string,
+	configPath: string,
+): Promise<string> {
+	const valeProcess = {
+		command: binaryPath,
+		args: ["ls-dirs", "--output=JSON", `--config=${configPath}`],
+		timeoutMs: 5000,
+		onClose: returnCodeFail,
+	};
+	const cmdOutput = await spawnProcessWithOutput(valeProcess);
+	const outputJson = JSON.parse(cmdOutput) as {
+		StylesPath?: string;
+		".vale.ini"?: string;
+	};
+	if (outputJson && outputJson.StylesPath) {
+		return outputJson.StylesPath;
+	} else if (outputJson && configPath && outputJson[".vale.ini"]) {
+		return outputJson[".vale.ini"];
+	} else {
+		throw new Error("Styles path not found in Vale output");
 	}
 }

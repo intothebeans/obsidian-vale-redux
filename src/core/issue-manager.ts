@@ -3,7 +3,7 @@ import ValePlugin from "main";
 import { debounce, Events } from "obsidian";
 import { ValeIssue } from "types";
 import { ensureAbsolutePath } from "utils/file-utils";
-import { notifyError } from "utils/utils";
+import { notifyError } from "utils/error-utils";
 
 export class IssueManager extends Events {
 	private plugin: ValePlugin;
