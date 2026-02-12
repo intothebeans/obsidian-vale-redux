@@ -25,6 +25,7 @@ export class IssueManager extends Events {
 	}
 
 	async refreshFile(filePath: string): Promise<void> {
+		this.trigger("linting-started", filePath);
 		const absolutePath = ensureAbsolutePath(
 			filePath,
 			this.plugin.app.vault,
@@ -40,6 +41,7 @@ export class IssueManager extends Events {
 				result.error || "Unknown error",
 			);
 		}
+		this.trigger("issues-updated", filePath);
 	}
 
 	refreshFileDebounced(filePath: string): void {
@@ -60,5 +62,18 @@ export class IssueManager extends Events {
 
 	getIssues(filePath: string): ValeIssue[] {
 		return this.cache.get(filePath) || [];
+	}
+
+	getIssuesGroupedBySeverity(filePath: string): {
+		errors: ValeIssue[];
+		warnings: ValeIssue[];
+		suggestions: ValeIssue[];
+	} {
+		const issues = this.getIssues(filePath);
+		return {
+			errors: issues.filter((i) => i.severity === "error"),
+			warnings: issues.filter((i) => i.severity === "warning"),
+			suggestions: issues.filter((i) => i.severity === "suggestion"),
+		};
 	}
 }

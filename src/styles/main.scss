@@ -1,2 +1,8 @@
 @use "components";
 @use "issues";
+
+:root {
+	--vale-error: #ff4d4d;
+	--vale-warning: #ffa500;
+	--vale-info: #1e90ff;
+}
