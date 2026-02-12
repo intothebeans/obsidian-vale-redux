@@ -28,6 +28,13 @@
   margin-bottom: 10px;
 }
 
+.vale-issues-panel-actions {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+  gap: 8px;
+}
+
 .vale-issue-item {
   padding: 8px;
   margin-bottom: 4px;

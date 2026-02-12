@@ -1,5 +1,5 @@
 import { IssueManager } from "core/issue-manager";
-import { ItemView, MarkdownView, WorkspaceLeaf } from "obsidian";
+import { ItemView, MarkdownView, Notice, WorkspaceLeaf } from "obsidian";
 import { getSeverityIcon, ValeIssue } from "types";
 import { ISSUES_PANEL_VIEW_TYPE, Severity } from "utils/constants";
 
@@ -35,6 +35,21 @@ export class ValeIssuesView extends ItemView {
 				}
 			}),
 		);
+
+		this.registerEvent(
+			this.app.workspace.on("active-leaf-change", (leaf) => {
+				if (this.app.workspace.getActiveViewOfType(MarkdownView)) {
+					const activeFile =
+						this.app.workspace.getActiveViewOfType(
+							MarkdownView,
+						)!.file;
+					if (activeFile) {
+						this.currentFile = activeFile.path;
+						this.render();
+					}
+				}
+			}),
+		);
 	}
 
 	getViewType(): string {
@@ -62,9 +77,8 @@ export class ValeIssuesView extends ItemView {
 		const container = this.containerEl.children[1] as HTMLElement;
 		container.empty();
 
-		// for ✨ style ✨
 		container.addClass("vale-issues-view");
-
+		this.renderActions(container);
 		if (!this.currentFile) {
 			this.renderEmptyState(
 				container,
@@ -193,5 +207,34 @@ export class ValeIssuesView extends ItemView {
 		emptyState.createDiv({ text: icon, cls: "vale-empty-state-icon" });
 		emptyState.createEl("h3", { text: title });
 		emptyState.createEl("p", { text: message });
+	}
+
+	private renderActions(container: HTMLElement): void {
+		const actionsContainer = container.createDiv({
+			cls: "vale-issues-panel-actions",
+		});
+		actionsContainer.append(
+			this.addAction("list-filter", "Filter issues", () => {
+				// TODO implement severity filtering
+			}),
+			this.addAction("chevron-down-up", "", () => {
+				// TODO implement collapsing/expanding issue groups
+			}),
+			this.addAction("refresh-cw", "Refresh issues", async () => {
+				if (this.currentFile) {
+					new Notice("Refreshing issues...", 2000);
+					await this.issueManager.refreshFile(this.currentFile);
+				}
+			}),
+			this.addAction("group", "Group by", () => {
+				// TODO implement grouping by severity, check, or frequency
+			}),
+			this.addAction("arrow-down-wide-narrow", "Sort issues", () => {
+				// TODO implement sorting by line number, severity, or check
+			}),
+			this.addAction("magnifying-glass", "Search issues", () => {
+				// TODO implement issue search
+			}),
+		);
 	}
 }
