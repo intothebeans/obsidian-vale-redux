@@ -8,7 +8,7 @@ export function parseValeOutput(output: ValeOutput): ValeIssue[] {
 	for (const [filePath, alerts] of Object.entries(output)) {
 		for (const alert of alerts) {
 			try {
-				const issue = _parseValeAlert(filePath, alert as ValeAlert);
+				const issue = _parseValeAlert(filePath, alert);
 				issues.push(issue);
 			} catch (error) {
 				notifyError(
