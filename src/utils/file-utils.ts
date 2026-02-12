@@ -1,8 +1,7 @@
 import * as path from "path";
 import { Notice, Platform, Vault } from "obsidian";
 import { spawn } from "child_process";
-import { existsSync } from "fs";
-import { stat } from "fs/promises";
+import { access, stat } from "fs/promises";
 import { notifyError } from "./utils";
 import { release } from "os";
 
@@ -37,35 +36,55 @@ export function getVaultBasePath(vault: Vault): string {
 	}
 }
 
+interface PlatformCommand {
+	command: string;
+	args: string[];
+	useShell?: boolean;
+}
+
+function getPlatformOpenCommand(
+	filePath: string,
+	isDirectory: boolean,
+): PlatformCommand | null {
+	if (Platform.isMacOS) {
+		return { command: "open", args: [filePath] };
+	}
+
+	if (Platform.isWin) {
+		const command = isDirectory ? "explorer" : "start";
+		return { command, args: [filePath], useShell: true };
+	}
+
+	if (Platform.isLinux) {
+		return { command: "xdg-open", args: [filePath] };
+	}
+
+	return null;
+}
+
 export async function openExternalFilesystemObject(
 	path: string,
 	vault: Vault,
 ): Promise<void> {
 	const absolutePath = ensureAbsolutePath(path, vault);
+
 	try {
-		const exists = existsSync(absolutePath);
-		if (!exists) {
-			new Notice(`File not found: ${absolutePath}`);
-			return;
-		}
-
+		await access(absolutePath);
 		const stats = await stat(absolutePath);
-		if (!stats) {
-			new Notice(`Unable to access file: ${absolutePath}`);
-			return;
-		}
 
-		if (Platform.isMacOS) {
-			spawn("open", [absolutePath]);
-		} else if (Platform.isWin) {
-			let command = stats.isDirectory() ? "explorer" : "start";
-			spawn(command, [absolutePath], { shell: true });
-		} else if (Platform.isLinux) {
-			spawn("xdg-open", [absolutePath]);
-		} else {
+		const platformCommand = getPlatformOpenCommand(
+			absolutePath,
+			stats.isDirectory(),
+		);
+
+		if (!platformCommand) {
 			notifyError(`Unsupported platform: ${release()}`);
 			return;
 		}
+
+		spawn(platformCommand.command, platformCommand.args, {
+			shell: platformCommand.useShell,
+		});
 
 		new Notice(`Opening: ${absolutePath}`);
 	} catch (error) {
