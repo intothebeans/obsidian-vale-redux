@@ -1,0 +1,35 @@
+repos:
+  - hooks:
+      - id: commitizen
+      - id: commitizen-branch
+        stages:
+          - pre-push
+    repo: https://github.com/commitizen-tools/commitizen
+    rev: v4.13.7
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.0
+    hooks:
+      - id: gitleaks
+  - repo: local
+    hooks:
+      - id: eslint
+        name: ESLint
+        entry: npx eslint
+        language: system
+        pass_filenames: true
+        files: '\.(?:js|ts|tsx|jsx)$'
+        stages: [pre-commit]
+      - id: prettier
+        name: Prettier
+        entry: npx prettier --check
+        language: system
+        pass_filenames: true
+        files: '\.(?:js|ts|tsx|jsx|scss|css|json|md|mdx|ya?ml|html)$'
+        stages: [pre-commit]
+      - id: stylelint
+        name: Stylelint
+        entry: npx stylelint
+        language: system
+        pass_filenames: true
+        files: '\.(?:scss|css)$'
+        stages: [pre-commit]
