@@ -67,12 +67,13 @@ export default class ValePlugin extends Plugin {
 		const loadedData =
 			(await this.loadData()) as Partial<ValePluginSettings>;
 		const defaultsCopy = structuredClone(DEFAULT_SETTINGS);
-		this.settings = { ...defaultsCopy, ...loadedData };
-		if (this.settings.valeBinaryPath === "") {
-			this.settings.valeBinaryPath = DEFAULT_SETTINGS.valeBinaryPath;
-		}
-		if (this.settings.valeConfigPath === "") {
-			this.settings.valeConfigPath = DEFAULT_SETTINGS.valeConfigPath;
-		}
+		this.settings = {
+			...defaultsCopy,
+			...loadedData,
+			valeBinaryPath:
+				loadedData.valeBinaryPath || DEFAULT_SETTINGS.valeBinaryPath,
+			valeConfigPath:
+				loadedData.valeConfigPath || DEFAULT_SETTINGS.valeConfigPath,
+		};
 	}
 }
