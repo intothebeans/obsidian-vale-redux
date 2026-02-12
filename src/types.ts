@@ -140,6 +140,7 @@ export interface ValeRuntimeConfig {
 	valeBinary: string;
 	valeConfig: string;
 	workingDir: string;
+	timeoutMs: number;
 }
 
 /**
@@ -161,6 +162,7 @@ export interface ValePluginSettings {
 	debounceMs: number;
 	disabledFiles: string[];
 	automaticChecking: boolean;
+	valeProcessTimeoutMs: number;
 }
 
 /**

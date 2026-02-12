@@ -14,6 +14,7 @@ export const DEFAULT_SETTINGS: ValePluginSettings = {
 	debounceMs: 500,
 	disabledFiles: [],
 	automaticChecking: true,
+	valeProcessTimeoutMs: 10000,
 };
 export default class ValePlugin extends Plugin {
 	issueManager: IssueManager;
@@ -34,6 +35,7 @@ export default class ValePlugin extends Plugin {
 			valeBinary: this.settings.valeBinaryPath || "vale",
 			valeConfig: this.configFullPath,
 			workingDir: this.app.vault.getRoot().path,
+			timeoutMs: this.settings.valeProcessTimeoutMs || 5000,
 		};
 		this.valeRunner = new ValeRunner(runtimeConfig);
 		this.issueManager = new IssueManager(this);

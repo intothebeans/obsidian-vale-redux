@@ -12,7 +12,11 @@ import {
 	ensureAbsolutePath,
 	openExternalFilesystemObject,
 } from "utils/file-utils";
-import { getValeStylesPath, testValeConnection } from "utils/vale-utils";
+import {
+	getValeStylesPath,
+	returnCodeFail,
+	testValeConnection,
+} from "utils/vale-utils";
 import { notifyError } from "utils/utils";
 
 // FIX - Single regex being broken up during parsing
@@ -111,7 +115,13 @@ export class ValePluginSettingTab extends PluginSettingTab {
 						"Check if the Vale binary is accessible and working.",
 					)
 					.onClick(async () => {
-						await testValeConnection(settings.valeBinaryPath);
+						const valeProcess = {
+							command: settings.valeBinaryPath,
+							args: ["--version"],
+							timeoutMs: settings.valeProcessTimeoutMs,
+							onClose: returnCodeFail,
+						};
+						await testValeConnection(valeProcess);
 					});
 			});
 	}
@@ -210,6 +220,24 @@ export class ValePluginSettingTab extends PluginSettingTab {
 								const num = parseInt(value, 10);
 								if (!isNaN(num) && num >= 0) {
 									settings.debounceMs = num;
+									this.debouncedSave();
+								}
+							});
+					});
+			})
+			.addSetting((setting) => {
+				setting
+					.setName("Process timeout")
+					.setDesc(
+						"How long should vale run before it timesout. If vale is failing on large files, try increasing this value",
+					)
+					.addText((text) => {
+						text.setPlaceholder("5000")
+							.setValue(settings.valeProcessTimeoutMs.toString())
+							.onChange(async (value) => {
+								const num = parseInt(value, 10);
+								if (!isNaN(num) && num >= 0) {
+									settings.valeProcessTimeoutMs = num;
 									this.debouncedSave();
 								}
 							});

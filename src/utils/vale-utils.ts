@@ -1,13 +1,13 @@
 /* eslint-disable obsidianmd/ui/sentence-case */
 import { Notice } from "obsidian";
-import { ValeConfig, ValeConfigErrorOutput } from "types";
+import { ValeConfig, ValeConfigErrorOutput, ValeProcess } from "types";
 import { notifyError, spawnProcessWithOutput } from "./utils";
 
 /**
  * Standard exit code checker - only returnCode 0 is success.
  * Use this for Vale commands that should always succeed (like --version, ls-config).
  */
-function returnCodeFail(
+export function returnCodeFail(
 	returnCode: number,
 	_stdout: string,
 	stderr: string,
@@ -47,15 +47,10 @@ export function valeLintExitHandler(
 	return { status: true, message: "Vale executed successfully" };
 }
 export async function testValeConnection(
-	valeBinaryPath: string,
+	valeProcess: ValeProcess,
 ): Promise<boolean> {
 	const notice = new Notice("Testing Vale connection...", 0);
-	const valeProcess = {
-		command: valeBinaryPath,
-		args: ["--version"],
-		timeoutMs: 5000,
-		onClose: returnCodeFail,
-	};
+
 	try {
 		const stdout = await spawnProcessWithOutput(valeProcess);
 		notice.hide();

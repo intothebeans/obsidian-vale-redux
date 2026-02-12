@@ -1,5 +1,4 @@
 import { ValeOutput, ValeRunnerResult, ValeRuntimeConfig } from "types";
-import { VALE_TIMEOUT_MS } from "utils/constants";
 import { parseValeOutput } from "./vale-parser";
 import { spawnProcessWithOutput } from "utils/utils";
 import { valeLintExitHandler } from "utils/vale-utils";
@@ -34,7 +33,7 @@ export class ValeRunner {
 				`--config=${this.runtimeSettings.valeConfig}`,
 				filePath,
 			],
-			timeoutMs: VALE_TIMEOUT_MS,
+			timeoutMs: this.runtimeSettings.timeoutMs,
 			onClose: valeLintExitHandler,
 		};
 
