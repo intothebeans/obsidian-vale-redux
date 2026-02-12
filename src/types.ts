@@ -157,10 +157,8 @@ export interface ValeRuntimeConfig {
 
 /** User configuration settings for the Vale plugin. */
 export interface ValePluginSettings {
-	// valeBinaryPath: "vale" for PATH, or absolute path to binary
-	// valeConfigPath: relative to vault root by default, or absolute path
 	valeBinaryPath: string;
-	valeConfigPath: string | null;
+	valeConfigPath: string;
 	excludedFiles: string[];
 	showInlineAlerts: boolean;
 	debounceMs: number;
