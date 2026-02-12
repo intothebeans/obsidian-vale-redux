@@ -6,11 +6,13 @@
 	"type": "module",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
+		"prebuild": "npm run fmt && npm run lint",
 		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production && npm run css:build",
 		"css:build": "sass src/styles/main.scss styles.css",
 		"css:watch": "sass --watch src/styles/main.scss styles.css",
-		"version": "node version-bump.mjs && git add manifest.json versions.json",
-		"lint": "eslint . && stylelint 'src/**/*.scss'"
+		"version": "cz bump && node version-bump.mjs",
+		"fmt": "prettier --write . && stylelint 'src/**/*.scss' --fix && eslint . --fix",
+		"lint": "prettier --check . && eslint . && stylelint 'src/**/*.scss'"
 	},
 	"keywords": [
 		"obsidian",
@@ -19,7 +21,10 @@
 		"prose",
 		"grammar"
 	],
-	"author": "intothebeans",
+	"authors": [
+		"intothebeans",
+		"Chris Chinchilla"
+	],
 	"license": "MIT",
 	"devDependencies": {
 		"@eslint/js": "9.30.1",
