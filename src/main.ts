@@ -1,17 +1,30 @@
-import { ValePluginSettings, ValeRuntimeConfig } from "types";
+import { ValePluginSettings, ValeRuntimeConfig, ValeConfig } from "types";
 import { Plugin } from "obsidian";
-import { DEFAULT_SETTINGS, ValePluginSettingTab } from "settings";
+import { ValePluginSettingTab } from "settings";
 import { ValeRunner } from "core/vale-runner";
 import { ensureAbsolutePath } from "utils/file-utils";
 import { IssueManager } from "core/issue-manager";
+import { getExistingConfigOptions, testValeConnection } from "utils/vale-utils";
+import { existsSync } from "fs";
 
+export const DEFAULT_SETTINGS: ValePluginSettings = {
+	valeBinaryPath: "vale",
+	valeConfigPath: ".vale.ini",
+	excludedFiles: [],
+	showInlineAlerts: true,
+	debounceMs: 500,
+	disabledFiles: [],
+	automaticChecking: true,
+};
 export default class ValePlugin extends Plugin {
 	public settings: ValePluginSettings;
 	public valeRunner: ValeRunner;
 	issueManager: IssueManager;
+	public workingValeBinary: boolean;
+	public valeConfig: ValeConfig;
 
-	// onload runs when plugin becomes enabled.
 	async onload(): Promise<void> {
+		console.debug("Loading Vale Plugin...");
 		await this.loadSettings();
 
 		// Set default config path if not specified (stored as relative)
@@ -32,6 +45,24 @@ export default class ValePlugin extends Plugin {
 		this.valeRunner = new ValeRunner(runtimeConfig);
 		this.issueManager = new IssueManager(this);
 
+		if (!this.settings.valeBinaryPath) {
+			this.settings.valeBinaryPath = "vale";
+		}
+		this.workingValeBinary = await testValeConnection(
+			this.settings.valeBinaryPath,
+		);
+		if (
+			this.workingValeBinary &&
+			existsSync(this.settings.valeConfigPath)
+		) {
+			const options = await getExistingConfigOptions(
+				this.settings.valeBinaryPath,
+				this.settings.valeConfigPath,
+			);
+			if (options) {
+				this.valeConfig = options;
+			}
+		}
 		this.addSettingTab(new ValePluginSettingTab(this.app, this));
 		this.addCommand({
 			id: "vale-refresh-current-file",
@@ -55,10 +86,9 @@ export default class ValePlugin extends Plugin {
 	}
 
 	async loadSettings(): Promise<void> {
-		this.settings = Object.assign(
-			{},
-			DEFAULT_SETTINGS,
-			(await this.loadData()) as Partial<ValePluginSettings>,
-		);
+		const loadedData =
+			(await this.loadData()) as Partial<ValePluginSettings>;
+		const defaultsCopy = structuredClone(DEFAULT_SETTINGS);
+		this.settings = { ...defaultsCopy, ...loadedData };
 	}
 }

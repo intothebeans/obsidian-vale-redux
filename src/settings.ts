@@ -2,41 +2,52 @@
 import {
 	App,
 	debounce,
-	Notice,
 	PluginSettingTab,
 	Setting,
 	SettingGroup,
 } from "obsidian";
-import { ValeConfig, ValePluginSettings } from "types";
+import { ValeConfig } from "types";
 import ValePlugin from "main";
-import { spawn } from "child_process";
-import { Buffer } from "buffer";
 import {
 	ensureAbsolutePath,
 	openExternalFilesystemObject,
 } from "utils/file-utils";
+import { testValeConnection } from "utils/vale-utils";
 
-export const DEFAULT_SETTINGS: ValePluginSettings = {
-	valeBinaryPath: "vale",
-	valeConfigPath: null,
-	excludedFiles: [],
-	showInlineAlerts: true,
-	debounceMs: 500,
-	disabledFiles: [],
-	automaticChecking: true,
-	valeConfig: new ValeConfig("styles"),
+// FIX - Single regex being broken up during parsing
+export const DEFAULT_VALE_CONFIG: ValeConfig = {
+	BlockIgnores: {
+		"*.{md,mdx}": [/ *(`{3,}|~{3,})\S*?[\s\S]*?(`{3,}|~{3,})/.source],
+	},
+	MinAlertLevel: 0,
+	Vocab: ["Base"],
+	Formats: {
+		mdx: "md",
+	},
+	SBaseStyles: {
+		"*.{md,mdx}": ["write-good", "Vale"],
+	},
+	GBaseStyles: ["Vale"],
+	TokenIgnores: {
+		"*.{md,mdx}": [
+			/(\$+[^\n$]+\$+)/.source,
+			/(\[\[.*?\]\])/.source,
+			/(#[^\s]+)/.source,
+		],
+	},
 };
 
 export class ValePluginSettingTab extends PluginSettingTab {
 	plugin: ValePlugin;
 	icon = "spell-check-2";
-	// Prevent setting save overhead
+	// NOTE: Use to prevent saving overhead on text input fields
 	debouncedSave = debounce(() => this.plugin.saveSettings(), 500);
 
 	constructor(app: App, plugin: ValePlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
 	}
+
 	display(): void {
 		let settings = this.plugin.settings;
 		const vault = this.app.vault;
@@ -86,7 +97,8 @@ export class ValePluginSettingTab extends PluginSettingTab {
 						"Check if the Vale binary is accessible and working.",
 					)
 					.onClick(async () => {
-						await this.testValeConnection();
+						this.plugin.workingValeBinary =
+							await testValeConnection(settings.valeBinaryPath);
 					});
 			});
 		new Setting(containerEl)
@@ -109,16 +121,10 @@ export class ValePluginSettingTab extends PluginSettingTab {
 		new Setting(containerEl)
 			.setName("Quick Access")
 			.addButton((button) => {
-				button.setButtonText("Open Styles Folder").onClick(async () => {
-					return settings.valeConfig
-						? await openExternalFilesystemObject(
-								settings.valeConfig.getStylesPath(),
-								vault,
-							)
-						: new Notice(
-								"Vale config not loaded. Please set a valid config path and save settings.",
-							);
-				});
+				button
+					// TODO: Implement opening styles folder
+					.setButtonText("Open Styles Folder")
+					.onClick(async () => {});
 			})
 			.addButton((button) => {
 				button.setButtonText("Open Config File").onClick(async () => {
@@ -176,51 +182,5 @@ export class ValePluginSettingTab extends PluginSettingTab {
 		// Cancel any pending save operations when the settings tab is closed
 		this.debouncedSave.cancel();
 		super.hide();
-	}
-
-	private async testValeConnection(): Promise<void> {
-		const binaryPath = this.plugin.settings.valeBinaryPath || "vale";
-		const notice = new Notice("Testing Vale connection...", 0);
-		try {
-			const process = spawn(binaryPath, ["--version"]);
-			let stdout = "";
-			let stderr = "";
-
-			process.stdout.on("data", (data: Buffer) => {
-				stdout += data.toString();
-			});
-			process.stderr.on("data", (data: Buffer) => {
-				stderr += data.toString();
-			});
-
-			await new Promise<void>((resolve, reject) => {
-				process.on("close", (returnCode) => {
-					if (returnCode === 0) {
-						resolve();
-					} else {
-						reject(
-							new Error(
-								`Vale process exited with code ${returnCode}: ${stderr}`,
-							),
-						);
-					}
-				});
-				process.on("error", (err) => {
-					reject(err);
-				});
-				setTimeout(() => {
-					process.kill();
-					reject(new Error("Vale process timed out"));
-				}, 5000);
-			});
-			notice.hide();
-			new Notice(`✓ Vale connected successfully!\n${stdout.trim()}`);
-		} catch (error) {
-			notice.hide();
-			new Notice(
-				`✗ Vale connection failed: ${error instanceof Error ? error.message : String(error)}\n\nPlease ensure Vale is installed and the binary path is correct.`,
-				8000,
-			);
-		}
 	}
 }

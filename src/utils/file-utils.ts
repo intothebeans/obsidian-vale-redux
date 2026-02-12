@@ -1,8 +1,10 @@
 import * as path from "path";
-import * as fs from "fs";
-import process from "process";
 import { Notice, Platform, Vault } from "obsidian";
 import { spawn } from "child_process";
+import { existsSync } from "fs";
+import { stat } from "fs/promises";
+import { notifyError } from "./utils";
+import { release } from "os";
 
 /**
  * Ensures that a path is absolute. If the path is relative, it will be
@@ -41,13 +43,13 @@ export async function openExternalFilesystemObject(
 ): Promise<void> {
 	const absolutePath = ensureAbsolutePath(path, vault);
 	try {
-		const exists = await vault.adapter.exists(absolutePath);
+		const exists = existsSync(absolutePath);
 		if (!exists) {
 			new Notice(`File not found: ${absolutePath}`);
 			return;
 		}
 
-		const stats = await vault.adapter.stat(absolutePath);
+		const stats = await stat(absolutePath);
 		if (!stats) {
 			new Notice(`Unable to access file: ${absolutePath}`);
 			return;
@@ -56,22 +58,21 @@ export async function openExternalFilesystemObject(
 		if (Platform.isMacOS) {
 			spawn("open", [absolutePath]);
 		} else if (Platform.isWin) {
-			let command = stats.type === "folder" ? "explorer" : "start";
+			let command = stats.isDirectory() ? "explorer" : "start";
 			spawn(command, [absolutePath], { shell: true });
 		} else if (Platform.isLinux) {
 			spawn("xdg-open", [absolutePath]);
 		} else {
-			new Notice("Unsupported platform for opening filesystem objects.");
+			notifyError(`Unsupported platform: ${release()}`);
 			return;
 		}
 
 		new Notice(`Opening: ${absolutePath}`);
 	} catch (error) {
-		new Notice(
+		notifyError(
 			`Failed to open: ${absolutePath}\nError: ${
 				error instanceof Error ? error.message : String(error)
 			}`,
-			8000,
 		);
 	}
 }

@@ -1,4 +1,76 @@
 import { SEVERITIES } from "utils/constants";
+/** Mirrors the JSON output by vale ls-config
+ *  https://github.com/errata-ai/vale/blob/v3/internal/core/config.go
+ */
+// NOTE: packages are special and read directly from the file.
+// logic for displaying them in settings requires reading the file, not just using the CLI
+
+export interface ValeConfigFull {
+	/** Maps path selection blob to block ignores */
+	BlockIgnores?: Record<string, string[]>;
+	/** All checks being configured */
+	Checks?: string[];
+	/** Maps unknown to known formats */
+	Formats?: Record<string, string>;
+	/** UNUSED - Asciidoctor attributes */
+	Asciidoctor?: Record<string, string>;
+	/** Language to use for a format */
+	FormatToLang?: Record<string, string>;
+	/** Global [*] base styles */
+	GBaseStyles?: string[];
+	/** Global [*] checks */
+	GChecks?: Record<string, boolean>;
+	/** List of HTML classes to ignore */
+	IgnoredClasses?: string[];
+	/** List of inline-level HTML tags to ignore */
+	IgnoredScopes?: string[];
+	/** Minimum alert level to report */
+	MinAlertLevel?: number;
+	/** Vocab definitions to use in this project */
+	Vocab?: string[];
+	/** Single rule alert level changes */
+	RuleToLevel?: Record<string, string>;
+	/** Format specific base styles */
+	SBaseStyles?: Record<string, string[]>;
+	/** Format specific checks */
+	SChecks?: Record<string, string[]>;
+	/** A list of block-level HTML tags to ignore */
+	SkippedScopes?: string[];
+	/** UNUSED - XSLT Stylesheet */
+	Stylesheets?: string[];
+	/** List of regexs to ignore in inline-level content */
+	TokenIgnores?: Record<string, string[]>;
+	/** Strings to treat as comment delimiters (start delim, end delim) */
+	CommentDelimiters?: Record<string, string[2]>;
+	/** Template used for turning yaml arrays in rule definitions into a regex */
+	WordTemplate?: string;
+	/** UNUSED - Path to the root INI configuration file */
+	RootINI?: string;
+	/** UNUSED - Paths to search for styles */
+	Paths?: string[];
+	/** UNUSED - Configuration files to load */
+	ConfigFiles?: string[];
+	/** UNUSED - NLP Endpoint */
+	NLPEndpoint?: string;
+}
+
+export type ValeConfig = Omit<
+	ValeConfigFull,
+	| "Asciidoctor"
+	| "Stylesheets"
+	| "RootINI"
+	| "Paths"
+	| "ConfigFiles"
+	| "NLPEndpoint"
+>;
+
+export interface ValeConfigErrorOutput {
+	Line: number;
+	Path: string;
+	Text: string;
+	Code: string;
+	Span: number;
+}
 
 /** Represents the complete output from Vale linter for multiple files. */
 export interface ValeOutput {
@@ -94,19 +166,4 @@ export interface ValePluginSettings {
 	debounceMs: number;
 	disabledFiles: string[];
 	automaticChecking: boolean;
-	valeConfig?: ValeConfig;
-}
-
-// TODO: Implement class
-export class ValeConfig {
-	// Class Stub
-	stylesPath: string;
-
-	constructor(stylesPath: string) {
-		this.stylesPath = stylesPath;
-	}
-
-	getStylesPath(): string {
-		return this.stylesPath;
-	}
 }
