@@ -115,7 +115,7 @@ export interface ValeAlert {
 	Link: string;
 	Message: string;
 	Severity: string;
-	Span: number[];
+	Span: [number, number];
 	Match: string;
 }
 
@@ -142,7 +142,17 @@ export interface ValeRuntimeConfig {
 	workingDir: string;
 }
 
-/** User configuration settings for the Vale plugin. */
+/**
+ * Configuration settings for the Vale plugin.
+ * @interface ValePluginSettings
+ * @property {string} valeBinaryPath - Path to the Vale binary executable.
+ * @property {string} valeConfigPath - Path to the Vale configuration file.
+ * @property {string[]} excludedFiles - Array of file patterns to exclude from Vale checks.
+ * @property {boolean} showInlineAlerts - Whether to display inline alerts in the editor.
+ * @property {number} debounceMs - Debounce delay in milliseconds for checking triggers.
+ * @property {string[]} disabledFiles - Array of file paths that are currently disabled from checking.
+ * @property {boolean} automaticChecking - Whether to automatically check files on changes.
+ */
 export interface ValePluginSettings {
 	valeBinaryPath: string;
 	valeConfigPath: string;
@@ -153,6 +163,23 @@ export interface ValePluginSettings {
 	automaticChecking: boolean;
 }
 
+/**
+ * Represents a Vale process configuration and execution interface.
+ * Defines the command, arguments, and callback handler for a Vale linting process.
+ *
+ * @interface ValeProcess
+ *
+ * @property {string} command - The command to execute for the Vale process.
+ * @property {string[]} args - Array of command-line arguments to pass to the Vale command.
+ * @property {number} [timeoutMs] - Optional timeout in milliseconds for the Vale process execution.
+ * @property {Function} onClose - Callback function invoked when the Vale process closes.
+ * @param {number} onClose.returnCode - The exit code returned by the Vale process.
+ * @param {string} onClose.stdout - The standard output produced by the Vale process.
+ * @param {string} onClose.stderr - The standard error output produced by the Vale process.
+ * @returns {object} An object containing the process status and result message.
+ * @returns {boolean} returns.status - Indicates whether the process completed successfully.
+ * @returns {string} returns.message - A message describing the process result or any errors encountered.
+ */
 export interface ValeProcess {
 	command: string;
 	args: string[];

@@ -99,7 +99,7 @@ export async function getValeStylesPath(
 export async function getExistingConfigOptions(
 	valeBinaryPath: string,
 	configPath: string,
-): Promise<void | ValeConfig> {
+): Promise<ValeConfig | undefined> {
 	try {
 		const valeProcess = {
 			command: valeBinaryPath,
@@ -122,10 +122,15 @@ export async function getExistingConfigOptions(
 		notifyError(
 			`Failed to get Vale config options: ${error instanceof Error ? error.message : String(error)}`,
 		);
+		return undefined;
 	}
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function isValeError(response: any): response is ValeConfigErrorOutput {
-	return "Code" in response && "Text" in response;
+function isValeError(response: unknown): response is ValeConfigErrorOutput {
+	return (
+		typeof response === "object" &&
+		response !== null &&
+		"Code" in response &&
+		"Text" in response
+	);
 }

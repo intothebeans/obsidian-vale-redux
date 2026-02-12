@@ -1,4 +1,4 @@
-import { ValeAlert, ValeIssue, ValeOutput, ValeSeverity } from "types";
+import { ValeAlert, ValeIssue, ValeOutput, isSeverity } from "types";
 import { notifyError } from "utils/utils";
 
 export function parseValeOutput(output: ValeOutput): ValeIssue[] {
@@ -35,9 +35,9 @@ function parseValeAlert(filePath: string, alert: ValeAlert): ValeIssue {
 		file: filePath,
 		line: alert.Line,
 		check: alert.Check,
-		startCol: alert.Span[0] as number,
-		endCol: alert.Span[1] as number,
-		severity: new ValeSeverity(alert.Severity),
+		startCol: alert.Span[0],
+		endCol: alert.Span[1],
+		severity,
 		message: alert.Message,
 		match: alert.Match,
 		isFixable: fixes.length > 0,
