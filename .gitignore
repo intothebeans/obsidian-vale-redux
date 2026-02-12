@@ -1,20 +1,22 @@
+# vscode
+.vscode 
+
 # Intellij
 *.iml
 .idea
 
-.claude
-
 # npm
 node_modules
 
-# build
+# Don't include the compiled main.js file in the repo.
+# They should be uploaded to GitHub releases instead.
 main.js
-*.js.map
+
+# Exclude sourcemaps
+*.map
 
 # obsidian
 data.json
-data
 
-yarn-error.log
-
+# Exclude macOS Finder (System Explorer) View States
 .DS_Store
