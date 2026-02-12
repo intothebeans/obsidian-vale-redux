@@ -165,3 +165,14 @@ export interface ValePluginSettings {
 	disabledFiles: string[];
 	automaticChecking: boolean;
 }
+
+export interface ValeProcess {
+	command: string;
+	args: string[];
+	timeoutMs?: number;
+	onClose(
+		returnCode: number,
+		stdout: string,
+		stderr: string,
+	): { status: boolean; message: string };
+}

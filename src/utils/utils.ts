@@ -1,16 +1,14 @@
 import { spawn } from "child_process";
 import { Buffer } from "buffer";
 import { Notice } from "obsidian";
+import { ValeProcess } from "types";
 
 export async function spawnProcessWithOutput(
-	command: string,
-	args: string[],
-	timeoutMs: number = 10000,
+	valeProcess: ValeProcess,
 ): Promise<string> {
-	const process = spawn(command, args);
+	const process = spawn(valeProcess.command, valeProcess.args);
 	let stdout = "";
 	let stderr = "";
-
 	process.stdout.on("data", (data: Buffer) => {
 		stdout += data.toString();
 	});
@@ -20,25 +18,32 @@ export async function spawnProcessWithOutput(
 
 	return new Promise<string>((resolve, reject) => {
 		process.on("close", (returnCode) => {
-			if (returnCode === 0) {
+			const procStatus = valeProcess.onClose(
+				returnCode as number,
+				stdout,
+				stderr,
+			);
+			if (procStatus.status) {
 				resolve(stdout);
 			} else {
-				const msg = `Vale exited with code ${returnCode}: ${stderr}`;
-				notifyError("process failed!", 8000, msg);
-				reject(new Error(msg));
+				reject(new Error(procStatus.message));
 			}
 		});
 		process.on("error", (err) => {
-			console.error("Error spawning process:", err);
-			reject(err);
+			reject(
+				new Error(
+					`Process failed with error: ${err.message}\n\nStderr: ${stderr}`,
+				),
+			);
 		});
 		setTimeout(() => {
 			process.kill();
-			console.error(
-				`Process timed out after 10 seconds: ${command} ${args.join(" ")} stderr: ${stderr} stdout: ${stdout}`,
-			);
-			reject(new Error("Process timed out"));
-		}, timeoutMs);
+			if (stdout) {
+				resolve(stdout);
+			} else {
+				reject(new Error("Process timed out"));
+			}
+		}, valeProcess.timeoutMs);
 	});
 }
 
