@@ -47,6 +47,15 @@ export default class ValePlugin extends Plugin {
 		}
 
 		this.addSettingTab(new ValePluginSettingTab(this.app, this));
+		this.addCommand({
+			id: "vale-test-linting",
+			name: "Test Vale Linting",
+			callback: async () => {
+				await this.issueManager.refreshFile(
+					this.app.workspace.getActiveFile()?.path || "",
+				);
+			},
+		});
 		console.debug("Vale Plugin loaded.");
 	}
 

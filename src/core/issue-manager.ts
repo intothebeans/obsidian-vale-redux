@@ -1,8 +1,9 @@
 import { ValeRunner } from "./vale-runner";
 import ValePlugin from "main";
-import { debounce, Events, Notice } from "obsidian";
+import { debounce, Events } from "obsidian";
 import { ValeIssue } from "types";
 import { ensureAbsolutePath } from "utils/file-utils";
+import { notifyError } from "utils/utils";
 
 export class IssueManager extends Events {
 	private plugin: ValePlugin;
@@ -24,21 +25,20 @@ export class IssueManager extends Events {
 	}
 
 	async refreshFile(filePath: string): Promise<void> {
-		console.debug(`Refreshing issues for file: ${filePath}`);
 		const absolutePath = ensureAbsolutePath(
 			filePath,
 			this.plugin.app.vault,
 		);
 		const result = await this.valeRunner.lintFile(absolutePath);
 		if (result.success) {
-			console.debug(
-				`Vale lint successful for ${filePath}, found ${result.issues.length} issues.`,
-			);
 			this.cache.set(filePath, result.issues);
 		} else {
-			console.error(`Vale lint failed for ${filePath}: ${result.error}`);
 			this.cache.delete(filePath);
-			new Notice(`Vale linting failed!`);
+			notifyError(
+				`Vale linting failed for file: ${filePath}`,
+				8000,
+				result.error || "Unknown error",
+			);
 		}
 	}
 

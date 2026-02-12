@@ -109,10 +109,9 @@ export class ValePluginSettingTab extends PluginSettingTab {
 			)
 			.addText((text) => {
 				text.setPlaceholder(".vale.ini")
-					.setValue(settings.valeConfigPath as string)
+					.setValue(settings.valeConfigPath)
 					.onChange(async (value) => {
-						// Store as-is (relative or absolute)
-						settings.valeConfigPath = value.trim() || null;
+						settings.valeConfigPath = value.trim();
 						this.debouncedSave();
 					});
 			})
@@ -142,7 +141,7 @@ export class ValePluginSettingTab extends PluginSettingTab {
 			.addButton((button) => {
 				button.setButtonText("Open Config File").onClick(async () => {
 					const absolutePath = ensureAbsolutePath(
-						settings.valeConfigPath as string,
+						settings.valeConfigPath,
 						vault,
 					);
 					await openExternalFilesystemObject(absolutePath, vault);

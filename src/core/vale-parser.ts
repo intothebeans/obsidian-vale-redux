@@ -1,4 +1,5 @@
 import { ValeAlert, ValeIssue, ValeOutput, ValeSeverity } from "types";
+import { notifyError } from "utils/utils";
 
 export function parseValeOutput(output: ValeOutput): ValeIssue[] {
 	const issues: ValeIssue[] = [];
@@ -8,10 +9,10 @@ export function parseValeOutput(output: ValeOutput): ValeIssue[] {
 				const issue = parseValeAlert(filePath, alert);
 				issues.push(issue);
 			} catch (error) {
-				console.error(
-					`Error parsing alert for file ${filePath}:`,
-					error,
-					alert,
+				notifyError(
+					`Error parsing Vale alert for file: ${filePath}`,
+					8000,
+					`${error instanceof Error ? error.message : String(error)}`,
 				);
 			}
 		}
