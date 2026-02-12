@@ -50,10 +50,19 @@ export class ValePluginSettingTab extends PluginSettingTab {
 	}
 
 	display(): void {
-		let settings = this.plugin.settings;
-		const vault = this.app.vault;
 		const { containerEl } = this;
 		containerEl.empty();
+
+		this.addBasicSettings(containerEl);
+		this.addValeBinaryPathSetting(containerEl);
+		this.addValeConfigPathSetting(containerEl);
+		this.addQuickAccessButtons(containerEl);
+		this.addAdvancedSettings(containerEl);
+	}
+
+	private addBasicSettings(containerEl: HTMLElement): void {
+		const settings = this.plugin.settings;
+
 		new Setting(containerEl)
 			.setName("Enable inline alerts")
 			.setDesc("Show Vale issues directly in the editor.")
@@ -65,6 +74,7 @@ export class ValePluginSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					});
 			});
+
 		new Setting(containerEl)
 			.setName("Automatic checking")
 			.setDesc("Automatically check files. Disable for manual control.")
@@ -76,6 +86,11 @@ export class ValePluginSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					});
 			});
+	}
+
+	private addValeBinaryPathSetting(containerEl: HTMLElement): void {
+		const settings = this.plugin.settings;
+
 		new Setting(containerEl)
 			.setName("Vale binary path")
 			.setDesc(
@@ -85,8 +100,6 @@ export class ValePluginSettingTab extends PluginSettingTab {
 				text.setPlaceholder("vale")
 					.setValue(settings.valeBinaryPath)
 					.onChange(async (value) => {
-						// If empty, use default "vale" command from PATH
-						// Otherwise, assume the input is absolute
 						settings.valeBinaryPath = value.trim() || "vale";
 						this.debouncedSave();
 					});
@@ -98,10 +111,14 @@ export class ValePluginSettingTab extends PluginSettingTab {
 						"Check if the Vale binary is accessible and working.",
 					)
 					.onClick(async () => {
-						this.plugin.workingValeBinary =
-							await testValeConnection(settings.valeBinaryPath);
+						await testValeConnection(settings.valeBinaryPath);
 					});
 			});
+	}
+
+	private addValeConfigPathSetting(containerEl: HTMLElement): void {
+		const settings = this.plugin.settings;
+
 		new Setting(containerEl)
 			.setName("Vale config path")
 			.setDesc(
@@ -118,6 +135,12 @@ export class ValePluginSettingTab extends PluginSettingTab {
 			.addButton((button) => {
 				button.setButtonText("Generate Config");
 			});
+	}
+
+	private addQuickAccessButtons(containerEl: HTMLElement): void {
+		const settings = this.plugin.settings;
+		const vault = this.app.vault;
+
 		new Setting(containerEl)
 			.setName("Quick Access")
 			.addButton((button) => {
@@ -147,6 +170,10 @@ export class ValePluginSettingTab extends PluginSettingTab {
 					await openExternalFilesystemObject(absolutePath, vault);
 				});
 			});
+	}
+
+	private addAdvancedSettings(containerEl: HTMLElement): void {
+		const settings = this.plugin.settings;
 
 		new SettingGroup(containerEl)
 			.setHeading("Advanced")
