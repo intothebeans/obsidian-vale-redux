@@ -11,11 +11,14 @@ import { ValeConfig, ValePluginSettings } from "types";
 import ValePlugin from "main";
 import { spawn } from "child_process";
 import { Buffer } from "buffer";
-import { openExternalFilesystemObject } from "utils/file-utils";
+import {
+	ensureAbsolutePath,
+	openExternalFilesystemObject,
+} from "utils/file-utils";
 
 export const DEFAULT_SETTINGS: ValePluginSettings = {
 	valeBinaryPath: "vale",
-	valeConfigPath: ".vale.ini",
+	valeConfigPath: null,
 	excludedFiles: [],
 	showInlineAlerts: true,
 	debounceMs: 500,
@@ -26,7 +29,7 @@ export const DEFAULT_SETTINGS: ValePluginSettings = {
 
 export class ValePluginSettingTab extends PluginSettingTab {
 	plugin: ValePlugin;
-	icon: "spell-check";
+	icon = "spell-check-2";
 	// Prevent setting save overhead
 	debouncedSave = debounce(() => this.plugin.saveSettings(), 500);
 
@@ -64,13 +67,15 @@ export class ValePluginSettingTab extends PluginSettingTab {
 		new Setting(containerEl)
 			.setName("Vale binary path")
 			.setDesc(
-				"Use an absolute path for the Vale binary. (i.e. /usr/local/bin/vale)",
+				"Absolute path to the Vale binary (e.g., /usr/local/bin/vale). Leave empty to use 'vale' from system PATH.",
 			)
 			.addText((text) => {
 				text.setPlaceholder("vale")
 					.setValue(settings.valeBinaryPath)
 					.onChange(async (value) => {
-						settings.valeBinaryPath = value;
+						// If empty, use default "vale" command from PATH
+						// Otherwise, assume the input is absolute
+						settings.valeBinaryPath = value.trim() || "vale";
 						this.debouncedSave();
 					});
 			})
@@ -86,12 +91,15 @@ export class ValePluginSettingTab extends PluginSettingTab {
 			});
 		new Setting(containerEl)
 			.setName("Vale config path")
-			.setDesc("Absolute path or relative to vault root.")
+			.setDesc(
+				"Path to Vale config file. Use relative path (from vault root) or absolute path.",
+			)
 			.addText((text) => {
 				text.setPlaceholder(".vale.ini")
-					.setValue(settings.valeConfigPath)
+					.setValue(settings.valeConfigPath as string)
 					.onChange(async (value) => {
-						settings.valeConfigPath = value;
+						// Store as-is (relative or absolute)
+						settings.valeConfigPath = value.trim() || null;
 						this.debouncedSave();
 					});
 			})
@@ -114,10 +122,11 @@ export class ValePluginSettingTab extends PluginSettingTab {
 			})
 			.addButton((button) => {
 				button.setButtonText("Open Config File").onClick(async () => {
-					await openExternalFilesystemObject(
-						settings.valeConfigPath,
+					const absolutePath = ensureAbsolutePath(
+						settings.valeConfigPath as string,
 						vault,
 					);
+					await openExternalFilesystemObject(absolutePath, vault);
 				});
 			});
 

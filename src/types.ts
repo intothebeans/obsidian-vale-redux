@@ -15,7 +15,7 @@ export class ValeSeverity {
 	private severity: string;
 	constructor(severity: string) {
 		severity = severity.toLowerCase();
-		if (SEVERITIES.includes(severity)) {
+		if (Object.values(SEVERITIES).includes(severity)) {
 			this.severity = severity;
 		} else {
 			throw new Error(`Invalid severity level: ${severity}`);
@@ -85,8 +85,10 @@ export interface ValeRuntimeConfig {
 
 /** User configuration settings for the Vale plugin. */
 export interface ValePluginSettings {
+	// valeBinaryPath: "vale" for PATH, or absolute path to binary
+	// valeConfigPath: relative to vault root by default, or absolute path
 	valeBinaryPath: string;
-	valeConfigPath: string;
+	valeConfigPath: string | null;
 	excludedFiles: string[];
 	showInlineAlerts: boolean;
 	debounceMs: number;
