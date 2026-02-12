@@ -1,6 +1,7 @@
 import { spawn } from "child_process";
 import { Notice } from "obsidian";
 import { ValeProcess } from "types";
+import type { Buffer } from "node:buffer";
 
 export async function spawnProcessWithOutput(
 	valeProcess: ValeProcess,
@@ -8,10 +9,10 @@ export async function spawnProcessWithOutput(
 	const process = spawn(valeProcess.command, valeProcess.args);
 	let stdout = "";
 	let stderr = "";
-	process.stdout.on("data", (data) => {
+	process.stdout.on("data", (data: Buffer) => {
 		stdout += data.toString();
 	});
-	process.stderr.on("data", (data) => {
+	process.stderr.on("data", (data: Buffer) => {
 		stderr += data.toString();
 	});
 
