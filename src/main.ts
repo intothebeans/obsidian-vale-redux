@@ -26,7 +26,6 @@ export default class ValePlugin extends Plugin {
 	private configFullPath: string;
 
 	async onload(): Promise<void> {
-		console.debug("Loading Vale Plugin...");
 		await this.loadSettings();
 		this.configFullPath = ensureAbsolutePath(
 			this.settings.valeConfigPath,
@@ -83,7 +82,6 @@ export default class ValePlugin extends Plugin {
 				this.app.workspace.getActiveFile()!.path,
 			);
 		}
-		console.debug("Vale Plugin loaded.");
 	}
 
 	async saveSettings(): Promise<void> {

@@ -81,7 +81,9 @@ export class ValePluginSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName("Automatic checking")
-			.setDesc("Automatically check files. Disable for manual control.")
+			.setDesc(
+				"Automatically check files on changes. Requires plugin reload to take effect.",
+			)
 			.addToggle((toggle) => {
 				toggle
 					.setValue(settings.automaticChecking)
@@ -141,9 +143,6 @@ export class ValePluginSettingTab extends PluginSettingTab {
 						settings.valeConfigPath = value.trim();
 						this.debouncedSave();
 					});
-			})
-			.addButton((button) => {
-				button.setButtonText("Generate Config");
 			});
 	}
 
@@ -160,7 +159,6 @@ export class ValePluginSettingTab extends PluginSettingTab {
 							settings.valeBinaryPath,
 							settings.valeConfigPath,
 						);
-						console.debug("Opening styles path:", stylesPath);
 						await openExternalFilesystemObject(stylesPath, vault);
 					} catch (error) {
 						notifyError(
@@ -177,6 +175,12 @@ export class ValePluginSettingTab extends PluginSettingTab {
 						settings.valeConfigPath,
 						vault,
 					);
+					if (!absolutePath) {
+						notifyError(
+							"No config file path specified. Set a config path above first.",
+						);
+						return;
+					}
 					await openExternalFilesystemObject(absolutePath, vault);
 				});
 			});
@@ -211,7 +215,7 @@ export class ValePluginSettingTab extends PluginSettingTab {
 				setting
 					.setName("Debounce Time")
 					.setDesc(
-						"Delay in milliseconds before saving settings after changes.",
+						"Delay in milliseconds before re-linting after edits.",
 					)
 					.addText((text) => {
 						text.setPlaceholder("500")
@@ -229,7 +233,7 @@ export class ValePluginSettingTab extends PluginSettingTab {
 				setting
 					.setName("Process timeout")
 					.setDesc(
-						"How long should vale run before it timesout. If vale is failing on large files, try increasing this value",
+						"How long should Vale run before it times out. If Vale is failing on large files, try increasing this value.",
 					)
 					.addText((text) => {
 						text.setPlaceholder("5000")

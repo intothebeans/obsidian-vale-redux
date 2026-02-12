@@ -49,13 +49,11 @@ export class IssueManager extends Events {
 	}
 
 	clearCache(): void {
-		console.debug("Clearing entire issue cache");
 		this.cache.clear();
 		this.trigger("issues-updated");
 	}
 
 	clearFileCache(filePath: string): void {
-		console.debug(`Clearing cache for file: ${filePath}`);
 		this.cache.delete(filePath);
 		this.trigger("issues-updated", filePath);
 	}
