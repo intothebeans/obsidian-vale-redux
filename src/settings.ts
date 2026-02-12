@@ -59,7 +59,7 @@ export class ValePluginSettingTab extends PluginSettingTab {
 			.setDesc("Show Vale issues directly in the editor.")
 			.addToggle((toggle) => {
 				toggle
-					.setValue(this.plugin.settings.showInlineAlerts)
+					.setValue(settings.showInlineAlerts)
 					.onChange(async (value) => {
 						settings.showInlineAlerts = value;
 						await this.plugin.saveSettings();

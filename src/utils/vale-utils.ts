@@ -49,10 +49,9 @@ export function valeLintExitHandler(
 export async function testValeConnection(
 	valeBinaryPath: string,
 ): Promise<boolean> {
-	const binaryPath = valeBinaryPath;
 	const notice = new Notice("Testing Vale connection...", 0);
 	const valeProcess = {
-		command: binaryPath,
+		command: valeBinaryPath,
 		args: ["--version"],
 		timeoutMs: 5000,
 		onClose: returnCodeFail,

@@ -20,7 +20,6 @@ export default class ValePlugin extends Plugin {
 	public settings: ValePluginSettings;
 	public valeRunner: ValeRunner;
 	public valeConfig: ValeConfig;
-	public workingValeBinary: boolean;
 	private configFullPath: string;
 
 	async onload(): Promise<void> {
