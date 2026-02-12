@@ -26,6 +26,11 @@ function parseValeAlert(filePath: string, alert: ValeAlert): ValeIssue {
 		fixes.push(...alert.Action.Params);
 	}
 
+	const severity = alert.Severity.toLowerCase();
+	if (!isSeverity(severity)) {
+		throw new Error(`Invalid severity level: ${alert.Severity}`);
+	}
+
 	return {
 		file: filePath,
 		line: alert.Line,

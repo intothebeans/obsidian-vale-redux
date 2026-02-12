@@ -1,4 +1,9 @@
-import { SEVERITIES } from "utils/constants";
+import type { Severity } from "utils/constants";
+import { SEVERITY_METADATA } from "utils/constants";
+
+// Re-export Severity for convenience
+export type { Severity };
+
 /** Mirrors the JSON output by vale ls-config
  *  https://github.com/errata-ai/vale/blob/v3/internal/core/config.go
  */
@@ -83,37 +88,19 @@ export interface ValeRunnerResult {
 	error?: string;
 }
 
-export class ValeSeverity {
-	private severity: string;
-	constructor(severity: string) {
-		severity = severity.toLowerCase();
-		if (Object.values(SEVERITIES).includes(severity)) {
-			this.severity = severity;
-		} else {
-			throw new Error(`Invalid severity level: ${severity}`);
-		}
-	}
+/** Type guard to validate severity strings at runtime */
+export function isSeverity(value: unknown): value is Severity {
+	return typeof value === "string" && value in SEVERITY_METADATA;
+}
 
-	getIcon(): string {
-		switch (this.severity) {
-			case "suggestion":
-				return "💡";
-			case "warning":
-				return "⚠️";
-			case "error":
-				return "❌";
-			default:
-				return "";
-		}
-	}
+/** Get icon for severity level */
+export function getSeverityIcon(severity: Severity): string {
+	return SEVERITY_METADATA[severity].icon;
+}
 
-	getLabel(): string {
-		return this.severity.charAt(0).toUpperCase() + this.severity.slice(1);
-	}
-
-	getSeverity(): string {
-		return this.severity;
-	}
+/** Get formatted label for severity level */
+export function getSeverityLabel(severity: Severity): string {
+	return SEVERITY_METADATA[severity].label;
 }
 
 /** Mirrors the Vale JSON output format for individual alerts. */
@@ -138,7 +125,7 @@ export interface ValeIssue {
 	line: number;
 	startCol: number; // from ValeAlert.Span[0]
 	endCol: number; // from ValeAlert.Span[1]
-	severity: ValeSeverity;
+	severity: Severity;
 	message: string;
 	check: string;
 	match: string;
