@@ -1,5 +1,4 @@
 import { spawn } from "child_process";
-import { Buffer } from "buffer";
 import { Notice } from "obsidian";
 import { ValeProcess } from "types";
 
@@ -9,15 +8,21 @@ export async function spawnProcessWithOutput(
 	const process = spawn(valeProcess.command, valeProcess.args);
 	let stdout = "";
 	let stderr = "";
-	process.stdout.on("data", (data: Buffer) => {
+	process.stdout.on("data", (data) => {
 		stdout += data.toString();
 	});
-	process.stderr.on("data", (data: Buffer) => {
+	process.stderr.on("data", (data) => {
 		stderr += data.toString();
 	});
 
 	return new Promise<string>((resolve, reject) => {
+		const timeout = setTimeout(() => {
+			process.kill();
+			reject(new Error("Process timed out"));
+		}, valeProcess.timeoutMs);
+
 		process.on("close", (returnCode) => {
+			clearTimeout(timeout);
 			const procStatus = valeProcess.onClose(
 				returnCode as number,
 				stdout,
@@ -29,21 +34,15 @@ export async function spawnProcessWithOutput(
 				reject(new Error(procStatus.message));
 			}
 		});
+
 		process.on("error", (err) => {
+			clearTimeout(timeout);
 			reject(
 				new Error(
 					`Process failed with error: ${err.message}\n\nStderr: ${stderr}`,
 				),
 			);
 		});
-		setTimeout(() => {
-			process.kill();
-			if (stdout) {
-				resolve(stdout);
-			} else {
-				reject(new Error("Process timed out"));
-			}
-		}, valeProcess.timeoutMs);
 	});
 }
 
