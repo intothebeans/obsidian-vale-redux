@@ -1,13 +1,24 @@
-import { ValeOutput, ValeRunnerResult, ValeRuntimeConfig } from "types";
+import { ValeIssue, ValeOutput } from "types";
 import { parseValeOutput } from "./vale-parser";
 import { spawnProcessWithOutput } from "utils/utils";
 import { valeLintExitHandler } from "utils/vale-utils";
 
-export class ValeRunner {
-	private runtimeSettings: ValeRuntimeConfig;
+/** Represents the results of running the linter with a ValeRunner */
+interface ValeRunnerResult {
+	success: boolean;
+	issues: ValeIssue[];
+	error?: string;
+}
 
-	constructor(settings: ValeRuntimeConfig) {
-		this.runtimeSettings = settings;
+/** Runs Vale linting on files using the configured Vale binary and settings. */
+export class ValeRunner {
+	private valeBinary: string;
+	private valeConfig: string;
+	private timeoutMs: number;
+	constructor(binaryPath: string, configPath: string, timeoutMs: number) {
+		this.valeBinary = binaryPath || "vale";
+		this.valeConfig = configPath;
+		this.timeoutMs = timeoutMs || 5000;
 	}
 
 	async lintFile(filePath: string): Promise<ValeRunnerResult> {
@@ -27,13 +38,9 @@ export class ValeRunner {
 
 	private async executeVale(filePath: string): Promise<ValeOutput> {
 		const valeProcess = {
-			command: this.runtimeSettings.valeBinary,
-			args: [
-				"--output=JSON",
-				`--config=${this.runtimeSettings.valeConfig}`,
-				filePath,
-			],
-			timeoutMs: this.runtimeSettings.timeoutMs,
+			command: this.valeBinary,
+			args: ["--output=JSON", `--config=${this.valeConfig}`, filePath],
+			timeoutMs: this.timeoutMs,
 			onClose: valeLintExitHandler,
 		};
 

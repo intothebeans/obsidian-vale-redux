@@ -1,12 +1,14 @@
-import { ValeAlert, ValeIssue, ValeOutput, isSeverity } from "types";
+import { ValeAlert, ValeIssue, ValeOutput, type Severity } from "types";
+import { SEVERITY_METADATA } from "utils/constants";
 import { notifyError } from "utils/utils";
 
+/** Parses the output into ValeIssue objects */
 export function parseValeOutput(output: ValeOutput): ValeIssue[] {
 	const issues: ValeIssue[] = [];
 	for (const [filePath, alerts] of Object.entries(output)) {
 		for (const alert of alerts) {
 			try {
-				const issue = parseValeAlert(filePath, alert);
+				const issue = _parseValeAlert(filePath, alert as ValeAlert);
 				issues.push(issue);
 			} catch (error) {
 				notifyError(
@@ -20,14 +22,15 @@ export function parseValeOutput(output: ValeOutput): ValeIssue[] {
 	return issues;
 }
 
-function parseValeAlert(filePath: string, alert: ValeAlert): ValeIssue {
+/** Parse a ValeAlert into the plugin's internal ValeIssue representation */
+function _parseValeAlert(filePath: string, alert: ValeAlert): ValeIssue {
 	const fixes: string[] = [];
 	if (alert.Action && alert.Action.Params) {
 		fixes.push(...alert.Action.Params);
 	}
 
 	const severity = alert.Severity.toLowerCase();
-	if (!isSeverity(severity)) {
+	if (!_isSeverity(severity)) {
 		throw new Error(`Invalid severity level: ${alert.Severity}`);
 	}
 
@@ -45,4 +48,9 @@ function parseValeAlert(filePath: string, alert: ValeAlert): ValeIssue {
 		link: alert.Link || undefined,
 		id: `${filePath}:${alert.Line}:${alert.Span[0]}:${alert.Check}`,
 	};
+}
+
+/** Type guard to validate severity strings at runtime */
+function _isSeverity(value: unknown): value is Severity {
+	return typeof value === "string" && value in SEVERITY_METADATA;
 }

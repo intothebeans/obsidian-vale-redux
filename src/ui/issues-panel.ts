@@ -1,7 +1,12 @@
 import { IssueManager } from "core/issue-manager";
 import { ItemView, MarkdownView, Notice, WorkspaceLeaf } from "obsidian";
-import { getSeverityIcon, ValeIssue } from "types";
-import { ISSUES_PANEL_VIEW_TYPE, Severity } from "utils/constants";
+import { ValeIssue } from "types";
+import {
+	ISSUES_PANEL_VIEW_TYPE,
+	Severity,
+	SEVERITY_METADATA,
+} from "utils/constants";
+import { notifyError } from "utils/utils";
 
 export class ValeIssuesView extends ItemView {
 	private issueManager: IssueManager;
@@ -62,7 +67,7 @@ export class ValeIssuesView extends ItemView {
 	}
 
 	getIcon(): string {
-		return "alert-circle";
+		return "spell-check";
 	}
 
 	async onOpen(): Promise<void> {
@@ -154,6 +159,15 @@ export class ValeIssuesView extends ItemView {
 			cls: "vale-issue-location",
 		});
 		item.createDiv({ text: issue.check, cls: "vale-issue-check" });
+		item.addEventListener("click", () => {
+			this.jumpToIssue(issue).catch((err) => {
+				notifyError(
+					"Failed to jump to issue location",
+					2000,
+					err instanceof Error ? err.message : "Unknown error",
+				);
+			});
+		});
 	}
 
 	private renderSeverityGroup(
@@ -165,7 +179,7 @@ export class ValeIssuesView extends ItemView {
 		const group = container.createDiv({ cls: "vale-severity-group" });
 		const header = group.createDiv({ cls: "vale-severity-header" });
 		header.createSpan({
-			text: getSeverityIcon(severity as Severity),
+			text: this.getSeverityIcon(severity as Severity),
 			cls: "vale-severity-icon",
 		});
 		header.createSpan({ text: label });
@@ -217,13 +231,15 @@ export class ValeIssuesView extends ItemView {
 			this.addAction("list-filter", "Filter issues", () => {
 				// TODO implement severity filtering
 			}),
-			this.addAction("chevron-down-up", "", () => {
+			this.addAction("chevrons-down-up", "Collapse", () => {
 				// TODO implement collapsing/expanding issue groups
 			}),
 			this.addAction("refresh-cw", "Refresh issues", async () => {
 				if (this.currentFile) {
-					new Notice("Refreshing issues...", 2000);
+					const notice = new Notice("Refreshing issues...", 0);
 					await this.issueManager.refreshFile(this.currentFile);
+					notice.hide();
+					this.render();
 				}
 			}),
 			this.addAction("group", "Group by", () => {
@@ -236,5 +252,44 @@ export class ValeIssuesView extends ItemView {
 				// TODO implement issue search
 			}),
 		);
+	}
+
+	private async jumpToIssue(issue: ValeIssue): Promise<void> {
+		const activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
+
+		if (!activeView || activeView.file?.path !== this.currentFile) {
+			// Need to open the file first
+			const file = this.app.vault.getAbstractFileByPath(
+				this.currentFile!,
+			);
+			if (file) {
+				await this.app.workspace.openLinkText(
+					this.currentFile!,
+					"",
+					false,
+				);
+			}
+		}
+
+		// Set cursor position
+		const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+		if (view) {
+			const editor = view.editor;
+			editor.setCursor({
+				line: issue.line - 1,
+				ch: issue.startCol - 1,
+			});
+			editor.scrollIntoView(
+				{
+					from: { line: issue.line - 1, ch: issue.startCol },
+					to: { line: issue.line - 1, ch: issue.endCol },
+				},
+				true,
+			);
+		}
+	}
+	/** Get icon for severity level */
+	private getSeverityIcon(severity: Severity): string {
+		return SEVERITY_METADATA[severity].icon;
 	}
 }

@@ -1,7 +1,15 @@
 /* eslint-disable obsidianmd/ui/sentence-case */
 import { Notice } from "obsidian";
-import { ValeConfig, ValeConfigErrorOutput, ValeProcess } from "types";
+import { ValeConfig, ValeProcess } from "types";
 import { notifyError, spawnProcessWithOutput } from "./utils";
+
+interface ValeConfigErrorOutput {
+	Line: number;
+	Path: string;
+	Text: string;
+	Code: string;
+	Span: number;
+}
 
 /**
  * Standard exit code checker - only returnCode 0 is success.

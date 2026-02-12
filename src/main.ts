@@ -1,4 +1,4 @@
-import { ValePluginSettings, ValeRuntimeConfig, ValeConfig } from "types";
+import { ValePluginSettings, ValeConfig } from "types";
 import { MarkdownView, Plugin, TFile, WorkspaceLeaf } from "obsidian";
 import { ValePluginSettingTab } from "settings";
 import { ValeRunner } from "core/vale-runner";
@@ -32,14 +32,11 @@ export default class ValePlugin extends Plugin {
 			this.settings.valeConfigPath,
 			this.app.vault,
 		);
-
-		const runtimeConfig: ValeRuntimeConfig = {
-			valeBinary: this.settings.valeBinaryPath || "vale",
-			valeConfig: this.configFullPath,
-			workingDir: this.app.vault.getRoot().path,
-			timeoutMs: this.settings.valeProcessTimeoutMs || 5000,
-		};
-		this.valeRunner = new ValeRunner(runtimeConfig);
+		this.valeRunner = new ValeRunner(
+			this.settings.valeBinaryPath,
+			this.configFullPath,
+			this.settings.valeProcessTimeoutMs,
+		);
 		this.issueManager = new IssueManager(this);
 		this.registerView(
 			ISSUES_PANEL_VIEW_TYPE,
