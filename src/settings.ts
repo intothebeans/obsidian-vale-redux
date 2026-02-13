@@ -120,7 +120,10 @@ export class ValePluginSettingTab extends PluginSettingTab {
 							timeoutMs: settings.valeProcessTimeoutMs,
 							onClose: returnCodeFail,
 						};
-						await testValeConnection(valeProcess);
+						const success = await testValeConnection(valeProcess);
+						if (success) {
+							this.plugin.issueManager.resetAvailability();
+						}
 					});
 			});
 	}
