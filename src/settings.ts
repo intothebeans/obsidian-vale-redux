@@ -2,18 +2,17 @@
 import {
 	App,
 	debounce,
-	Notice,
 	PluginSettingTab,
 	Setting,
 	SettingGroup,
 } from "obsidian";
-import { ValeConfig, ValeProcess } from "types";
+import { ValeConfig } from "types";
 import ValePlugin from "main";
 import {
 	ensureAbsolutePath,
 	openExternalFilesystemObject,
 } from "utils/file-utils";
-import { returnCodeFail } from "utils/vale-utils";
+import { returnCodeFail, testValeConnection } from "utils/vale-utils";
 import { notifyError } from "utils/error-utils";
 import { spawnProcessWithOutput } from "utils/process-utils";
 
@@ -103,7 +102,8 @@ export class ValePluginSettingTab extends PluginSettingTab {
 				text.setPlaceholder("vale")
 					.setValue(settings.valeBinaryPath)
 					.onChange(async (value) => {
-						settings.valeBinaryPath = value.trim() || "vale";
+						settings.valeBinaryPath =
+							value.trim() === "" ? "vale" : value.trim();
 						this.debouncedSave();
 					});
 			})
@@ -114,15 +114,9 @@ export class ValePluginSettingTab extends PluginSettingTab {
 						"Check if the Vale binary is accessible and working.",
 					)
 					.onClick(async () => {
-						const valeProcess = {
-							command: settings.valeBinaryPath,
-							args: ["--version"],
-							timeoutMs: settings.valeProcessTimeoutMs,
-							onClose: returnCodeFail,
-						};
-						const success = await testValeConnection(valeProcess);
+						const success = await testValeConnection(settings);
 						if (success) {
-							this.plugin.issueManager.resetAvailability();
+							this.plugin.valeAvailable = true;
 						}
 					});
 			});
@@ -140,7 +134,8 @@ export class ValePluginSettingTab extends PluginSettingTab {
 				text.setPlaceholder(".vale.ini")
 					.setValue(settings.valeConfigPath)
 					.onChange(async (value) => {
-						settings.valeConfigPath = value.trim();
+						settings.valeConfigPath =
+							value.trim() === "" ? ".vale.ini" : value.trim();
 						this.debouncedSave();
 					});
 			});
@@ -254,25 +249,6 @@ export class ValePluginSettingTab extends PluginSettingTab {
 		// Cancel any pending save operations when the settings tab is closed
 		this.debouncedSave.cancel();
 		super.hide();
-	}
-}
-
-async function testValeConnection(valeProcess: ValeProcess): Promise<boolean> {
-	const notice = new Notice("Testing Vale connection...", 0);
-
-	try {
-		const stdout = await spawnProcessWithOutput(valeProcess);
-		notice.hide();
-		new Notice(`✓ Vale connected successfully!\n${stdout.trim()}`);
-		return true;
-	} catch (error) {
-		notice.hide();
-		notifyError(
-			`Vale connection failed\n\nPlease ensure Vale is installed and the binary path is correct.`,
-			8000,
-			`${error instanceof Error ? error.message : String(error)}`,
-		);
-		return false;
 	}
 }
 

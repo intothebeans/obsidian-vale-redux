@@ -1,3 +1,8 @@
+import { Notice } from "obsidian";
+import { ValePluginSettings, ValeProcess } from "types";
+import { notifyError } from "./error-utils";
+import { spawnProcessWithOutput } from "./process-utils";
+
 /**
  * Standard exit code checker - only returnCode 0 is success.
  * Use this for Vale commands that should always succeed (like --version, ls-config).
@@ -40,4 +45,30 @@ export function valeLintExitHandler(
 		};
 	}
 	return { status: true, message: "Vale executed successfully" };
+}
+export async function testValeConnection(
+	settings: ValePluginSettings,
+): Promise<boolean> {
+	const valeProcess: ValeProcess = {
+		command: settings.valeBinaryPath,
+		args: ["--version"],
+		timeoutMs: settings.valeProcessTimeoutMs,
+		onClose: returnCodeFail,
+	};
+	const notice = new Notice("Testing vale connection...", 0);
+
+	try {
+		const stdout = await spawnProcessWithOutput(valeProcess);
+		notice.hide();
+		new Notice(`✓ Vale connected successfully!\n${stdout.trim()}`);
+		return true;
+	} catch (error) {
+		notice.hide();
+		notifyError(
+			`Vale connection failed\n\nPlease ensure Vale is installed and the binary path is correct.`,
+			8000,
+			`${error instanceof Error ? error.message : String(error)}`,
+		);
+		return false;
+	}
 }

@@ -12,7 +12,6 @@ export class IssueManager extends Events {
 	// Maybe allow use of redis?
 	private cache: Map<string, ValeIssue[]> = new Map();
 	private debouncedRefresh: (filePath: string) => void;
-	private _valeAvailable = true;
 
 	constructor(plugin: ValePlugin) {
 		super();
@@ -26,7 +25,7 @@ export class IssueManager extends Events {
 	}
 
 	async refreshFile(filePath: string): Promise<void> {
-		if (!this._valeAvailable) {
+		if (!this.plugin.valeAvailable) {
 			return;
 		}
 		this.trigger("linting-started", filePath);
@@ -40,7 +39,7 @@ export class IssueManager extends Events {
 		} else {
 			this.cache.delete(filePath);
 			if (this.isProcessError(result.error)) {
-				this._valeAvailable = false;
+				this.plugin.valeAvailable = false;
 				notifyError(
 					"Vale binary is not available. Linting is disabled until settings are updated or the plugin is reloaded.",
 					0,
@@ -59,14 +58,6 @@ export class IssueManager extends Events {
 
 	refreshFileDebounced(filePath: string): void {
 		this.debouncedRefresh(filePath);
-	}
-
-	resetAvailability(): void {
-		this._valeAvailable = true;
-	}
-
-	get valeAvailable(): boolean {
-		return this._valeAvailable;
 	}
 
 	clearCache(): void {

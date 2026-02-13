@@ -8,6 +8,7 @@ import { getExistingConfigOptions } from "core/vale-config";
 import { ISSUES_PANEL_VIEW_TYPE } from "utils/constants";
 import { ValeIssuesView } from "ui/issues-panel";
 import { createValeDecorationExtension } from "core/vale-decorations";
+import { testValeConnection } from "utils/vale-utils";
 
 export const DEFAULT_SETTINGS: ValePluginSettings = {
 	valeBinaryPath: "vale",
@@ -20,8 +21,10 @@ export const DEFAULT_SETTINGS: ValePluginSettings = {
 	automaticChecking: true,
 	valeProcessTimeoutMs: 10000,
 };
+// TODO: add sidebar and status bar function
 export default class ValePlugin extends Plugin {
-	issueManager: IssueManager;
+	public issueManager: IssueManager;
+	public valeAvailable: boolean = false;
 	public settings: ValePluginSettings;
 	public valeRunner: ValeRunner;
 	public valeConfig: ValeConfig;
@@ -33,6 +36,8 @@ export default class ValePlugin extends Plugin {
 			this.settings.valeConfigPath,
 			this.app.vault,
 		);
+
+		// Register and initialize things
 		this.valeRunner = new ValeRunner(this);
 		this.issueManager = new IssueManager(this);
 		this.registerView(
@@ -45,6 +50,9 @@ export default class ValePlugin extends Plugin {
 				createValeDecorationExtension(this.app, this.issueManager),
 			);
 		}
+		// Run things
+		this.valeAvailable = await testValeConnection(this.settings);
+		if (this.valeAvailable) {
 		const options = await getExistingConfigOptions(
 			this.settings.valeBinaryPath,
 			this.settings.valeConfigPathAbsolute,
