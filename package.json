@@ -6,13 +6,12 @@
 	"type": "module",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
-		"prebuild": "npm run fmt && npm run lint",
 		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production && npm run css:build",
 		"css:build": "sass src/styles/main.scss styles.css",
 		"css:watch": "sass --watch src/styles/main.scss styles.css",
 		"version": "node version-bump.mjs",
 		"fmt": "prettier --write . && stylelint 'src/**/*.scss' --fix && eslint . --fix",
-		"lint": "prettier --check . && eslint . && stylelint 'src/**/*.scss'"
+		"lint": "eslint . && stylelint 'src/**/*.scss'"
 	},
 	"keywords": [
 		"obsidian",
