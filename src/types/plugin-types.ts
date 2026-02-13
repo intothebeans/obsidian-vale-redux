@@ -2,6 +2,7 @@
 export interface ValePluginSettings {
 	valeBinaryPath: string;
 	valeConfigPath: string;
+	valeConfigPathAbsolute: string;
 	excludedFiles: string[];
 	showInlineAlerts: boolean;
 	debounceMs: number;

@@ -12,6 +12,7 @@ import { createValeDecorationExtension } from "core/vale-decorations";
 export const DEFAULT_SETTINGS: ValePluginSettings = {
 	valeBinaryPath: "vale",
 	valeConfigPath: ".vale.ini",
+	valeConfigPathAbsolute: "",
 	excludedFiles: [],
 	showInlineAlerts: true,
 	debounceMs: 500,
@@ -24,19 +25,15 @@ export default class ValePlugin extends Plugin {
 	public settings: ValePluginSettings;
 	public valeRunner: ValeRunner;
 	public valeConfig: ValeConfig;
-	private configFullPath: string;
 
 	async onload(): Promise<void> {
 		await this.loadSettings();
-		this.configFullPath = ensureAbsolutePath(
+		// Uses the existing path if already absolute, otherwise resolves it relative to the vault
+		this.settings.valeConfigPathAbsolute = ensureAbsolutePath(
 			this.settings.valeConfigPath,
 			this.app.vault,
 		);
-		this.valeRunner = new ValeRunner(
-			this.settings.valeBinaryPath,
-			this.configFullPath,
-			this.settings.valeProcessTimeoutMs,
-		);
+		this.valeRunner = new ValeRunner(this);
 		this.issueManager = new IssueManager(this);
 		this.registerView(
 			ISSUES_PANEL_VIEW_TYPE,
@@ -50,7 +47,7 @@ export default class ValePlugin extends Plugin {
 		}
 		const options = await getExistingConfigOptions(
 			this.settings.valeBinaryPath,
-			this.configFullPath,
+			this.settings.valeConfigPathAbsolute,
 		);
 		if (options) {
 			this.valeConfig = options;
