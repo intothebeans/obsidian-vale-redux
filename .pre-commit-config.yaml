@@ -25,11 +25,12 @@ repos:
         language: system
         pass_filenames: true
         files: '\.(?:js|ts|tsx|jsx|scss|css|json|md|mdx|ya?ml|html)$'
+        exclude: "styles.css"
         stages: [pre-commit]
       - id: stylelint
         name: Stylelint
         entry: npx stylelint
         language: system
         pass_filenames: true
-        files: '\.(?:scss|css)$'
+        files: '\.(?:scss)$'
         stages: [pre-commit]

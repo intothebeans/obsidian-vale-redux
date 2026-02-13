@@ -43,7 +43,6 @@ export const DEFAULT_VALE_CONFIG: ValeConfig = {
 export class ValePluginSettingTab extends PluginSettingTab {
 	plugin: ValePlugin;
 	icon = "spell-check-2";
-	// NOTE: Use to prevent saving overhead on text input fields
 	debouncedSave = debounce(() => this.plugin.saveSettings(), 500);
 
 	constructor(app: App, plugin: ValePlugin) {

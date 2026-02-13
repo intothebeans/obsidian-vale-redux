@@ -1,0 +1,180 @@
+.cm-tooltip.cm-tooltip-hover {
+	padding: 0;
+	border: 1px solid var(--background-modifier-border-hover);
+	background: var(--background-secondary);
+	border-radius: var(--radius-m, 8px);
+	box-shadow: var(--shadow-s, 0 2px 8px rgb(0 0 0 / 15%));
+	z-index: var(--layer-menu, 50);
+	user-select: none;
+	overflow: hidden;
+}
+
+.vale-tooltip-container {
+	font-family: var(--default-font);
+	font-size: var(--font-ui-small);
+	width: 300px;
+	line-height: 1.5;
+	padding: 12px;
+	color: var(--text-normal);
+}
+
+.vale-tooltip-severity {
+	display: inline-block;
+	border-radius: 8px;
+	padding: 2px 8px;
+	font-size: var(--font-ui-smaller);
+	font-weight: 600;
+	text-transform: uppercase;
+	margin-bottom: 8px;
+
+	&--error {
+		background-color: var(--vale-error);
+		color: white;
+	}
+
+	&--warning {
+		background-color: var(--vale-warning);
+		color: white;
+	}
+
+	&--suggestion {
+		background-color: var(--vale-suggestion);
+		color: white;
+	}
+}
+
+.vale-tooltip-message {
+	margin: 8px 0;
+	line-height: 1.5;
+	color: var(--text-normal);
+}
+
+.vale-tooltip-actions {
+	margin: 12px 0 8px;
+}
+
+.vale-tooltip-suggestions-header {
+	font-size: var(--font-ui-smaller);
+	color: var(--text-muted);
+	margin-bottom: 6px;
+	font-weight: 500;
+}
+
+.vale-tooltip-suggestions-list {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.vale-tooltip-suggestion-button {
+	background: var(--background-secondary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 4px;
+	padding: 6px 12px;
+	cursor: pointer;
+	text-align: left;
+	font-size: var(--font-ui-small);
+	color: var(--text-normal);
+	transition: background 0.1s ease;
+
+	&:hover {
+		background: var(--background-modifier-hover);
+	}
+
+	&:active {
+		background: var(--background-modifier-active-hover);
+	}
+}
+
+.vale-tooltip-action-button {
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
+	border: none;
+	border-radius: 4px;
+	padding: 6px 16px;
+	cursor: pointer;
+	font-size: var(--font-ui-small);
+	font-weight: 500;
+	transition: background 0.1s ease;
+
+	&:hover {
+		background: var(--interactive-accent-hover);
+	}
+
+	&--remove {
+		background: var(--vale-error);
+
+		&:hover {
+			opacity: 0.9;
+		}
+	}
+}
+
+.vale-tooltip-bottom {
+	margin-top: 12px;
+	padding-top: 8px;
+	border-top: 1px solid var(--background-modifier-border);
+}
+
+// Check name footer
+.vale-tooltip-check {
+	font-size: var(--font-ui-smaller);
+	color: var(--text-muted);
+	font-style: italic;
+	margin-bottom: 4px;
+}
+
+// External link
+.vale-tooltip-link {
+	display: block;
+	color: var(--link-color);
+	text-decoration: none;
+	font-size: var(--font-ui-smaller);
+
+	&:hover {
+		text-decoration: underline;
+	}
+}
+
+// Underline decorations for Vale issues
+.cm-vale-error {
+	cursor: pointer;
+	transition: background-color 100ms ease-out;
+	text-decoration: wavy underline var(--vale-error);
+
+	&:hover {
+		background-color: color-mix(
+			in srgb,
+			var(--vale-error),
+			transparent 80%
+		);
+	}
+}
+
+.cm-vale-warning {
+	cursor: pointer;
+	transition: background-color 100ms ease-out;
+	text-decoration: dashed underline var(--vale-warning);
+
+	&:hover {
+		background-color: color-mix(
+			in srgb,
+			var(--vale-warning),
+			transparent 80%
+		);
+	}
+}
+
+.cm-vale-suggestion {
+	cursor: pointer;
+	transition: background-color 100ms ease-out;
+	text-decoration: dotted underline var(--vale-suggestion);
+
+	&:hover {
+		background-color: color-mix(
+			in srgb,
+			var(--vale-suggestion),
+			transparent 80%
+		);
+	}
+}

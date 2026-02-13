@@ -7,6 +7,7 @@ import { IssueManager } from "core/issue-manager";
 import { getExistingConfigOptions } from "core/vale-config";
 import { ISSUES_PANEL_VIEW_TYPE } from "utils/constants";
 import { ValeIssuesView } from "ui/issues-panel";
+import { createValeDecorationExtension } from "core/vale-decorations";
 
 export const DEFAULT_SETTINGS: ValePluginSettings = {
 	valeBinaryPath: "vale",
@@ -42,6 +43,11 @@ export default class ValePlugin extends Plugin {
 			(leaf: WorkspaceLeaf) =>
 				new ValeIssuesView(leaf, this.issueManager),
 		);
+		if (this.settings.showInlineAlerts) {
+			this.registerEditorExtension(
+				createValeDecorationExtension(this.app, this.issueManager),
+			);
+		}
 		const options = await getExistingConfigOptions(
 			this.settings.valeBinaryPath,
 			this.configFullPath,

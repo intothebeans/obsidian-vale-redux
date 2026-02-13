@@ -22,7 +22,7 @@ export default tseslint.config(
 		},
 	},
 	// @ts-ignore
-	...(obsidianmd.configs.recommended as any),
+	...obsidianmd.configs.recommended,
 	prettier,
 	globalIgnores([
 		"node_modules",
@@ -32,5 +32,6 @@ export default tseslint.config(
 		"version-bump.mjs",
 		"versions.json",
 		"main.js",
+		"styles.css",
 	]),
 );
