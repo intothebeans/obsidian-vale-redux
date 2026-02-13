@@ -8,6 +8,7 @@
 
 A plugin that integrates the [Vale](https://vale.sh/) prose linter with Obsidian, providing configurable, offline-first inline style and grammar checking directly in your editor.
 
+
 - [Features](#features)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
@@ -22,11 +23,6 @@ A plugin that integrates the [Vale](https://vale.sh/) prose linter with Obsidian
 	- [Vale not found](#vale-not-found)
 	- [No issues detected](#no-issues-detected)
 	- [Performance issues](#performance-issues)
-- [Development](#development)
-	- [Prerequisites](#prerequisites-1)
-	- [Setup](#setup)
-	- [Development workflow](#development-workflow)
-	- [Testing locally](#testing-locally)
 - [Bug reports](#bug-reports)
 - [Credits](#credits)
 
@@ -130,50 +126,6 @@ If the plugin causes lag:
 1. Increase the debounce delay in settings
 2. Disable auto-check and use manual checking
 
-## Development
-
-### Prerequisites
-
-- [Node.js](https://nodejs.org/) (v18 or higher)
-- npm (comes with Node.js)
-- [Vale](https://vale.sh/) installed for testing
-
-### Setup
-
-1. Clone the repository:
-
-    ```bash
-    git clone https://github.com/intothebeans/obsidian-vale-redux.git
-    cd obsidian-vale-redux
-    ```
-
-2. Install dependencies:
-
-    ```bash
-    npm install
-    ```
-
-3. Build the plugin:
-    ```bash
-    npm run build
-    ```
-
-### Development workflow
-
-- **Watch mode**: `npm run dev` - Automatically rebuilds on file changes
-- **Build**: `npm run build` - Production build with TypeScript compilation
-- **Lint**: `npm run lint` - Run ESLint and Stylelint
-- **CSS development**: `npm run css:watch` - Watch SCSS files for changes
-
-### Testing locally
-
-1. Build the plugin using `npm run build` or `npm run dev`
-2. Copy `main.js`, `manifest.json`, and `styles.css` to your test vault:
-    ```bash
-    cp main.js manifest.json styles.css /path/to/vault/.obsidian/plugins/obsidian-vale-redux/
-    ```
-3. Reload Obsidian or toggle the plugin in Settings → Community plugins
-
 ## Bug reports
 
 When reporting bugs, please include:
@@ -188,4 +140,4 @@ When reporting bugs, please include:
 ## Credits
 
 This plugin was inspired by/forked from [obsidian-vale](https://github.com/ChrisChinchilla/obsidian-vale)
-by [Chris Chinchilla](https://github.com/ChrisChinchilla). The current version is a complete rewrite with different features and implementation.
+by [Chris Chinchilla](https://github.com/ChrisChinchilla). 
