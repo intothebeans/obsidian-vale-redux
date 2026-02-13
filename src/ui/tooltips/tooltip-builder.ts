@@ -2,6 +2,14 @@ import { EditorView } from "@codemirror/view";
 import { ValeIssue } from "types";
 import { createActionUI } from "./tooltip-actions";
 
+/** Create a div element without using Obsidian's document.createDiv */
+export function createDiv(cls?: string, text?: string): HTMLDivElement {
+	const el = document.createElement("div");
+	if (cls) el.className = cls;
+	if (text) el.textContent = text;
+	return el;
+}
+
 /**
  * Create the hover tooltip DOM element
  * @author ChrisChinchilla
@@ -10,18 +18,15 @@ export function createTooltipDOM(
 	view: EditorView,
 	issue: ValeIssue,
 ): HTMLElement {
-	const container = document.createDiv({ cls: "vale-tooltip-container" });
+	const container = createDiv("vale-tooltip-container");
 
-	const severityBadge = document.createDiv({
-		cls: `vale-tooltip-severity vale-tooltip-severity--${issue.severity}`,
-		text: issue.severity.toUpperCase(),
-	});
+	const severityBadge = createDiv(
+		`vale-tooltip-severity vale-tooltip-severity--${issue.severity}`,
+		issue.severity.toUpperCase(),
+	);
 	container.appendChild(severityBadge);
 
-	const messageText = document.createDiv({
-		cls: "vale-tooltip-message",
-		text: issue.message,
-	});
+	const messageText = createDiv("vale-tooltip-message", issue.message);
 	container.appendChild(messageText);
 
 	const actionUI = createActionUI(view, issue);
@@ -29,21 +34,16 @@ export function createTooltipDOM(
 		container.appendChild(actionUI);
 	}
 
-	const footer = document.createDiv({ cls: "vale-tooltip-bottom" });
+	const footer = createDiv("vale-tooltip-bottom");
 
-	const checkName = document.createDiv({
-		cls: "vale-tooltip-check",
-		text: `Check: ${issue.check}`,
-	});
+	const checkName = createDiv("vale-tooltip-check", `Check: ${issue.check}`);
 	footer.appendChild(checkName);
 
 	if (issue.link) {
-		const linkEl = document.createEl("a", {
-			cls: "vale-tooltip-link",
-			href: issue.link,
-			text: "Learn more →",
-			type: "external",
-		});
+		const linkEl = document.createElement("a");
+		linkEl.className = "vale-tooltip-link";
+		linkEl.href = issue.link;
+		linkEl.textContent = "Learn more →";
 		linkEl.onclick = (e) => {
 			e.preventDefault();
 			window.open(issue.link, "_blank");
