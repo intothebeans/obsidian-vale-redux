@@ -9,6 +9,7 @@ import { ISSUES_PANEL_VIEW_TYPE } from "utils/constants";
 import { ValeIssuesView } from "ui/issues-panel";
 import { createValeDecorationExtension } from "core/vale-decorations";
 import { testValeConnection } from "utils/vale-utils";
+import { registerCommands } from "commands/register-commands";
 
 export const DEFAULT_SETTINGS: ValePluginSettings = {
 	valeBinaryPath: "vale",
@@ -45,53 +46,31 @@ export default class ValePlugin extends Plugin {
 			(leaf: WorkspaceLeaf) =>
 				new ValeIssuesView(leaf, this.issueManager),
 		);
+		this.addSettingTab(new ValePluginSettingTab(this.app, this));
+		this.registerEventListeners();
 		if (this.settings.showInlineAlerts) {
 			this.registerEditorExtension(
 				createValeDecorationExtension(this.app, this.issueManager),
 			);
 		}
+		registerCommands(this);
+
 		// Run things
 		this.valeAvailable = await testValeConnection(this.settings);
 		if (this.valeAvailable) {
-		const options = await getExistingConfigOptions(
-			this.settings.valeBinaryPath,
-			this.settings.valeConfigPathAbsolute,
-		);
-		if (options) {
-			this.valeConfig = options;
-		}
-
-		this.addSettingTab(new ValePluginSettingTab(this.app, this));
-		this.registerEventListeners();
-		this.addCommand({
-			id: "vale-lint-file",
-			name: "Lint current file",
-			callback: async () => {
-				await this.issueManager.refreshFile(
-					this.app.workspace.getActiveFile()?.path || "",
-				);
-			},
-		});
-		this.addCommand({
-			id: "vale-open-issues-panel",
-			name: "Open issues panel",
-			callback: async () => {
-				await this.app.workspace.getRightLeaf(false)?.setViewState({
-					type: ISSUES_PANEL_VIEW_TYPE,
-					active: true,
-				});
-				const leaf = this.app.workspace.getLeavesOfType(
-					ISSUES_PANEL_VIEW_TYPE,
-				)[0];
-				if (leaf) {
-					await this.app.workspace.revealLeaf(leaf);
-				}
-			},
-		});
-		if (this.app.workspace.getActiveFile()) {
-			await this.issueManager.refreshFile(
-				this.app.workspace.getActiveFile()!.path,
+			const options = await getExistingConfigOptions(
+				this.settings.valeBinaryPath,
+				this.settings.valeConfigPathAbsolute,
 			);
+			if (options) {
+				this.valeConfig = options;
+			}
+
+			if (this.app.workspace.getActiveFile()) {
+				await this.issueManager.refreshFile(
+					this.app.workspace.getActiveFile()!.path,
+				);
+			}
 		}
 	}
 
