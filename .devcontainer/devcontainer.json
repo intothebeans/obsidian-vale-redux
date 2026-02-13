@@ -10,16 +10,13 @@
 				"EditorConfig.EditorConfig",
 				"dbaeumer.vscode-eslint",
 				"esbenp.prettier-vscode",
-				"stylelint.vscode-stylelint",
 				"mrmlnc.vscode-scss",
-				"xabikos.JavaScriptSnippets",
-				"redhat.vscode-yaml"
+				"xabikos.JavaScriptSnippets"
 			]
 		}
 	},
 	"postStartCommand": "npm install",
 	"features": {
 		"ghcr.io/devcontainers-extra/features/cz-cli:1": {},
-		"ghcr.io/devcontainers-extra/features/pre-commit:2": {}
 	}
 }
