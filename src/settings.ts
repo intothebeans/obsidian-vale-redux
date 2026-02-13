@@ -206,7 +206,8 @@ export class ValePluginSettingTab extends PluginSettingTab {
 									.filter((line) => line.length > 0);
 								this.debouncedSave();
 							});
-					});
+					})
+					.setDisabled(true);
 			})
 			.addSetting((setting) => {
 				setting

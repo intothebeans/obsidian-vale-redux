@@ -1,10 +1,10 @@
 {
 	"id": "vale-linter-redux",
 	"name": "Vale Linter",
-	"version": "2.0.3",
-	"minAppVersion": "0.0.1",
+	"version": "0.1.0",
+	"minAppVersion": "1.11.0",
 	"description": "Integrates Vale prose linter, showing style and grammar issues inline.",
-	"author": "intothebeans",
+	"author": "intothebeans, Chris Chinchilla",
 	"authorUrl": "https://github.com/intothebeans",
 	"isDesktopOnly": true
 }

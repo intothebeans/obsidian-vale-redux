@@ -1,6 +1,6 @@
 {
-	"name": "vale-linter",
-	"version": "2.0.3",
+	"name": "vale-linter-redux",
+	"version": "0.1.0",
 	"description": "Vale integration plugin",
 	"main": "main.js",
 	"type": "module",
@@ -10,7 +10,7 @@
 		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production && npm run css:build",
 		"css:build": "sass src/styles/main.scss styles.css",
 		"css:watch": "sass --watch src/styles/main.scss styles.css",
-		"version": "cz bump && node version-bump.mjs",
+		"version": "node version-bump.mjs",
 		"fmt": "prettier --write . && stylelint 'src/**/*.scss' --fix && eslint . --fix",
 		"lint": "prettier --check . && eslint . && stylelint 'src/**/*.scss'"
 	},
@@ -27,9 +27,8 @@
 	],
 	"license": "MIT",
 	"devDependencies": {
-		"@codemirror/lint": "^6.9.4",
-		"@codemirror/state": "^6.5.4",
-		"@codemirror/view": "^6.39.14",
+		"@codemirror/state": "6.5.0",
+		"@codemirror/view": "6.38.6",
 		"@eslint/js": "9.30.1",
 		"@types/node": "^24",
 		"esbuild": "0.25.5",
@@ -48,6 +47,6 @@
 		"typescript-eslint": "8.35.1"
 	},
 	"dependencies": {
-		"obsidian": "^1.11.0"
+		"obsidian": "1.11"
 	}
 }

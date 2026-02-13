@@ -13,7 +13,6 @@ on:
 
 env:
   PLUGIN_NAME: obsidian-vale-redux
-  HUSKY: 0
 
 jobs:
   build:

@@ -1,15 +1,43 @@
+
 # Obsidian Vale Redux
+
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/intothebeans/obsidian-vale-redux)](https://github.com/intothebeans/obsidian-vale-redux/releases)
+[![GitHub All Releases](https://img.shields.io/github/downloads/intothebeans/obsidian-vale-redux/total)](https://github.com/intothebeans/obsidian-vale-redux/releases)
+[![License](https://img.shields.io/github/license/intothebeans/obsidian-vale-redux)](LICENSE)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/intothebeans/obsidian-vale-redux/lint.yml)](https://github.com/intothebeans/obsidian-vale-redux/actions)
 
 A plugin that integrates the [Vale](https://vale.sh/) prose linter with Obsidian, providing configurable, offline-first inline style and grammar checking directly in your editor.
 
+- [Features](#features)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+	- [Manual installation](#manual-installation)
+	- [Using BRAT](#using-brat)
+- [Configuration](#configuration)
+	- [Settings](#settings)
+- [Usage](#usage)
+	- [Commands](#commands)
+	- [Visual indicators](#visual-indicators)
+- [Troubleshooting](#troubleshooting)
+	- [Vale not found](#vale-not-found)
+	- [No issues detected](#no-issues-detected)
+	- [Performance issues](#performance-issues)
+- [Development](#development)
+	- [Prerequisites](#prerequisites-1)
+	- [Setup](#setup)
+	- [Development workflow](#development-workflow)
+	- [Testing locally](#testing-locally)
+- [Bug reports](#bug-reports)
+- [Credits](#credits)
+
+
 ## Features
 
-- **Inline Issue Display**: See Vale issues highlighted directly in your Obsidian editor
+- **Inline Issue Display**: See Vale issues highlighted directly in your Obsidian editor with inline decorations
+- **Issues Panel**: Dedicated sidebar view showing all issues grouped by severity with click-to-navigate functionality
 - **Real-time Checking**: Automatically checks your document as you type (configurable)
 - **Severity Indicators**: Different visual styles for errors, warnings, and suggestions
 - **Hover Tooltips**: Hover over highlighted text to see detailed issue descriptions
-- **Status Bar Integration**: Quick overview of issues in the current document
-- **Customizable**: Configure Vale path, config file, and visual styles
 
 ## Prerequisites
 
@@ -17,12 +45,12 @@ Before using this plugin, [you need to have Vale installed on your system](https
 
 ## Installation
 
-Currently getting plugins approved in the Obsidian Community Plugin list can take some time. In the meantime, install the Vale plugin manually or use [BRAT](https://github.com/TfTHacker/obsidian42-brat) for easier updates.
+Install the Vale plugin manually using the latest release or use [BRAT](https://github.com/TfTHacker/obsidian42-brat) for easier updates.
 
 ### Manual installation
 
-1. Download the latest release from the releases page
-2. Extract the files to your vault's `.obsidian/plugins/obsidian-vale/` folder
+1. Download the latest release from the [releases page](https://github.com/intothebeans/obsidian-vale-redux/releases)
+2. Extract the files to your vault's `.obsidian/plugins/obsidian-vale-redux/` folder
 3. Reload Obsidian
 4. Enable the plugin in Settings → Community plugins
 
@@ -33,7 +61,7 @@ Currently getting plugins approved in the Obsidian Community Plugin list can tak
 1. Install the BRAT plugin from Obsidian's Community Plugins
 2. Enable BRAT in Settings → Community plugins
 3. Open BRAT settings and click "Add Beta plugin"
-4. Enter this repository URL: `https://github.com/ChrisChinchilla/obsidian-vale`
+4. Enter this repository URL: `https://github.com/intothebeans/obsidian-vale-redux`
 5. Click "Add Plugin" and wait for installation
 6. Enable the Vale plugin in Settings → Community plugins
 
@@ -52,12 +80,13 @@ Access the plugin settings through Settings → Plugin Options → Vale Linter:
 - **Vale Config File Path**: Path to your `.vale.ini` file
     - Leave empty to use Vale's default config discovery
     - Or specify a custom path (e.g., `/home/user/.vale.ini`)
+        - Can be relative to the vault root
 
 - **Auto-check Enabled**: Toggle automatic checking as you type
 
-- **Debounce Delay**: Time to wait (in milliseconds) after you stop typing before checking
+- **Inline Alerts**: Whether or not to render the alerts in the editor- 
 
-- **Severity Colors**: Customize the colors for different severity levels
+- **Debounce Delay**: Time to wait (in milliseconds) after you stop typing before checking
 
 ## Usage
 
@@ -66,8 +95,7 @@ Access the plugin settings through Settings → Plugin Options → Vale Linter:
 The plugin provides the following commands (accessible via Command Palette - Cmd/Ctrl+P):
 
 - **Check current file with Vale**: Manually run Vale on the current file
-- **Toggle auto-check**: Enable/disable automatic checking
-- **Clear Vale issues**: Clear all highlighted issues from the editor
+- **Open Vale Issues Panel**: Open the sidebar panel to view all issues grouped by severity
 
 ### Visual indicators
 
@@ -76,14 +104,6 @@ Issues are displayed with different underline styles based on severity:
 - **Errors**: Red wavy underline (e.g., spelling mistakes, grammar errors)
 - **Warnings**: Orange wavy underline (e.g., style suggestions)
 - **Suggestions**: Blue dotted underline (e.g., optional improvements)
-
-### Status bar
-
-The status bar shows a summary of issues in the current file:
-
-- `Vale: Ready` - No issues found
-- `Vale: 2 errors, 1 warning, 3 suggestions` - Issue count by severity
-- `Vale: Checking...` - Vale is currently analyzing the file
 
 ## Troubleshooting
 
@@ -109,6 +129,61 @@ If the plugin causes lag:
 
 1. Increase the debounce delay in settings
 2. Disable auto-check and use manual checking
+
+## Development
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (v18 or higher)
+- npm (comes with Node.js)
+- [Vale](https://vale.sh/) installed for testing
+
+### Setup
+
+1. Clone the repository:
+
+    ```bash
+    git clone https://github.com/intothebeans/obsidian-vale-redux.git
+    cd obsidian-vale-redux
+    ```
+
+2. Install dependencies:
+
+    ```bash
+    npm install
+    ```
+
+3. Build the plugin:
+    ```bash
+    npm run build
+    ```
+
+### Development workflow
+
+- **Watch mode**: `npm run dev` - Automatically rebuilds on file changes
+- **Build**: `npm run build` - Production build with TypeScript compilation
+- **Lint**: `npm run lint` - Run ESLint and Stylelint
+- **CSS development**: `npm run css:watch` - Watch SCSS files for changes
+
+### Testing locally
+
+1. Build the plugin using `npm run build` or `npm run dev`
+2. Copy `main.js`, `manifest.json`, and `styles.css` to your test vault:
+    ```bash
+    cp main.js manifest.json styles.css /path/to/vault/.obsidian/plugins/obsidian-vale-redux/
+    ```
+3. Reload Obsidian or toggle the plugin in Settings → Community plugins
+
+## Bug reports
+
+When reporting bugs, please include:
+
+- Obsidian version
+- Plugin version
+- Vale version and configuration
+- Steps to reproduce
+- Expected vs actual behavior
+- Relevant logs or screenshots
 
 ## Credits
 
