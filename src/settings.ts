@@ -88,6 +88,20 @@ export class ValePluginSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					});
 			});
+
+		new Setting(containerEl)
+			.setName("Enable inline highlights")
+			.setDesc(
+				"Show highlights when using the issues panel to navigate to issues. Requires plugin reload to take effect.",
+			)
+			.addToggle((toggle) => {
+				toggle
+					.setValue(settings.showInlineHighlights)
+					.onChange(async (value) => {
+						settings.showInlineHighlights = value;
+						await this.plugin.saveSettings();
+					});
+			});
 	}
 
 	private addValeBinaryPathSetting(containerEl: HTMLElement): void {

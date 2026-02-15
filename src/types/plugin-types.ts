@@ -5,6 +5,7 @@ export interface ValePluginSettings {
 	valeConfigPathAbsolute: string;
 	excludedFiles: string[];
 	showInlineAlerts: boolean;
+	showInlineHighlights: boolean;
 	debounceMs: number;
 	disabledFiles: string[];
 	automaticChecking: boolean;

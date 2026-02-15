@@ -8,6 +8,7 @@ export interface ValeConfigFull {
 	BlockIgnores?: Record<string, string[]>;
 	Checks?: string[];
 	Formats?: Record<string, string>;
+	/** UNUSED */
 	Asciidoctor?: Record<string, string>;
 	FormatToLang?: Record<string, string>;
 	GBaseStyles?: string[];
