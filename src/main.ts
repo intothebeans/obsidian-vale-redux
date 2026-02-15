@@ -7,7 +7,7 @@ import { IssueManager } from "core/issue-manager";
 import { getExistingConfigOptions } from "core/vale-config";
 import { ISSUES_PANEL_VIEW_TYPE } from "utils/constants";
 import { ValeIssuesView } from "ui/issues-panel";
-import { createValeDecorationExtension } from "core/vale-decorations";
+import { buildValeEditorExtension } from "core/editor";
 import { testValeConnection } from "utils/vale-utils";
 import { registerCommands } from "commands/register-commands";
 
@@ -50,7 +50,7 @@ export default class ValePlugin extends Plugin {
 		this.registerEventListeners();
 		if (this.settings.showInlineAlerts) {
 			this.registerEditorExtension(
-				createValeDecorationExtension(this.app, this.issueManager),
+				buildValeEditorExtension(this.app, this.issueManager),
 			);
 		}
 		registerCommands(this);
