@@ -17,6 +17,6 @@
 	},
 	"postStartCommand": "npm install",
 	"features": {
-		"ghcr.io/devcontainers-extra/features/cz-cli:1": {},
+		"ghcr.io/prulloac/devcontainer-features/commitizen:1": {}
 	}
 }

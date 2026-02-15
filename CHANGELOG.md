@@ -1,3 +1,13 @@
+## 0.2.0 (2026-02-15)
+
+### Feat
+
+- **ui**: clicking on issues in the pane also highlights them
+
+### Refactor
+
+- move code mirror extension logic to dedicated folder
+
 ## 0.1.0 (2026-02-13)
 
 ### Feat
