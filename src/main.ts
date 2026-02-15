@@ -93,7 +93,7 @@ export default class ValePlugin extends Plugin {
 
 	async loadSettings(): Promise<void> {
 		const loadedData =
-			(await this.loadData()) as Partial<ValePluginSettings>;
+			((await this.loadData()) as Partial<ValePluginSettings>) ?? {};
 		const defaultsCopy = structuredClone(DEFAULT_SETTINGS);
 		this.settings = {
 			...defaultsCopy,
