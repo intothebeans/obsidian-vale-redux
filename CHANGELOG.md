@@ -1,5 +1,4 @@
-# Changelog 
-## 0.1.0
+## 0.1.0 (2026-02-13)
 
 ### Feat
 
@@ -17,6 +16,10 @@
 
 ### Fix
 
+- **ui**: EditorView updates firing over each other illegally
+- **core**: failed functionality checks stop linting from running
+- **settings**: plugin fails to load if no existing plugin data
+- **runner**: runner options being decoupled from plugin settings
 - update import for Buffer type
 - misnamed css variable
 - minor typing issue
@@ -25,6 +28,12 @@
 
 ### Refactor
 
+- add helper for creating divs
+- **core**: move command registry to its own file
+- **core**: change how vale functionality is checked and stored
+- **settings**: simplfy settings data loading
+- remove excessive tooling
+- prep for release
 - granularize codebase
 - remove debug statements
 - update docstrings and refactor types
