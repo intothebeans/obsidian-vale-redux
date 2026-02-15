@@ -1,3 +1,9 @@
+## 0.2.1 (2026-02-15)
+
+### Fix
+
+- config failing to open from settings on windows
+
 ## 0.2.0 (2026-02-15)
 
 ### Feat
