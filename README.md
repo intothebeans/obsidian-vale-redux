@@ -7,7 +7,7 @@ A plugin that integrates the [Vale](https://vale.sh/) prose linter with Obsidian
 
 ## Install
 
-This plugin is in very early development, so there aren't any existing releases. To install clone this repo, run `npm run build`, and copy `manifest.json`, `main.js`, and `styles.css` to a folder in your Obsidian plugins folder.
+This plugin is in very early development, so expect some weird behaviors and issues. The recommended way to install this plugin is using [BRAT](https://github.com/TfTHacker/obsidian42-brat). You can also download the files from the [latest release](https://github.com/intothebeans/obsidian-vale-redux/releases/latest) and place them in your vault's `.obsidian/plugins/obsidian-vale-redux` folder.
 
 ## Architecture
 
