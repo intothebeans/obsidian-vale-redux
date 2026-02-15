@@ -12,7 +12,6 @@ changelog:
       - wontfix
       - invalid
     authors:
-      - intothebeans
       - dependabot
   categories:
     - title: Breaking Changes
