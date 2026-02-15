@@ -9,6 +9,96 @@ A plugin that integrates the [Vale](https://vale.sh/) prose linter with Obsidian
 
 This plugin is in very early development, so there aren't any existing releases. To install clone this repo, run `npm run build`, and copy `manifest.json`, `main.js`, and `styles.css` to a folder in your Obsidian plugins folder.
 
+## Architecture
+
+### Plugin Lifecycle
+
+The following sequence diagram illustrates the plugin initialization and operation flow:
+
+```mermaid
+sequenceDiagram
+    participant O as Obsidian
+    participant VP as ValePlugin
+    participant VR as ValeRunner
+    participant IM as IssueManager
+    participant PM as Process Manager
+    participant UI as User Interface
+
+    Note over O,UI: Plugin Initialization
+    O->>VP: onload()
+    VP->>VP: loadSettings()
+    
+    Note over VP,UI: Register and Initialize Phase
+    VP->>VR: new ValeRunner(plugin)
+    VP->>IM: new IssueManager(plugin)
+    VP->>O: registerView(IssuesPanel)
+    VP->>O: addSettingTab()
+    VP->>O: registerEventListeners()
+    
+    opt showInlineAlerts enabled
+        VP->>O: registerEditorExtension(Decorations)
+    end
+    
+    VP->>O: registerCommands(plugin)
+    
+    
+    Note over VP,UI: Run Phase
+    VP->>PM: testValeConnection()
+    PM-->>VP: connection status
+    
+    opt Vale Available
+        VP->>PM: getExistingConfigOptions()
+        PM-->>VP: vale config
+        VP->>VP: store valeConfig
+    opt Active File Exists
+        VP->>IM: refreshFile(activeFile)
+        IM->>VR: runVale(file)
+        VR->>PM: execute vale
+        PM-->>VR: linting results
+        VR-->>IM: parsed issues
+        IM->>UI: update decorations
+    end
+    end
+    
+    
+    Note over O,UI: Runtime Operations
+    loop File Operations
+        O->>VP: file-open event
+        VP->>IM: refreshFileDebounced(file)
+        
+        opt Automatic Checking Enabled
+            O->>VP: editor-change event
+            VP->>IM: refreshFileDebounced(file)
+            
+            O->>VP: active-leaf-change event
+            VP->>IM: refreshFileDebounced(file)
+        end
+        
+        IM->>VR: runVale(file)
+        VR->>PM: execute vale
+        PM-->>VR: linting results
+        VR-->>IM: parsed issues
+        IM->>UI: update decorations
+        IM->>UI: update issues panel
+    end
+    
+    Note over O,UI: User Commands
+    UI->>O: lint-file command
+    O->>VP: execute command
+    VP->>IM: refreshFile(activeFile)
+    IM->>VR: runVale(file)
+    VR->>PM: execute vale
+    PM-->>VR: linting results
+    VR-->>IM: parsed issues
+    IM->>UI: update decorations
+    
+    UI->>O: open-issues-panel command
+    O->>VP: execute command
+    VP->>UI: openIssuesPanel(plugin)
+    UI->>O: setViewState(IssuesPanel)
+    UI->>O: revealLeaf(panel)
+```
+
 ## Credits
 
 This plugin was inspired by/forked from [obsidian-vale](https://github.com/ChrisChinchilla/obsidian-vale)
