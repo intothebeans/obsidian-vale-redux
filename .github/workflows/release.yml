@@ -46,7 +46,6 @@ jobs:
             ## Installation
 
             Download and extract the files from the assets below into your vault's `.obsidian/plugins/obsidian-vale-redux/` directory.
-            ---
 
             See [CHANGELOG.md](CHANGELOG.md) for full release history.
           files: |
