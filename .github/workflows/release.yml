@@ -38,14 +38,6 @@ jobs:
           mkdir ${{ env.PLUGIN_NAME }}
           cp -r main.js manifest.json styles.css CHANGELOG.md ${{ env.PLUGIN_NAME }}
 
-      - name: Generate checksums
-        run: |
-          cd ${{ env.PLUGIN_NAME }}
-          sha256sum main.js > checksums.txt
-          sha256sum manifest.json >> checksums.txt
-          sha256sum styles.css >> checksums.txt
-          cat checksums.txt
-
       - uses: softprops/action-gh-release@v2
         name: Create Release
         with:
@@ -54,13 +46,6 @@ jobs:
             ## Installation
 
             Download and extract the files from the assets below into your vault's `.obsidian/plugins/obsidian-vale-redux/` directory.
-
-            ## Checksums (SHA256)
-
-            ```
-            ${{ hashFiles(format('{0}/checksums.txt', env.PLUGIN_NAME)) }}
-            ```
-
             ---
 
             See [CHANGELOG.md](CHANGELOG.md) for full release history.
@@ -68,6 +53,4 @@ jobs:
             ${{ env.PLUGIN_NAME }}/main.js
             ${{ env.PLUGIN_NAME }}/manifest.json
             ${{ env.PLUGIN_NAME }}/styles.css
-            ${{ env.PLUGIN_NAME }}/CHANGELOG.md
-            ${{ env.PLUGIN_NAME }}/checksums.txt
           tag_name: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
