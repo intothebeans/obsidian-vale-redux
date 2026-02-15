@@ -44,7 +44,7 @@ export function buildValeEditorExtension(
 	issueManager: IssueManager,
 	settings: ValePluginSettings,
 ): Extension {
-	let editorExtensions = [];
+	let editorExtensions: Extension[] = [];
 	if (settings.showInlineAlerts) {
 		editorExtensions.push(valeDecorationsField, valeHoverTooltip);
 	}
