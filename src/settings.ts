@@ -8,14 +8,11 @@ import {
 } from "obsidian";
 import { ValeConfig } from "types";
 import ValePlugin from "main";
-import {
-	ensureAbsolutePath,
-	openExternalFilesystemObject,
-} from "utils/file-utils";
+
 import { returnCodeFail, testValeConnection } from "utils/vale-utils";
 import { notifyError } from "utils/error-utils";
 import { spawnProcessWithOutput } from "utils/process-utils";
-
+import { shell } from "electron";
 // FIX: Single regex being broken up during parsing
 export const DEFAULT_VALE_CONFIG: ValeConfig = {
 	BlockIgnores: {
@@ -143,7 +140,6 @@ export class ValePluginSettingTab extends PluginSettingTab {
 
 	private addQuickAccessButtons(containerEl: HTMLElement): void {
 		const settings = this.plugin.settings;
-		const vault = this.app.vault;
 
 		new Setting(containerEl)
 			.setName("Quick Access")
@@ -154,7 +150,7 @@ export class ValePluginSettingTab extends PluginSettingTab {
 							settings.valeBinaryPath,
 							settings.valeConfigPath,
 						);
-						await openExternalFilesystemObject(stylesPath, vault);
+						await shell.openPath(stylesPath);
 					} catch (error) {
 						notifyError(
 							"Failed to open styles folder.",
@@ -166,17 +162,7 @@ export class ValePluginSettingTab extends PluginSettingTab {
 			})
 			.addButton((button) => {
 				button.setButtonText("Open Config File").onClick(async () => {
-					const absolutePath = ensureAbsolutePath(
-						settings.valeConfigPath,
-						vault,
-					);
-					if (!absolutePath) {
-						notifyError(
-							"No config file path specified. Set a config path above first.",
-						);
-						return;
-					}
-					await openExternalFilesystemObject(absolutePath, vault);
+					await shell.openPath(settings.valeConfigPathAbsolute);
 				});
 			});
 	}
