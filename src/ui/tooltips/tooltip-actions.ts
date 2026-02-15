@@ -5,6 +5,7 @@ import { ValeIssue } from "types";
 import { calculateIssuePosition } from "utils/position-utils";
 import { parseValeAction } from "core/vale-parser";
 import { getSpellingSuggestions } from "core/spell-checker";
+import { createDiv } from "./tooltip-builder";
 
 /**
  * Create a remove button element using Obsidian's ButtonComponent
@@ -13,8 +14,7 @@ export function createRemoveButton(
 	view: EditorView,
 	issue: ValeIssue,
 ): HTMLElement {
-	const container = document.createElement("div");
-	container.className = "vale-tooltip-actions";
+	const container = createDiv("vale-tooltip-remove-button");
 
 	const button = new ButtonComponent(container);
 	button.setButtonText("Remove");
@@ -32,10 +32,7 @@ export function createRemoveButton(
  * Create a header element for suggestions section
  */
 export function createSuggestionsHeader(text: string): HTMLElement {
-	return document.createDiv({
-		cls: "vale-tooltip-suggestions-header",
-		text: text,
-	});
+	return createDiv("vale-tooltip-suggestions-header", text);
 }
 
 /**
@@ -49,9 +46,7 @@ export function createSuggestionButtons(
 	suggestions: string[],
 	directApply: boolean = false,
 ): HTMLElement {
-	const container = document.createDiv({
-		cls: "vale-tooltip-suggestions-list",
-	});
+	const container = createDiv("vale-tooltip-suggestions-list");
 
 	suggestions.forEach((suggestion, index) => {
 		const button = new ButtonComponent(container);
@@ -99,7 +94,7 @@ export function createActionUI(
 
 	// Regular suggestions
 	if (suggestions.length > 0 && !needsSpellCheck) {
-		const container = document.createDiv();
+		const container = createDiv();
 		container.appendChild(createSuggestionsHeader("Suggestions:"));
 		container.appendChild(
 			createSuggestionButtons(view, issue, suggestions),
@@ -109,13 +104,10 @@ export function createActionUI(
 
 	// Spell check suggestions (async)
 	if (needsSpellCheck) {
-		const container = document.createDiv();
+		const container = createDiv();
 		container.appendChild(createSuggestionsHeader("Spelling suggestions:"));
 		// Create placeholder
-		const placeholder = document.createDiv({
-			cls: "vale-tooltip-loading",
-			text: "Loading...",
-		});
+		const placeholder = createDiv("vale-tooltip-loading", "Loading...");
 		container.appendChild(placeholder);
 		// Load async
 		getSpellingSuggestions(issue.match)
@@ -136,11 +128,12 @@ export function createActionUI(
 					container.appendChild(noneEl);
 				}
 			})
-			.catch((e) => {
+			.catch(() => {
 				placeholder.remove();
-				const errorEl = document.createDiv({
-					text: "Error loading suggestions",
-				});
+				const errorEl = createDiv(
+					undefined,
+					"Error loading suggestions",
+				);
 				container.appendChild(errorEl);
 			});
 		return container;
