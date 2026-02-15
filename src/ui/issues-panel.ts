@@ -1,4 +1,5 @@
 import { IssueManager } from "core/issue-manager";
+import ValePlugin from "main";
 import { ItemView, MarkdownView, Notice, WorkspaceLeaf } from "obsidian";
 import { ValeIssue } from "types";
 import {
@@ -306,5 +307,18 @@ export class ValeIssuesView extends ItemView {
 	/** Get icon for severity level */
 	private getSeverityIcon(severity: Severity): string {
 		return SEVERITY_METADATA[severity].icon;
+	}
+}
+
+export async function openIssuesPanel(plugin: ValePlugin): Promise<void> {
+	await plugin.app.workspace.getRightLeaf(false)?.setViewState({
+		type: ISSUES_PANEL_VIEW_TYPE,
+		active: true,
+	});
+	const leaf = plugin.app.workspace.getLeavesOfType(
+		ISSUES_PANEL_VIEW_TYPE,
+	)[0];
+	if (leaf) {
+		await plugin.app.workspace.revealLeaf(leaf);
 	}
 }
