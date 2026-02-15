@@ -2,6 +2,7 @@
 import {
 	App,
 	debounce,
+	Notice,
 	PluginSettingTab,
 	Setting,
 	SettingGroup,
@@ -61,45 +62,48 @@ export class ValePluginSettingTab extends PluginSettingTab {
 	}
 
 	private addBasicSettings(containerEl: HTMLElement): void {
+		this.addToggleSetting(
+			containerEl,
+			"Inline alerts",
+			"Show Vale issues directly in the editor. Requires plugin reload to take effect.",
+			"showInlineAlerts",
+		);
+
+		this.addToggleSetting(
+			containerEl,
+			"Automatic checking",
+			"Automatically check files on changes. Requires plugin reload to take effect.",
+			"automaticChecking",
+		);
+
+		this.addToggleSetting(
+			containerEl,
+			"Inline highlights",
+			"Show highlights when using the issues panel to navigate to issues. Requires plugin reload to take effect.",
+			"showInlineHighlights",
+		);
+	}
+
+	private addToggleSetting(
+		containerEl: HTMLElement,
+		name: string,
+		desc: string,
+		settingKey: keyof ValePlugin["settings"],
+	): void {
 		const settings = this.plugin.settings;
 
 		new Setting(containerEl)
-			.setName("Enable inline alerts")
-			.setDesc("Show Vale issues directly in the editor.")
+			.setName(name)
+			.setDesc(desc)
 			.addToggle((toggle) => {
 				toggle
-					.setValue(settings.showInlineAlerts)
+					.setValue(settings[settingKey] as boolean)
 					.onChange(async (value) => {
-						settings.showInlineAlerts = value;
+						(settings[settingKey] as boolean) = value;
 						await this.plugin.saveSettings();
-					});
-			});
-
-		new Setting(containerEl)
-			.setName("Automatic checking")
-			.setDesc(
-				"Automatically check files on changes. Requires plugin reload to take effect.",
-			)
-			.addToggle((toggle) => {
-				toggle
-					.setValue(settings.automaticChecking)
-					.onChange(async (value) => {
-						settings.automaticChecking = value;
-						await this.plugin.saveSettings();
-					});
-			});
-
-		new Setting(containerEl)
-			.setName("Enable inline highlights")
-			.setDesc(
-				"Show highlights when using the issues panel to navigate to issues. Requires plugin reload to take effect.",
-			)
-			.addToggle((toggle) => {
-				toggle
-					.setValue(settings.showInlineHighlights)
-					.onChange(async (value) => {
-						settings.showInlineHighlights = value;
-						await this.plugin.saveSettings();
+						new Notice(
+							`${name} setting ${value ? "enabled" : "disabled"}. Please reload the plugin for this to take effect.`,
+						);
 					});
 			});
 	}
