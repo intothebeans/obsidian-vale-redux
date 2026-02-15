@@ -10,10 +10,10 @@ import {
 import { ValeConfig } from "types";
 import ValePlugin from "main";
 
-import { returnCodeFail, testValeConnection } from "utils/vale-utils";
+import { getValeStylesPath, testValeConnection } from "utils/vale-utils";
 import { notifyError } from "utils/error-utils";
-import { spawnProcessWithOutput } from "utils/process-utils";
 import { shell } from "electron";
+import { createConfigUI } from "core/config/settings-ui";
 // FIX: Single regex being broken up during parsing
 export const DEFAULT_VALE_CONFIG: ValeConfig = {
 	BlockIgnores: {
@@ -164,10 +164,7 @@ export class ValePluginSettingTab extends PluginSettingTab {
 			.addButton((button) => {
 				button.setButtonText("Open Styles Folder").onClick(async () => {
 					try {
-						const stylesPath = await getValeStylesPath(
-							settings.valeBinaryPath,
-							settings.valeConfigPath,
-						);
+						const stylesPath = await getValeStylesPath(this.plugin);
 						await shell.openPath(stylesPath);
 					} catch (error) {
 						notifyError(
@@ -247,35 +244,13 @@ export class ValePluginSettingTab extends PluginSettingTab {
 							});
 					});
 			});
+
+		createConfigUI(containerEl, this.plugin);
 	}
 
 	hide(): void {
 		// Cancel any pending save operations when the settings tab is closed
 		this.debouncedSave.cancel();
 		super.hide();
-	}
-}
-
-async function getValeStylesPath(
-	binaryPath: string,
-	configPath: string,
-): Promise<string> {
-	const valeProcess = {
-		command: binaryPath,
-		args: ["ls-dirs", "--output=JSON", `--config=${configPath}`],
-		timeoutMs: 5000,
-		onClose: returnCodeFail,
-	};
-	const cmdOutput = await spawnProcessWithOutput(valeProcess);
-	const outputJson = JSON.parse(cmdOutput) as {
-		StylesPath?: string;
-		".vale.ini"?: string;
-	};
-	if (outputJson && outputJson.StylesPath) {
-		return outputJson.StylesPath;
-	} else if (outputJson && configPath && outputJson[".vale.ini"]) {
-		return outputJson[".vale.ini"];
-	} else {
-		throw new Error("Styles path not found in Vale output");
 	}
 }

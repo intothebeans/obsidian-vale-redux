@@ -2,6 +2,7 @@ import { Notice } from "obsidian";
 import { ValePluginSettings, ValeProcess } from "types";
 import { notifyError } from "./error-utils";
 import { spawnProcessWithOutput } from "./process-utils";
+import ValePlugin from "main";
 
 /**
  * Standard exit code checker - only returnCode 0 is success.
@@ -70,5 +71,34 @@ export async function testValeConnection(
 			`${error instanceof Error ? error.message : String(error)}`,
 		);
 		return false;
+	}
+}
+export async function getValeStylesPath(plugin: ValePlugin): Promise<string> {
+	const settings = plugin.settings;
+	const valeProcess = {
+		command: settings.valeBinaryPath,
+		args: [
+			"ls-dirs",
+			"--output=JSON",
+			`--config=${settings.valeConfigPath}`,
+		],
+		timeoutMs: 5000,
+		onClose: returnCodeFail,
+	};
+	const cmdOutput = await spawnProcessWithOutput(valeProcess);
+	const outputJson = JSON.parse(cmdOutput) as {
+		StylesPath?: string;
+		".vale.ini"?: string;
+	};
+	if (outputJson && outputJson.StylesPath) {
+		return outputJson.StylesPath;
+	} else if (
+		outputJson &&
+		settings.valeConfigPath &&
+		outputJson[".vale.ini"]
+	) {
+		return outputJson[".vale.ini"];
+	} else {
+		throw new Error("Styles path not found in Vale output");
 	}
 }
