@@ -74,3 +74,18 @@
 	background: var(--background-secondary);
 	border-radius: 4px;
 }
+
+// Temporary highlight when jumping to an issue
+.cm-vale-temporary-highlight {
+	background-color: var(--text-selection);
+	animation: vale-highlight-fade 1.5s ease-out;
+}
+
+@keyframes vale-highlight-fade {
+	0% {
+		background-color: var(--text-selection);
+	}
+	100% {
+		background-color: transparent;
+	}
+}

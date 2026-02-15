@@ -9,6 +9,14 @@ import {
 } from "utils/constants";
 import { notifyError } from "utils/error-utils";
 
+import { EditorView } from "@codemirror/view";
+import { calculateIssuePosition } from "utils/position-utils";
+import {
+	addIssueHighlight,
+	clearIssueHighlight,
+	highlightIssueInEditor,
+} from "core/editor/highlights";
+
 export class ValeIssuesView extends ItemView {
 	private issueManager: IssueManager;
 	private currentFile: string | null = null;
@@ -302,8 +310,12 @@ export class ValeIssuesView extends ItemView {
 				},
 				true,
 			);
+
+			// Add temporary highlight to make the issue easier to see
+			highlightIssueInEditor(issue, this.app);
 		}
 	}
+
 	/** Get icon for severity level */
 	private getSeverityIcon(severity: Severity): string {
 		return SEVERITY_METADATA[severity].icon;

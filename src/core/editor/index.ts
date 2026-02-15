@@ -10,6 +10,7 @@ import { createTooltipDOM } from "ui/tooltips";
 import { App, MarkdownView } from "obsidian";
 import { IssueManager } from "core/issue-manager";
 import { Extension } from "@codemirror/state";
+import { temporaryHighlightField } from "./highlights";
 
 /**
  * Create a hover tooltip extension for Vale issues
@@ -35,7 +36,11 @@ const valeHoverTooltip = hoverTooltip((view, pos) => {
 });
 
 // The Vale decorations extension
-const valeDecorationsExtension = [valeDecorationsField, valeHoverTooltip];
+const valeDecorationsExtension = [
+	valeDecorationsField,
+	valeHoverTooltip,
+	temporaryHighlightField,
+];
 
 /**
  * Creates the Vale decoration extension that bridges IssueManager and CodeMirror decorations
