@@ -17,6 +17,7 @@ export const DEFAULT_SETTINGS: ValePluginSettings = {
 	valeConfigPathAbsolute: "",
 	excludedFiles: [],
 	showInlineAlerts: true,
+	showInlineHighlights: true,
 	debounceMs: 500,
 	disabledFiles: [],
 	automaticChecking: true,
@@ -48,11 +49,13 @@ export default class ValePlugin extends Plugin {
 		);
 		this.addSettingTab(new ValePluginSettingTab(this.app, this));
 		this.registerEventListeners();
-		if (this.settings.showInlineAlerts) {
-			this.registerEditorExtension(
-				buildValeEditorExtension(this.app, this.issueManager),
-			);
-		}
+		this.registerEditorExtension(
+			buildValeEditorExtension(
+				this.app,
+				this.issueManager,
+				this.settings,
+			),
+		);
 		registerCommands(this);
 
 		// Run things

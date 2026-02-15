@@ -11,6 +11,7 @@ import { App, MarkdownView } from "obsidian";
 import { IssueManager } from "core/issue-manager";
 import { Extension } from "@codemirror/state";
 import { temporaryHighlightField } from "./highlights";
+import { ValePluginSettings } from "types/plugin-types";
 
 /**
  * Create a hover tooltip extension for Vale issues
@@ -35,20 +36,21 @@ const valeHoverTooltip = hoverTooltip((view, pos) => {
 	};
 });
 
-// The Vale decorations extension
-const valeDecorationsExtension = [
-	valeDecorationsField,
-	valeHoverTooltip,
-	temporaryHighlightField,
-];
-
 /**
  * Creates the Vale decoration extension that bridges IssueManager and CodeMirror decorations
  */
 export function buildValeEditorExtension(
 	app: App,
 	issueManager: IssueManager,
+	settings: ValePluginSettings,
 ): Extension {
+	let editorExtensions: Extension[] = [];
+	if (settings.showInlineAlerts) {
+		editorExtensions.push(valeDecorationsField, valeHoverTooltip);
+	}
+	if (settings.showInlineHighlights) {
+		editorExtensions.push(temporaryHighlightField);
+	}
 	const viewMap = new WeakMap<EditorView, string>();
 	const editorViewRegistry = createViewRegistry(app, issueManager, viewMap);
 
@@ -71,7 +73,7 @@ export function buildValeEditorExtension(
 		});
 	});
 
-	return [valeDecorationsExtension, editorViewRegistry];
+	return [editorExtensions, editorViewRegistry];
 }
 
 function createViewRegistry(
