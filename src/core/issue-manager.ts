@@ -12,6 +12,7 @@ export class IssueManager extends Events {
 	// Maybe allow use of redis?
 	private cache: Map<string, ValeIssue[]> = new Map();
 	private debouncedRefresh: (filePath: string) => void;
+	private _valeAvailable = true;
 
 	constructor(plugin: ValePlugin) {
 		super();
@@ -25,6 +26,9 @@ export class IssueManager extends Events {
 	}
 
 	async refreshFile(filePath: string): Promise<void> {
+		if (!this._valeAvailable) {
+			return;
+		}
 		this.trigger("linting-started", filePath);
 		const absolutePath = ensureAbsolutePath(
 			filePath,
@@ -35,17 +39,34 @@ export class IssueManager extends Events {
 			this.cache.set(filePath, result.issues);
 		} else {
 			this.cache.delete(filePath);
-			notifyError(
-				`Vale linting failed for file: ${filePath}`,
-				8000,
-				result.error || "Unknown error",
-			);
+			if (this.isProcessError(result.error)) {
+				this._valeAvailable = false;
+				notifyError(
+					"Vale binary is not available. Linting is disabled until settings are updated or the plugin is reloaded.",
+					0,
+					result.error || "Unknown error",
+				);
+			} else {
+				notifyError(
+					`Vale linting failed for file: ${filePath}`,
+					8000,
+					result.error || "Unknown error",
+				);
+			}
 		}
 		this.trigger("issues-updated", filePath);
 	}
 
 	refreshFileDebounced(filePath: string): void {
 		this.debouncedRefresh(filePath);
+	}
+
+	resetAvailability(): void {
+		this._valeAvailable = true;
+	}
+
+	get valeAvailable(): boolean {
+		return this._valeAvailable;
 	}
 
 	clearCache(): void {
@@ -73,5 +94,14 @@ export class IssueManager extends Events {
 			warnings: issues.filter((i) => i.severity === "warning"),
 			suggestions: issues.filter((i) => i.severity === "suggestion"),
 		};
+	}
+
+	private isProcessError(error?: string): boolean {
+		if (!error) return false;
+		return (
+			error.includes("ENOENT") ||
+			error.includes("EACCES") ||
+			error.includes("Process failed with error")
+		);
 	}
 }
