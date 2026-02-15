@@ -6,7 +6,7 @@ import {
 	ViewUpdate,
 	hoverTooltip,
 } from "@codemirror/view";
-import { StateField, StateEffect, Extension } from "@codemirror/state";
+import { StateField, StateEffect, type Extension } from "@codemirror/state";
 import type { ValeIssue } from "types";
 import { App, MarkdownView } from "obsidian";
 import { findIssueAtPosition } from "utils/position-utils";
@@ -86,8 +86,11 @@ export function createValeDecorationExtension(
 				if (filePath) {
 					viewMap.set(view, filePath);
 					const issues = issueManager.getIssues(filePath);
-					view.dispatch({
-						effects: setValeDecorationsEffect.of(issues),
+					// Defer dispatch — constructor runs during an update cycle
+					requestAnimationFrame(() => {
+						view.dispatch({
+							effects: setValeDecorationsEffect.of(issues),
+						});
 					});
 				}
 			}
@@ -104,18 +107,6 @@ export function createValeDecorationExtension(
 			}
 		},
 	);
-
-	const updateListener = EditorView.updateListener.of((update) => {
-		if (update.docChanged || update.viewportChanged) {
-			const filePath = getCurrentFilePath(app);
-			if (filePath) {
-				const issues = issueManager.getIssues(filePath);
-				update.view.dispatch({
-					effects: setValeDecorationsEffect.of(issues),
-				});
-			}
-		}
-	});
 
 	// Listen for external issue updates from IssueManager
 	issueManager.on("issues-updated", (filePath: string) => {
@@ -134,7 +125,7 @@ export function createValeDecorationExtension(
 		});
 	});
 
-	return [valeDecorationsExtension, viewTracker, updateListener];
+	return [valeDecorationsExtension, viewTracker];
 }
 
 /** Helper function that gets the path for the active view */
