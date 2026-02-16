@@ -1,0 +1,27 @@
+.vale-navigation-item {
+	cursor: pointer;
+	&.selected {
+		background-color: var(--background-primary);
+		border-bottom: 2px solid var(--interactive-accent);
+	}
+
+	&:hover {
+		background-color: var(--background-modifier-hover);
+	}
+}
+
+.vale-hidden {
+	display: none;
+}
+
+.vale-tab-settings {
+	padding: 1rem;
+}
+
+.vale-settings-nav,
+.vale-settings-tab-group {
+	display: flex;
+	align-items: flex-end;
+	gap: 8px;
+	flex-wrap: nowrap;
+}

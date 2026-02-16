@@ -284,6 +284,33 @@
   background-color: color-mix(in srgb, var(--vale-suggestion), transparent 80%);
 }
 
+.vale-navigation-item {
+  cursor: pointer;
+}
+.vale-navigation-item.selected {
+  background-color: var(--background-primary);
+  border-bottom: 2px solid var(--interactive-accent);
+}
+.vale-navigation-item:hover {
+  background-color: var(--background-modifier-hover);
+}
+
+.vale-hidden {
+  display: none;
+}
+
+.vale-tab-settings {
+  padding: 1rem;
+}
+
+.vale-settings-nav,
+.vale-settings-tab-group {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
 :root {
   --vale-error: #ff4d4d;
   --vale-warning: #ffa500;

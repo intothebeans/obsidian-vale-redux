@@ -1,10 +1,10 @@
 import { ValePluginSettings, ValeConfig } from "types";
-import { MarkdownView, Plugin, TFile, WorkspaceLeaf } from "obsidian";
+import { debounce, MarkdownView, Plugin, TFile, WorkspaceLeaf } from "obsidian";
 import { ValePluginSettingTab } from "settings";
 import { ValeRunner } from "core/vale-runner";
 import { ensureAbsolutePath } from "utils/file-utils";
 import { IssueManager } from "core/issue-manager";
-import { getExistingConfigOptions } from "core/config/loading";
+import { getExistingConfigOptions } from "core/vale-config";
 import { ISSUES_PANEL_VIEW_TYPE } from "utils/constants";
 import { ValeIssuesView } from "ui/issues-panel";
 import { buildValeEditorExtension } from "core/editor";
@@ -30,6 +30,7 @@ export default class ValePlugin extends Plugin {
 	public settings: ValePluginSettings;
 	public valeRunner: ValeRunner;
 	public valeConfig: ValeConfig;
+	public debounceSettingsSave = debounce(() => this.saveSettings(), 500);
 
 	async onload(): Promise<void> {
 		await this.loadSettings();
