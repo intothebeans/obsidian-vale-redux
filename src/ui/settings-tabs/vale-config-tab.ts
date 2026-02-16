@@ -6,22 +6,25 @@ import { getValeStylesPath } from "utils/vale-utils";
 import { ALERT_LEVEL_METADATA, AlertLevel } from "utils/constants";
 
 export class ValeConfigTab extends SettingsTab {
+	private valeConfig: ValeConfig;
 	constructor(
 		navEl: HTMLElement,
 		settingsEl: HTMLElement,
 		plugin: ValePlugin,
 	) {
 		super(navEl, settingsEl, "Vale Config", plugin, "file-sliders");
+		this.valeConfig = plugin.valeConfig || null;
 		this.display();
 	}
 
 	display(): void {
-		this.createCoreSettings();
-		this.createGlobalSettings();
-		this.createSyntaxSettings();
+		if (this.valeConfig) {
+			this.createCoreSettings();
+			this.createGlobalSettings();
+			this.createSyntaxSettings();
+		}
 	}
 	private createCoreSettings(): SettingGroup {
-		const config: ValeConfig = this.plugin.valeConfig;
 		return new SettingGroup(this.contentEl)
 			.setHeading("Core Settings")
 			.addClass("vale-config-core-settings")
@@ -42,7 +45,7 @@ export class ValeConfigTab extends SettingsTab {
 			.addSetting((setting) => {
 				this.stringArraySetting(
 					setting,
-					config.Vocab,
+					this.valeConfig.Vocab,
 					"Vocab",
 					"List of vocabularies to load.",
 				);
@@ -56,9 +59,10 @@ export class ValeConfigTab extends SettingsTab {
 					)
 					.addText((text) => {
 						text.setValue(
-							config.MinAlertLevel !== undefined
+							this.valeConfig.MinAlertLevel !== undefined
 								? ALERT_LEVEL_METADATA[
-										config.MinAlertLevel as AlertLevel
+										this.valeConfig
+											.MinAlertLevel as AlertLevel
 									]
 								: "Not set",
 						).setPlaceholder("Minimum alert level");
@@ -67,7 +71,7 @@ export class ValeConfigTab extends SettingsTab {
 			.addSetting((setting) => {
 				this.stringArraySetting(
 					setting,
-					config.IgnoredScopes,
+					this.valeConfig.IgnoredScopes,
 					"Ignored scopes",
 					"List of inline-level HTML tags to ignore.",
 				);
@@ -75,7 +79,7 @@ export class ValeConfigTab extends SettingsTab {
 			.addSetting((setting) => {
 				this.stringArraySetting(
 					setting,
-					config.SkippedScopes,
+					this.valeConfig.SkippedScopes,
 					"Skipped scopes",
 					"List of block-level HTML tags to ignore",
 				);
@@ -83,72 +87,78 @@ export class ValeConfigTab extends SettingsTab {
 			.addSetting((setting) => {
 				this.stringArraySetting(
 					setting,
-					config.IgnoredClasses,
+					this.valeConfig.IgnoredClasses,
 					"Ignored classes",
 					"Classes to ignore for both inline and block-level tags.",
 				);
 			});
 	}
 
-	private createGlobalSettings(): SettingGroup {
-		const config: ValeConfig = this.plugin.valeConfig;
-		const globalConfig = config["*"];
-		return new SettingGroup(this.contentEl)
-			.setHeading("Global Settings")
-			.addClass("vale-config-global-settings")
-			.addSetting((setting) => {
-				this.stringArraySetting(
-					setting,
-					globalConfig?.BasedOnStyles,
-					"Based on styles",
-					"List of styles to apply globally.",
-				);
-			})
-			.addSetting((setting) => {
-				this.stringArraySetting(
-					setting,
-					globalConfig?.BlockIgnores,
-					"Block ignores",
-					"List of block-level HTML tags to ignore globally.",
-				);
-			})
-			.addSetting((setting) => {
-				this.stringArraySetting(
-					setting,
-					globalConfig?.TokenIgnores,
-					"Token ignores",
-					"List of inline-level HTML tags to ignore globally.",
-				);
-			})
-			.addSetting((setting) => {
-				setting
-					.setName("Language")
-					.setDesc("Language to use for global checks.")
-					.addText((text) => {
-						text.setValue(globalConfig?.Lang || "").setPlaceholder(
-							"Language code (e.g., en, fr, etc.)",
-						);
-					});
-			})
-			.addSetting((setting) => {
-				setting
-					.setName("Check overrides")
-					.setDesc(
-						"Override specific checks globally. Specify the check name, and optionally set a new alert level or disable it.",
-					)
-					.addTextArea((text) => {
-						const overrideLines =
-							this.extractCheckOverrides(globalConfig);
-						text.setValue(overrideLines.join("\n")).setPlaceholder(
-							// eslint-disable-next-line obsidianmd/ui/sentence-case
-							"One override per line, format: CheckName = Level or NO (to disable)",
-						);
-					});
-			});
+	private createGlobalSettings(): SettingGroup | void {
+		const globalConfig = this.valeConfig["*"] || null;
+		if (globalConfig) {
+			return new SettingGroup(this.contentEl)
+				.setHeading("Global Settings")
+				.addClass("vale-config-global-settings")
+				.addSetting((setting) => {
+					this.stringArraySetting(
+						setting,
+						globalConfig?.BasedOnStyles,
+						"Based on styles",
+						"List of styles to apply globally.",
+					);
+				})
+				.addSetting((setting) => {
+					this.stringArraySetting(
+						setting,
+						globalConfig?.BlockIgnores,
+						"Block ignores",
+						"List of block-level HTML tags to ignore globally.",
+					);
+				})
+				.addSetting((setting) => {
+					this.stringArraySetting(
+						setting,
+						globalConfig?.TokenIgnores,
+						"Token ignores",
+						"List of inline-level HTML tags to ignore globally.",
+					);
+				})
+				.addSetting((setting) => {
+					setting
+						.setName("Language")
+						.setDesc("Language to use for global checks.")
+						.addText((text) => {
+							text.setValue(
+								globalConfig?.Lang || "",
+							).setPlaceholder(
+								"Language code (e.g., en, fr, etc.)",
+							);
+						});
+				})
+				.addSetting((setting) => {
+					setting
+						.setName("Check overrides")
+						.setDesc(
+							"Override specific checks globally. Specify the check name, and optionally set a new alert level or disable it.",
+						)
+						.addTextArea((text) => {
+							const overrideLines =
+								this.extractCheckOverrides(globalConfig);
+							text.setValue(
+								overrideLines.join("\n"),
+							).setPlaceholder(
+								// eslint-disable-next-line obsidianmd/ui/sentence-case
+								"One override per line, format: CheckName = Level or NO (to disable)",
+							);
+						});
+				});
+		}
+		return;
 	}
 
 	private createSyntaxSettings(): SettingGroup | void {
-		const sections = this.plugin.valeConfig.syntaxSections || null;
+		const sections = this.valeConfig.syntaxSections || null;
 		if (sections) {
 			for (const [syntax, config] of Object.entries(sections)) {
 				new SettingGroup(this.contentEl)
