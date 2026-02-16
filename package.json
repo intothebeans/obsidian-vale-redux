@@ -10,7 +10,7 @@
 		"test": "vitest run",
 		"test:coverage": "vitest run --coverage",
 		"css:build": "sass src/styles/main.scss styles.css",
-		"css:watch": "sass --watch src/styles/main.scss styles.css",
+		"css:watch": "sass --watch --poll src/styles/main.scss styles.css",
 		"version": "cz bump && node version-bump.mjs",
 		"fmt": "prettier --write .",
 		"lint": "eslint ."
