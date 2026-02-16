@@ -62,7 +62,6 @@ export default class ValePlugin extends Plugin {
 		this.valeAvailable = await testValeConnection(this.settings);
 		if (this.valeAvailable) {
 			const options = await getExistingConfigOptions(
-				this.settings.valeBinaryPath,
 				this.settings.valeConfigPathAbsolute,
 			);
 			if (options) {
