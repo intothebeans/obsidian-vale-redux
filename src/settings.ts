@@ -15,6 +15,7 @@ export class ValePluginSettingTab extends PluginSettingTab {
 	tabNavEl: HTMLDivElement;
 	settingsContentEl: HTMLDivElement;
 	private tabNameToTab: Map<string, SettingsTab> = new Map();
+	private navClickListeners: Map<string, EventListener> = new Map();
 	private selectedTab: string = "Plugin Settings";
 	constructor(app: App, plugin: ValePlugin) {
 		super(app, plugin);
@@ -41,6 +42,13 @@ export class ValePluginSettingTab extends PluginSettingTab {
 		// Cancel any pending save operations when the settings tab is closed
 		this.plugin.debounceSettingsSave.cancel();
 		this.containerEl.empty();
+		for (const [name, tab] of this.tabNameToTab.entries()) {
+			const listener = this.navClickListeners.get(name);
+			if (listener) {
+				tab.navButton.removeEventListener("click", listener);
+			}
+		}
+		this.navClickListeners.clear();
 		this.tabNameToTab.clear();
 		super.hide();
 	}
@@ -65,9 +73,11 @@ export class ValePluginSettingTab extends PluginSettingTab {
 
 	private addTab(tab: SettingsTab): void {
 		this.tabNameToTab.set(tab.name, tab);
-		tab.navButton.addEventListener("click", () => {
+		const listener = () => {
 			this.onTabClick(tab.name);
-		});
+		};
+		tab.navButton.addEventListener("click", listener);
+		this.navClickListeners.set(tab.name, listener);
 	}
 
 	private onTabClick(clickedTabName: string): void {
