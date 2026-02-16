@@ -32,13 +32,13 @@ export abstract class SettingsTab {
 		this.navButton.createSpan({ text: name, title: name });
 
 		this.contentEl = settingsEl.createDiv({ cls: "vale-tab-settings" });
-		this.contentEl.id = name.toLowerCase().replace(" ", "-");
+		this.contentEl.id = name.toLowerCase().replace(/ /g, "-");
 		this.contentEl.setAttribute("role", "tabpanel");
 		this.contentEl.setAttribute(
 			"aria-labelledby",
-			name.toLowerCase().replace(" ", "-") + "-tab",
+			name.toLowerCase().replace(/ /g, "-") + "-tab",
 		);
-		this.navButton.id = name.toLowerCase().replace(" ", "-") + "-tab";
+		this.navButton.id = name.toLowerCase().replace(/ /g, "-") + "-tab";
 	}
 
 	abstract display(): void;
