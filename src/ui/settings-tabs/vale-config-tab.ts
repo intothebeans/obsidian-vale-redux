@@ -60,12 +60,9 @@ export class ValeConfigTab extends SettingsTab {
 					)
 					.addText((text) => {
 						text.setValue(
-							this.valeConfig.MinAlertLevel !== undefined
-								? ALERT_LEVEL_METADATA[
-										this.valeConfig
-											.MinAlertLevel as AlertLevel
-									]
-								: "Not set",
+							ALERT_LEVEL_METADATA[
+								this.valeConfig.MinAlertLevel as AlertLevel
+							] ?? "Not Set",
 						).setPlaceholder("Minimum alert level");
 					});
 			})
