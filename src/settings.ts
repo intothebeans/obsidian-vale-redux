@@ -112,11 +112,8 @@ export class ValePluginSettingTab extends PluginSettingTab {
 			targetIndex = 0;
 		}
 
-		const targetTabName = tabNames[targetIndex];
-		if (!targetTabName) {
-			return;
-		}
-
+		// Index is guaranteed to be valid due to wrapping logic above
+		const targetTabName = tabNames[targetIndex]!;
 		this.onTabClick(targetTabName);
 
 		// Focus the newly selected tab

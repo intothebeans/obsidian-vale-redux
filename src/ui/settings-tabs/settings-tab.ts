@@ -31,14 +31,12 @@ export abstract class SettingsTab {
 		}
 		this.navButton.createSpan({ text: name, title: name });
 
+		const tabId = name.toLowerCase().replace(/ /g, "-");
 		this.contentEl = settingsEl.createDiv({ cls: "vale-tab-settings" });
-		this.contentEl.id = name.toLowerCase().replace(/ /g, "-");
+		this.contentEl.id = tabId;
 		this.contentEl.setAttribute("role", "tabpanel");
-		this.contentEl.setAttribute(
-			"aria-labelledby",
-			name.toLowerCase().replace(/ /g, "-") + "-tab",
-		);
-		this.navButton.id = name.toLowerCase().replace(/ /g, "-") + "-tab";
+		this.contentEl.setAttribute("aria-labelledby", tabId + "-tab");
+		this.navButton.id = tabId + "-tab";
 	}
 
 	abstract display(): void;
