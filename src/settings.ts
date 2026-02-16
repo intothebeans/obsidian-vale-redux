@@ -40,6 +40,8 @@ export class ValePluginSettingTab extends PluginSettingTab {
 	hide(): void {
 		// Cancel any pending save operations when the settings tab is closed
 		this.plugin.debounceSettingsSave.cancel();
+		this.containerEl.empty();
+		this.tabNameToTab.clear();
 		super.hide();
 	}
 
