@@ -1,7 +1,7 @@
 import { readFile } from "fs/promises";
 import { ValeConfig } from "types";
 import { notifyError } from "utils/error-utils";
-import { parseValeIni } from "./vale-ini-parser";
+import { parseValeIni } from "../vale-ini-parser";
 
 export async function getExistingConfigOptions(
 	configPath: string,

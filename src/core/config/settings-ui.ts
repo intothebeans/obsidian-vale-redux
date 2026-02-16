@@ -1,7 +1,7 @@
 import ValePlugin from "main";
-import { SearchComponent, Setting, SettingGroup } from "obsidian";
+import { Setting, SettingGroup } from "obsidian";
 import { ValeConfig } from "types";
-import { AlertLevel } from "utils/constants";
+import { ALERT_LEVEL_METADATA, AlertLevel } from "utils/constants";
 import { getValeStylesPath } from "utils/vale-utils";
 
 export function createConfigUI(
@@ -53,7 +53,9 @@ function createCoreSettings(
 				.addText((text) => {
 					text.setValue(
 						config.MinAlertLevel !== undefined
-							? AlertLevel[config.MinAlertLevel as AlertLevel]
+							? ALERT_LEVEL_METADATA[
+									config.MinAlertLevel as AlertLevel
+								]
 							: "Not set",
 					).setPlaceholder("Minimum alert level");
 				});
@@ -81,22 +83,6 @@ function createCoreSettings(
 				"Ignored classes",
 				"Classes to ignore for both inline and block-level tags.",
 			);
-		})
-		.addSetting((setting) => {
-			setting
-				.setName("Check severity overrides")
-				.setDisabled(true)
-				.setDesc("Custom alert levels for specific checks.")
-				.addTextArea((text) => {
-					if (config.RuleToLevel) {
-						const overrides = Object.entries(config.RuleToLevel)
-							.map(([check, level]) => `${check}: ${level}`)
-							.join("\n");
-						text.setValue(overrides);
-					} else {
-						text.setValue("No custom overrides defined");
-					}
-				});
 		});
 }
 
