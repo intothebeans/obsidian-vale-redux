@@ -1,343 +1,356 @@
 .vale-issues-view {
-  padding: 10px;
-  overflow-y: auto;
+	padding: 10px;
+	overflow-y: auto;
 }
 
 .vale-issues-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 10px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--background-modifier-border);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 10px;
+	padding-bottom: 8px;
+	border-bottom: 1px solid var(--background-modifier-border);
 }
 
 .vale-issues-count {
-  font-size: 0.9em;
-  opacity: 0.7;
+	font-size: 0.9em;
+	opacity: 0.7;
 }
 
 .vale-empty-state {
-  text-align: center;
-  padding: 40px 20px;
-  opacity: 0.6;
+	text-align: center;
+	padding: 40px 20px;
+	opacity: 0.6;
 }
 
 .vale-empty-state-icon {
-  font-size: 3em;
-  margin-bottom: 10px;
+	font-size: 3em;
+	margin-bottom: 10px;
 }
 
 .vale-issues-panel-actions {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 10px;
-  gap: 8px;
+	display: flex;
+	justify-content: center;
+	margin-bottom: 10px;
+	gap: 8px;
 }
 
 .vale-action-disabled {
-  opacity: 0.35;
-  pointer-events: none;
+	opacity: 0.35;
+	pointer-events: none;
 }
 
 .vale-issue-item {
-  padding: 8px;
-  margin-bottom: 4px;
-  border-left: 3px solid;
-  background: var(--background-secondary-alt);
-  border-radius: 3px;
-  cursor: pointer;
-  transition: background 0.2s ease;
+	padding: 8px;
+	margin-bottom: 4px;
+	border-left: 3px solid;
+	background: var(--background-secondary-alt);
+	border-radius: 3px;
+	cursor: pointer;
+	transition: background 0.2s ease;
 }
 
 .vale-issue-message {
-  margin-bottom: 4px;
-  line-height: 1.4;
+	margin-bottom: 4px;
+	line-height: 1.4;
 }
 
 .vale-issue-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 4px;
 }
 
 .vale-issue-location {
-  font-size: 0.85em;
-  opacity: 0.7;
-  font-family: var(--font-monospace);
+	font-size: 0.85em;
+	opacity: 0.7;
+	font-family: var(--font-monospace);
 }
 
 .vale-issue-actions {
-  display: flex;
-  gap: 5px;
-  margin-top: 6px;
+	display: flex;
+	gap: 5px;
+	margin-top: 6px;
 }
 
 .vale-issue-check {
-  font-size: 0.85em;
-  opacity: 0.6;
-  font-family: var(--font-monospace);
+	font-size: 0.85em;
+	opacity: 0.6;
+	font-family: var(--font-monospace);
 }
 
 .vale-issue-item:hover {
-  background: var(--background-primary-alt);
+	background: var(--background-primary-alt);
 }
 
 .vale-issue-item.error {
-  border-left-color: var(--vale-error);
+	border-left-color: var(--vale-error);
 }
 
 .vale-issue-item.warning {
-  border-left-color: var(--vale-warning);
+	border-left-color: var(--vale-warning);
 }
 
 .vale-issue-item.suggestion {
-  border-left-color: var(--vale-suggestion);
+	border-left-color: var(--vale-suggestion);
 }
 
 .vale-severity-count {
-  opacity: 0.7;
-  font-size: 0.9em;
-  font-weight: normal;
+	opacity: 0.7;
+	font-size: 0.9em;
+	font-weight: normal;
 }
 
 .vale-severity-icon {
-  font-size: 1.2em;
+	font-size: 1.2em;
 }
 
 .vale-severity-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-  padding: 5px;
-  font-weight: 600;
-  background: var(--background-secondary);
-  border-radius: 4px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 8px;
+	padding: 5px;
+	font-weight: 600;
+	background: var(--background-secondary);
+	border-radius: 4px;
 }
 
 .cm-vale-temporary-highlight {
-  background-color: var(--text-selection);
-  animation: vale-highlight-fade 1.5s ease-out;
+	background-color: var(--text-selection);
+	animation: vale-highlight-fade 1.5s ease-out;
 }
 
 @keyframes vale-highlight-fade {
-  0% {
-    background-color: var(--text-selection);
-  }
-  100% {
-    background-color: transparent;
-  }
+	0% {
+		background-color: var(--text-selection);
+	}
+	100% {
+		background-color: transparent;
+	}
 }
 .cm-tooltip.cm-tooltip-hover {
-  padding: 0;
-  border: 1px solid var(--background-modifier-border-hover);
-  background: var(--background-secondary);
-  border-radius: var(--radius-m, 8px);
-  box-shadow: var(--shadow-s, 0 2px 8px rgba(0, 0, 0, 0.15));
-  z-index: var(--layer-menu, 50);
-  user-select: none;
-  overflow: hidden;
+	padding: 0;
+	border: 1px solid var(--background-modifier-border-hover);
+	background: var(--background-secondary);
+	border-radius: var(--radius-m, 8px);
+	box-shadow: var(--shadow-s, 0 2px 8px rgba(0, 0, 0, 0.15));
+	z-index: var(--layer-menu, 50);
+	user-select: none;
+	overflow: hidden;
 }
 
 .vale-tooltip-container {
-  font-family: var(--default-font);
-  font-size: var(--font-ui-small);
-  width: 300px;
-  line-height: 1.5;
-  padding: 12px;
-  color: var(--text-normal);
+	font-family: var(--default-font);
+	font-size: var(--font-ui-small);
+	width: 300px;
+	line-height: 1.5;
+	padding: 12px;
+	color: var(--text-normal);
 }
 
 .vale-tooltip-severity {
-  display: inline-block;
-  border-radius: 8px;
-  padding: 2px 8px;
-  font-size: var(--font-ui-smaller);
-  font-weight: 600;
-  text-transform: uppercase;
-  margin-bottom: 8px;
+	display: inline-block;
+	border-radius: 8px;
+	padding: 2px 8px;
+	font-size: var(--font-ui-smaller);
+	font-weight: 600;
+	text-transform: uppercase;
+	margin-bottom: 8px;
 }
 .vale-tooltip-severity--error {
-  background-color: var(--vale-error);
-  color: white;
+	background-color: var(--vale-error);
+	color: white;
 }
 .vale-tooltip-severity--warning {
-  background-color: var(--vale-warning);
-  color: white;
+	background-color: var(--vale-warning);
+	color: white;
 }
 .vale-tooltip-severity--suggestion {
-  background-color: var(--vale-suggestion);
-  color: white;
+	background-color: var(--vale-suggestion);
+	color: white;
 }
 
 .vale-tooltip-message {
-  margin: 8px 0;
-  line-height: 1.5;
-  color: var(--text-normal);
+	margin: 8px 0;
+	line-height: 1.5;
+	color: var(--text-normal);
 }
 
 .vale-tooltip-actions {
-  margin: 12px 0 8px;
+	margin: 12px 0 8px;
 }
 
 .vale-tooltip-suggestions-header {
-  font-size: var(--font-ui-smaller);
-  color: var(--text-muted);
-  margin-bottom: 6px;
-  font-weight: 500;
+	font-size: var(--font-ui-smaller);
+	color: var(--text-muted);
+	margin-bottom: 6px;
+	font-weight: 500;
 }
 
 .vale-tooltip-suggestions-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
 }
 
 .vale-tooltip-suggestion-button {
-  background: var(--background-secondary);
-  border: 1px solid var(--background-modifier-border);
-  border-radius: 4px;
-  padding: 6px 12px;
-  cursor: pointer;
-  text-align: left;
-  font-size: var(--font-ui-small);
-  color: var(--text-normal);
-  transition: background 0.1s ease;
+	background: var(--background-secondary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 4px;
+	padding: 6px 12px;
+	cursor: pointer;
+	text-align: left;
+	font-size: var(--font-ui-small);
+	color: var(--text-normal);
+	transition: background 0.1s ease;
 }
 .vale-tooltip-suggestion-button:hover {
-  background: var(--background-modifier-hover);
+	background: var(--background-modifier-hover);
 }
 .vale-tooltip-suggestion-button:active {
-  background: var(--background-modifier-active-hover);
+	background: var(--background-modifier-active-hover);
 }
 
 .vale-tooltip-action-button {
-  background: var(--interactive-accent);
-  color: var(--text-on-accent);
-  border: none;
-  border-radius: 4px;
-  padding: 6px 16px;
-  cursor: pointer;
-  font-size: var(--font-ui-small);
-  font-weight: 500;
-  transition: background 0.1s ease;
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
+	border: none;
+	border-radius: 4px;
+	padding: 6px 16px;
+	cursor: pointer;
+	font-size: var(--font-ui-small);
+	font-weight: 500;
+	transition: background 0.1s ease;
 }
 .vale-tooltip-action-button:hover {
-  background: var(--interactive-accent-hover);
+	background: var(--interactive-accent-hover);
 }
 .vale-tooltip-action-button--remove {
-  background: var(--vale-error);
+	background: var(--vale-error);
 }
 .vale-tooltip-action-button--remove:hover {
-  opacity: 0.9;
+	opacity: 0.9;
 }
 
 .vale-tooltip-bottom {
-  margin-top: 12px;
-  padding-top: 8px;
-  border-top: 1px solid var(--background-modifier-border);
+	margin-top: 12px;
+	padding-top: 8px;
+	border-top: 1px solid var(--background-modifier-border);
 }
 
 .vale-tooltip-check {
-  font-size: var(--font-ui-smaller);
-  color: var(--text-muted);
-  font-style: italic;
-  margin-bottom: 4px;
+	font-size: var(--font-ui-smaller);
+	color: var(--text-muted);
+	font-style: italic;
+	margin-bottom: 4px;
 }
 
 .vale-tooltip-link {
-  display: block;
-  color: var(--link-color);
-  text-decoration: none;
-  font-size: var(--font-ui-smaller);
+	display: block;
+	color: var(--link-color);
+	text-decoration: none;
+	font-size: var(--font-ui-smaller);
 }
 .vale-tooltip-link:hover {
-  text-decoration: underline;
+	text-decoration: underline;
 }
 
 .cm-vale-error {
-  cursor: pointer;
-  transition: background-color 100ms ease-out;
-  text-decoration: wavy underline var(--vale-error);
+	cursor: pointer;
+	transition: background-color 100ms ease-out;
+	text-decoration: wavy underline var(--vale-error);
 }
 .cm-vale-error:hover {
-  background-color: color-mix(in srgb, var(--vale-error), transparent 80%);
+	background-color: color-mix(in srgb, var(--vale-error), transparent 80%);
 }
 
 .cm-vale-warning {
-  cursor: pointer;
-  transition: background-color 100ms ease-out;
-  text-decoration: dashed underline var(--vale-warning);
+	cursor: pointer;
+	transition: background-color 100ms ease-out;
+	text-decoration: dashed underline var(--vale-warning);
 }
 .cm-vale-warning:hover {
-  background-color: color-mix(in srgb, var(--vale-warning), transparent 80%);
+	background-color: color-mix(in srgb, var(--vale-warning), transparent 80%);
 }
 
 .cm-vale-suggestion {
-  cursor: pointer;
-  transition: background-color 100ms ease-out;
-  text-decoration: dotted underline var(--vale-suggestion);
+	cursor: pointer;
+	transition: background-color 100ms ease-out;
+	text-decoration: dotted underline var(--vale-suggestion);
 }
 .cm-vale-suggestion:hover {
-  background-color: color-mix(in srgb, var(--vale-suggestion), transparent 80%);
+	background-color: color-mix(
+		in srgb,
+		var(--vale-suggestion),
+		transparent 80%
+	);
 }
 
 .vale-navigation-item {
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 4px 4px 0 0;
-  border: var(--background-modifier-border) solid 2px;
-  border-bottom: none;
-  background-color: var(--background-primary-alt);
-  align-items: center;
-  gap: 4px;
-  display: flex;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+	cursor: pointer;
+	padding: 4px 8px;
+	border-radius: 4px 4px 0 0;
+	border: var(--background-modifier-border) solid 2px;
+	border-bottom: none;
+	background-color: var(--background-primary-alt);
+	align-items: center;
+	gap: 4px;
+	display: flex;
+	transition:
+		background-color 0.2s ease,
+		border-color 0.2s ease;
 }
 .vale-navigation-item.selected {
-  border-color: var(--interactive-accent);
-  background-color: var(--interactive-accent);
-  color: var(--text-on-accent);
+	border-color: var(--interactive-accent);
+	background-color: var(--interactive-accent);
+	color: var(--text-on-accent);
 }
 .vale-navigation-item.selected:hover {
-  background-color: var(--interactive-accent);
+	background-color: var(--interactive-accent);
 }
 .vale-navigation-item:hover {
-  background-color: var(--background-modifier-hover);
-  border-color: var(--interactive-accent);
+	background-color: var(--background-modifier-hover);
+	border-color: var(--interactive-accent);
+}
+.vale-navigation-item:focus {
+	outline: 2px solid var(--interactive-accent);
+	outline-offset: 2px;
+}
+.vale-navigation-item:focus:not(:focus-visible) {
+	outline: none;
 }
 .vale-navigation-item .vale-settings-tab-icon {
-  display: flex;
-  align-self: center;
+	display: flex;
+	align-self: center;
 }
 
 .vale-hidden {
-  display: none;
+	display: none;
 }
 
 .vale-tab-settings {
-  padding: 1rem;
+	padding: 1rem;
 }
 
 .vale-settings-nav,
 .vale-settings-tab-group {
-  display: flex;
-  align-items: flex-end;
-  gap: 8px;
-  flex-wrap: nowrap;
+	display: flex;
+	align-items: flex-end;
+	gap: 8px;
+	flex-wrap: nowrap;
 }
 
 .vale-settings-nav {
-  border-bottom: 3px solid var(--background-modifier-border);
-  margin-top: -2px;
+	border-bottom: 3px solid var(--background-modifier-border);
+	margin-top: -2px;
 }
 
 :root {
-  --vale-error: #ff4d4d;
-  --vale-warning: #ffa500;
-  --vale-suggestion: #1e90ff;
+	--vale-error: #ff4d4d;
+	--vale-warning: #ffa500;
+	--vale-suggestion: #1e90ff;
 }
 
 /*# sourceMappingURL=styles.css.map */

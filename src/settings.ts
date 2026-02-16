@@ -31,6 +31,7 @@ export class ValePluginSettingTab extends PluginSettingTab {
 		this.tabNavEl = this.navContainer.createDiv({
 			cls: "vale-settings-tab-group",
 		});
+		this.tabNavEl.setAttribute("role", "tablist");
 		this.settingsContentEl = containerEl.createDiv({
 			cls: "vale-settings-content",
 		});
@@ -68,6 +69,11 @@ export class ValePluginSettingTab extends PluginSettingTab {
 		tab.navButton.addEventListener("click", () => {
 			this.onTabClick(tab.name);
 		});
+
+		// Add keyboard navigation support
+		tab.navButton.addEventListener("keydown", (e: KeyboardEvent) => {
+			this.handleTabKeydown(e, tab.name);
+		});
 	}
 
 	private onTabClick(clickedTabName: string): void {
@@ -75,5 +81,48 @@ export class ValePluginSettingTab extends PluginSettingTab {
 			tab.updateTabDisplayMode(name === clickedTabName);
 		}
 		this.selectedTab = clickedTabName;
+	}
+
+	private handleTabKeydown(e: KeyboardEvent, currentTabName: string): void {
+		const tabNames = Array.from(this.tabNameToTab.keys());
+		const currentIndex = tabNames.indexOf(currentTabName);
+
+		switch (e.key) {
+			case "Enter":
+			case " ": // Space key
+				e.preventDefault();
+				this.onTabClick(currentTabName);
+				break;
+			case "ArrowLeft":
+				e.preventDefault();
+				this.navigateToTab(currentIndex - 1, tabNames);
+				break;
+			case "ArrowRight":
+				e.preventDefault();
+				this.navigateToTab(currentIndex + 1, tabNames);
+				break;
+		}
+	}
+
+	private navigateToTab(targetIndex: number, tabNames: string[]): void {
+		// Wrap around if at the beginning or end
+		if (targetIndex < 0) {
+			targetIndex = tabNames.length - 1;
+		} else if (targetIndex >= tabNames.length) {
+			targetIndex = 0;
+		}
+
+		const targetTabName = tabNames[targetIndex];
+		if (!targetTabName) {
+			return;
+		}
+
+		this.onTabClick(targetTabName);
+
+		// Focus the newly selected tab
+		const targetTab = this.tabNameToTab.get(targetTabName);
+		if (targetTab) {
+			targetTab.navButton.focus();
+		}
 	}
 }
