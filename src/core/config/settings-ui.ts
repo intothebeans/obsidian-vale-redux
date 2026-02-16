@@ -1,6 +1,6 @@
 import ValePlugin from "main";
 import { Setting, SettingGroup } from "obsidian";
-import { ValeConfig } from "types";
+import { ValeConfig, ValeGlobalSection } from "types";
 import { ALERT_LEVEL_METADATA, AlertLevel } from "utils/constants";
 import { getValeStylesPath } from "utils/vale-utils";
 
@@ -10,6 +10,7 @@ export function createConfigUI(
 ): void {
 	createCoreSettings(container, plugin);
 	createGlobalSettings(container, plugin);
+	createSyntaxSettings(container, plugin);
 }
 
 function createCoreSettings(
@@ -137,21 +138,116 @@ function createGlobalSettings(
 					"Override specific checks globally. Specify the check name, and optionally set a new alert level or disable it.",
 				)
 				.addTextArea((text) => {
-					const overrides = globalConfig?.CheckOverrides;
-					const overrideLines = [];
-					if (overrides && overrides.length > 0) {
-						for (const override of overrides) {
-							overrideLines.push(
-								`${override.Check} = ${override?.Enabled === false ? "NO" : override?.Level || "no change"}`,
-							);
-						}
-					}
+					const overrideLines = extractCheckOverrides(globalConfig);
 					text.setValue(overrideLines.join("\n")).setPlaceholder(
 						// eslint-disable-next-line obsidianmd/ui/sentence-case
 						"One override per line, format: CheckName = Level or NO (to disable)",
 					);
 				});
 		});
+}
+
+function createSyntaxSettings(container: HTMLElement, plugin: ValePlugin) {
+	const sections = plugin.valeConfig.syntaxSections || null;
+	if (sections) {
+		for (const [syntax, config] of Object.entries(sections)) {
+			new SettingGroup(container)
+				.setHeading(`Settings for: ${syntax}`)
+				.addClass("vale-config-syntax-settings")
+				.addSetting((setting) => {
+					stringArraySetting(
+						setting,
+						config.BasedOnStyles,
+						"Based on styles",
+						"List of styles to apply for this syntax.",
+					);
+				})
+				.addSetting((setting) => {
+					stringArraySetting(
+						setting,
+						config.BlockIgnores,
+						"Block ignores",
+						"List of block-level HTML tags to ignore for this syntax.",
+					);
+				})
+				.addSetting((setting) => {
+					stringArraySetting(
+						setting,
+						config.TokenIgnores,
+						"Token ignores",
+						"List of inline-level HTML tags to ignore for this syntax.",
+					);
+				})
+				.addSetting((setting) => {
+					setting
+						.setName("Comment delimiters")
+						.setDesc(
+							"Delimiters used to identify comments for this syntax.",
+						)
+						.addText((text) => {
+							text.setPlaceholder("Opening delimiter").setValue(
+								config?.CommentDelimeters
+									? config.CommentDelimeters[0]
+									: "",
+							);
+						})
+						.addText((text) => {
+							text.setPlaceholder("Closing delimiter").setValue(
+								config?.CommentDelimeters
+									? config.CommentDelimeters[1]
+									: "",
+							);
+						});
+				})
+				.addSetting((setting) => {
+					setting
+						.setName("Language")
+						.setDesc("Language to use for this syntax.")
+						.addText((text) => {
+							text.setValue(config?.Lang || "").setPlaceholder(
+								"Language code (e.g., en, fr, etc.)",
+							);
+						});
+				})
+				.addSetting((setting) => {
+					setting
+						.setName("Blueprint")
+						.setDesc("Blueprint to use for this syntax.")
+						.addText((text) => {
+							text.setValue(
+								config?.Blueprint || "",
+							).setPlaceholder("Blueprint name");
+						});
+				})
+				.addSetting((setting) => {
+					setting
+						.setName("Check overrides")
+						.setDesc("Overrides for checks in this syntax")
+						.addTextArea((text) => {
+							const overrideLines = extractCheckOverrides(config);
+							text.setValue(
+								overrideLines.join("\n"),
+							).setPlaceholder(
+								// eslint-disable-next-line obsidianmd/ui/sentence-case
+								"One override per line, format: CheckName = Level or NO (to disable)",
+							);
+						});
+				});
+		}
+	}
+}
+
+function extractCheckOverrides(globalConfig: ValeGlobalSection | undefined) {
+	const overrides = globalConfig?.CheckOverrides;
+	const overrideLines = [];
+	if (overrides && overrides.length > 0) {
+		for (const override of overrides) {
+			overrideLines.push(
+				`${override.Check} = ${override?.Enabled === false ? "NO" : override?.Level || "no change"}`,
+			);
+		}
+	}
+	return overrideLines;
 }
 
 function stringArraySetting(
