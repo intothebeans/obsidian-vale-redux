@@ -1,52 +1,46 @@
-/** Mirrors the JSON output by vale ls-config
- *  @see https://github.com/errata-ai/vale/blob/v3/internal/core/config.go
+/** Represents the Vale configuration options
  */
-// NOTE: packages are special and read directly from the file.
-// logic for displaying them in settings requires reading the file, not just using the CLI
-
-export interface ValeConfigFull {
-	BlockIgnores?: Record<string, string[]>;
-	Checks?: string[];
-	Formats?: Record<string, string>;
-	/** UNUSED */
-	Asciidoctor?: Record<string, string>;
-	FormatToLang?: Record<string, string>;
-	GBaseStyles?: string[];
-	GChecks?: Record<string, boolean>;
-	IgnoredClasses?: string[];
-	IgnoredScopes?: string[];
+export interface ValeConfig {
+	StylesPath?: string;
 	MinAlertLevel?: number;
-	Vocab?: string[];
-	RuleToLevel?: Record<string, string>;
-	SBaseStyles?: Record<string, string[]>;
-	SChecks?: Record<string, string[]>;
+	IgnoredScopes?: string[];
 	SkippedScopes?: string[];
-	Stylesheets?: string[];
-	TokenIgnores?: Record<string, string[]>;
-	CommentDelimiters?: Record<string, string[2]>;
+	IgnoredClasses?: string[];
+	Vocab?: string[];
 	WordTemplate?: string;
-	/** UNUSED */
-	RootINI?: string;
-	/** UNUSED  */
-	Paths?: string[];
-	/** UNUSED */
-	ConfigFiles?: string[];
-	/** UNUSED */
+	Packages?: string[];
+	"*"?: ValeGlobalSection;
+	formats?: Record<string, string>;
+	syntaxSections?: Record<string, ValeSyntaxSection>;
+
+	/** Unused */
+	asciidoctor?: Record<string, string>;
 	NLPEndpoint?: string;
 }
+interface ValeSyntaxSection {
+	BasedOnStyles?: string[];
+	BlockIgnores?: string[];
+	TokenIgnores?: string[];
+	CommentDelimeters?: [string, string];
+	Transform?: string;
+	Lang?: string;
+	Blueprint?: string;
+	CheckOverrides?: ValeCheckOverride[];
+}
 
-/** Represents the Vale configuration options used by the plugin,
- * excluding fields that are not relevant for plugin settings.
- */
-export type ValeConfig = Omit<
-	ValeConfigFull,
-	| "Asciidoctor"
-	| "Stylesheets"
-	| "RootINI"
-	| "Paths"
-	| "ConfigFiles"
-	| "NLPEndpoint"
->;
+interface ValeGlobalSection {
+	BasedOnStyles?: string[];
+	BlockIgnores?: string[];
+	TokenIgnores?: string[];
+	Lang?: string;
+	CheckOverrides?: ValeCheckOverride[];
+}
+
+interface ValeCheckOverride {
+	Check: string;
+	Level?: string | undefined;
+	Enabled?: boolean | undefined;
+}
 
 /** Represents the output of Vale when using JSON output */
 export interface ValeOutput {
