@@ -36,7 +36,8 @@ export class ValeConfigTab extends SettingsTab {
 					.setName("Styles path")
 					.setDesc("Path to all vale-related resources.")
 					.addText(async (text) => {
-						const stylesPath = await getValeStylesPath(this.plugin);
+						const stylesPath =
+							(await getValeStylesPath(this.plugin)) || "";
 						text.setValue(stylesPath).setPlaceholder(
 							"Path to vale styles",
 						);

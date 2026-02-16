@@ -80,7 +80,7 @@ export async function getValeStylesPath(plugin: ValePlugin): Promise<string> {
 		args: [
 			"ls-dirs",
 			"--output=JSON",
-			`--config=${settings.valeConfigPath}`,
+			`--config=${settings.valeConfigPathAbsolute}`,
 		],
 		timeoutMs: 5000,
 		onClose: returnCodeFail,
