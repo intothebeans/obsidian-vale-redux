@@ -7,9 +7,11 @@
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
 		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production && npm run css:build",
+		"test": "vitest run",
+		"test:coverage": "vitest run --coverage",
 		"css:build": "sass src/styles/main.scss styles.css",
-		"css:watch": "sass --watch src/styles/main.scss styles.css",
-		"version": "node version-bump.mjs",
+		"css:watch": "sass --watch --poll src/styles/main.scss styles.css",
+		"version": "cz bump && node version-bump.mjs",
 		"fmt": "prettier --write .",
 		"lint": "eslint ."
 	},

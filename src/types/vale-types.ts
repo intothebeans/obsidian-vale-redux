@@ -17,18 +17,19 @@ export interface ValeConfig {
 	asciidoctor?: Record<string, string>;
 	NLPEndpoint?: string;
 }
-interface ValeSyntaxSection {
+export interface ValeSyntaxSection {
 	BasedOnStyles?: string[];
 	BlockIgnores?: string[];
 	TokenIgnores?: string[];
 	CommentDelimeters?: [string, string];
+	/** UNUSED: for XML to HTML, not MD */
 	Transform?: string;
 	Lang?: string;
 	Blueprint?: string;
 	CheckOverrides?: ValeCheckOverride[];
 }
 
-interface ValeGlobalSection {
+export interface ValeGlobalSection {
 	BasedOnStyles?: string[];
 	BlockIgnores?: string[];
 	TokenIgnores?: string[];
@@ -36,7 +37,7 @@ interface ValeGlobalSection {
 	CheckOverrides?: ValeCheckOverride[];
 }
 
-interface ValeCheckOverride {
+export interface ValeCheckOverride {
 	Check: string;
 	Level?: string | undefined;
 	Enabled?: boolean | undefined;

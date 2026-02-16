@@ -26,6 +26,7 @@ export default tseslint.config(
 	prettier,
 	globalIgnores([
 		"node_modules",
+		"coverage",
 		"dist",
 		"esbuild.config.mjs",
 		"eslint.config.js",
