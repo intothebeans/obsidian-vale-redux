@@ -19,10 +19,12 @@ export const DEFAULT_VALE_CONFIG: ValeConfig = {
 		"*.{md,mdx}": {
 			BasedOnStyles: ["Vale", "Microsoft", "write-good"],
 			CheckOverrides: [{ Check: "Vale.Spelling", Enabled: false }],
-			// eslint-disable-next-line no-useless-escape
-			BlockIgnores: ["(\$\$[\s\S]+?\$\$)"],
-			// eslint-disable-next-line no-useless-escape
-			TokenIgnores: ["(\$+[^\n$]+\$+)", "(\[\[.*?\]\])", "(#[^\s]+)"],
+			BlockIgnores: [new RegExp(/(\$\$[\s\S]+?\$\$)/).source],
+			TokenIgnores: [
+				new RegExp(/(\$+[^\n$]+\$+)/).source,
+				new RegExp(/(\[\[.*?\]\])/).source,
+				new RegExp(/(#[^\s]+)/).source,
+			],
 		},
 	},
 };
