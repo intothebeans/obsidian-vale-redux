@@ -5,8 +5,27 @@ import ValePlugin from "main";
 import { SettingsTab } from "ui/settings-tabs/settings-tab";
 import { ValePluginSettingsTab } from "ui/settings-tabs/plugin-settings-tab";
 import { ValeConfigTab } from "ui/settings-tabs/vale-config-tab";
-// TODO: add default config with updated typing
-export const DEFAULT_VALE_CONFIG: ValeConfig = {};
+import { ALERT_STRING_TO_LEVEL } from "utils/constants";
+export const DEFAULT_VALE_CONFIG: ValeConfig = {
+	StylesPath: ".vale/styles",
+	MinAlertLevel: ALERT_STRING_TO_LEVEL.suggestion,
+	Packages: ["Microsoft", "write-good"],
+	Vocab: ["Base"],
+	formats: { mdx: "md" },
+	"*": {
+		BasedOnStyles: ["Vale"],
+	},
+	syntaxSections: {
+		"*.{md,mdx}": {
+			BasedOnStyles: ["Vale", "Microsoft", "write-good"],
+			CheckOverrides: [{ Check: "Vale.Spelling", Enabled: false }],
+			// eslint-disable-next-line no-useless-escape
+			BlockIgnores: ["(\$\$[\s\S]+?\$\$)"],
+			// eslint-disable-next-line no-useless-escape
+			TokenIgnores: ["(\$+[^\n$]+\$+)", "(\[\[.*?\]\])", "(#[^\s]+)"],
+		},
+	},
+};
 
 export class ValePluginSettingTab extends PluginSettingTab {
 	plugin: ValePlugin;
