@@ -19,11 +19,41 @@ export class ValeConfigTab extends SettingsTab {
 
 	display(): void {
 		if (this.valeConfig) {
+			new Setting(this.contentEl)
+				.setName("Save to file")
+				.setDesc(
+					"Save the current vale configuration to a file. Also creates a backup.",
+				)
+				.addButton((btn) => {
+					btn.setButtonText("Save")
+						.setClass("vale-config-save-button")
+						.onClick(() => {});
+				})
+				.addButton((btn) => {
+					btn.setButtonText("Sync from file")
+						.setClass("vale-config-sync-button")
+						.onClick(() => {});
+				});
 			this.createCoreSettings();
 			this.createGlobalSettings();
 			this.createSyntaxSettings();
 		}
 	}
+
+	private createValeActions(): Setting {
+		return new Setting(this.contentEl)
+			.setName("Vale configuration actions")
+			.setClass("vale-config-actions")
+			.addButton((btn) => {
+				return this.createOpenConfigButton(btn);
+			})
+			.addButton((btn) => {
+				btn.setButtonText("Sync styles")
+					.setTooltip("Sync the styles from the vale config file.")
+					.onClick(() => {});
+			});
+	}
+
 	private createCoreSettings(): SettingGroup {
 		return new SettingGroup(this.contentEl)
 			.setHeading("Core Settings")

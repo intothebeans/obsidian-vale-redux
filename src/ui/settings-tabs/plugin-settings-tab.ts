@@ -186,10 +186,8 @@ export class ValePluginSettingsTab extends SettingsTab {
 					}
 				});
 			})
-			.addButton((button) => {
-				button.setButtonText("Open Config File").onClick(async () => {
-					await shell.openPath(this.settings.valeConfigPathAbsolute);
-				});
+			.addButton((btn) => {
+				return this.createOpenConfigButton(btn);
 			});
 	}
 
