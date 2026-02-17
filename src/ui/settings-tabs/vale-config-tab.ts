@@ -3,7 +3,7 @@ import { SettingsTab } from "./settings-tab";
 import { Setting, SettingGroup } from "obsidian";
 import { ValeConfig, ValeGlobalSection } from "types";
 import { getValeStylesPath } from "utils/vale-utils";
-import { ALERT_LEVEL_METADATA, AlertLevel } from "utils/constants";
+import { ALERT_LEVEL_TO_STRING, AlertLevelString } from "utils/constants";
 
 export class ValeConfigTab extends SettingsTab {
 	private valeConfig: ValeConfig;
@@ -60,8 +60,9 @@ export class ValeConfigTab extends SettingsTab {
 					)
 					.addText((text) => {
 						text.setValue(
-							ALERT_LEVEL_METADATA[
-								this.valeConfig.MinAlertLevel as AlertLevel
+							ALERT_LEVEL_TO_STRING[
+								this.valeConfig
+									.MinAlertLevel as AlertLevelString
 							] ?? "Not Set",
 						).setPlaceholder("Minimum alert level");
 					});
