@@ -1,6 +1,6 @@
 import { ValePluginSettings, ValeConfig } from "types";
 import { debounce, MarkdownView, Plugin, TFile, WorkspaceLeaf } from "obsidian";
-import { ValePluginSettingTab } from "settings";
+import { DEFAULT_VALE_CONFIG, ValePluginSettingTab } from "settings";
 import { ValeRunner } from "core/vale-runner";
 import { ensureAbsolutePath } from "utils/file-utils";
 import { IssueManager } from "core/issue-manager";
@@ -59,22 +59,20 @@ export default class ValePlugin extends Plugin {
 		);
 		registerCommands(this);
 
-		// Run things
-		this.valeAvailable = await testValeConnection(this.settings);
-		if (this.valeAvailable) {
-			const options = await getExistingConfigOptions(
-				this.settings.valeConfigPathAbsolute,
-			);
-			if (options) {
-				this.valeConfig = options;
+		// Defer processes after load.
+		this.app.workspace.onLayoutReady(async () => {
+			this.valeAvailable = await testValeConnection(this.settings);
+			if (this.valeAvailable) {
+				const activeFile = this.app.workspace.getActiveFile();
+				if (activeFile) {
+					await this.issueManager.refreshFile(activeFile.path);
+				}
 			}
-
-			if (this.app.workspace.getActiveFile()) {
-				await this.issueManager.refreshFile(
-					this.app.workspace.getActiveFile()!.path,
-				);
-			}
-		}
+			this.valeConfig =
+				(await getExistingConfigOptions(
+					this.settings.valeConfigPathAbsolute,
+				)) || DEFAULT_VALE_CONFIG;
+		});
 	}
 
 	async saveSettings(): Promise<void> {
