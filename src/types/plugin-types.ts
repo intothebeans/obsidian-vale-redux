@@ -11,9 +11,10 @@ export interface ValePluginSettings {
 	disabledFiles: string[];
 	automaticChecking: boolean;
 	valeProcessTimeoutMs: number;
-	valeConfigBackups: number;
+	valeConfigBackupsToKeep: number;
 	/** Absolute Path to backup directory */
 	valeConfigBackupDir: string;
+	backupPaths: string[];
 }
 
 /** Represents a Vale process configuration and execution interface. */

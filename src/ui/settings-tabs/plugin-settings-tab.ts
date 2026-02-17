@@ -5,6 +5,7 @@ import { Notice, Setting, SettingGroup } from "obsidian";
 import { getValeStylesPath, testValeConnection } from "utils/vale-utils";
 import { shell } from "electron";
 import { notifyError } from "utils/error-utils";
+import { ensureAbsolutePath } from "utils/file-utils";
 
 export class ValePluginSettingsTab extends SettingsTab {
 	debouncedSave = this.plugin.debounceSettingsSave;
@@ -46,6 +47,57 @@ export class ValePluginSettingsTab extends SettingsTab {
 			"Show highlights when using the issues panel to navigate to issues. Requires plugin reload to take effect.",
 			"showInlineHighlights",
 		);
+		new SettingGroup(containerEl)
+			.setHeading("Backup settings")
+			.addSetting((setting) => {
+				setting
+					.setName("Number of backups to keep")
+					.setDesc(
+						"Number of backup files to keep in the vault. Older backups will be deleted automatically.",
+					)
+					.addText((text) => {
+						text.setPlaceholder("5")
+							.setValue(
+								this.settings.valeConfigBackupsToKeep.toString(),
+							)
+							.onChange(async (value) => {
+								const trimmed = value.trim();
+								// Allow empty input while typing without showing an error or changing the setting
+								if (trimmed === "") {
+									return;
+								}
+								const num = parseInt(trimmed, 10);
+								if (!isNaN(num) && num >= 0) {
+									this.settings.valeConfigBackupsToKeep = num;
+									this.debouncedSave();
+								} else {
+									new Notice(
+										"Number of backups must be a non-negative whole number.",
+									);
+								}
+							});
+					});
+			})
+			.addSetting((setting) => {
+				setting.addText((text) => {
+					text.setPlaceholder("/some/directory")
+						.setValue(this.settings.valeConfigBackupDir)
+						.onChange(async (value) => {
+							const fullPath = ensureAbsolutePath(
+								value,
+								this.plugin.app.vault,
+							);
+							if (!fullPath) {
+								notifyError(
+									"Invalid backup directory. Please enter an existing, accessible path.",
+								);
+								return;
+							}
+
+							this.debouncedSave();
+						});
+				});
+			});
 	}
 
 	private addToggleSettingRequiringReload(
