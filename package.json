@@ -11,7 +11,7 @@
 		"test:coverage": "vitest run --coverage",
 		"css:build": "sass src/styles/main.scss styles.css",
 		"css:watch": "sass --watch --poll src/styles/main.scss styles.css",
-		"version": "cz bump && node version-bump.mjs",
+		"version": "git-cliff --bump && node version-bump.mjs",
 		"fmt": "prettier --write .",
 		"lint": "eslint ."
 	},
@@ -38,6 +38,7 @@
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-obsidianmd": "0.1.9",
 		"eslint-plugin-prettier": "^5.5.5",
+		"git-cliff": "^2.12.0",
 		"globals": "14.0.0",
 		"jiti": "2.6.1",
 		"prettier": "^3.8.1",
