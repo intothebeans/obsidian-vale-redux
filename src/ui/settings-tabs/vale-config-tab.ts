@@ -63,7 +63,7 @@ export class ValeConfigTab extends SettingsTab {
 							ALERT_LEVEL_TO_STRING[
 								this.valeConfig
 									.MinAlertLevel as AlertLevelString
-							] ?? "Not Set",
+							] ?? "",
 						).setPlaceholder("Minimum alert level");
 					});
 			})
@@ -285,11 +285,9 @@ export class ValeConfigTab extends SettingsTab {
 			.setDisabled(true)
 			.setDesc(desc)
 			.addTextArea((text) => {
-				text.setValue(
-					array
-						? array.join("\n")
-						: `No ${name.toLowerCase()} defined`,
-				).setPlaceholder(`List of ${name.toLowerCase()}, one per line`);
+				text.setValue(array ? array.join("\n") : "").setPlaceholder(
+					`List of ${name.toLowerCase()}, one per line`,
+				);
 			});
 	}
 }
