@@ -70,6 +70,14 @@ export class ValeConfigTab extends SettingsTab {
 			.addSetting((setting) => {
 				this.stringArraySetting(
 					setting,
+					this.valeConfig.Packages,
+					"Packages",
+					"Packages to install with vale sync",
+				);
+			})
+			.addSetting((setting) => {
+				this.stringArraySetting(
+					setting,
 					this.valeConfig.IgnoredScopes,
 					"Ignored scopes",
 					"List of inline-level HTML tags to ignore.",
