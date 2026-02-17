@@ -22,6 +22,8 @@ export const DEFAULT_SETTINGS: ValePluginSettings = {
 	disabledFiles: [],
 	automaticChecking: true,
 	valeProcessTimeoutMs: 10000,
+	valeConfigBackups: 2,
+	valeConfigBackupDir: "",
 };
 // TODO: add sidebar and status bar function
 export default class ValePlugin extends Plugin {
