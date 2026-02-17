@@ -104,7 +104,6 @@ export class ValePluginSettingTab extends PluginSettingTab {
 	private onTabClick(clickedTabName: string): void {
 		for (const [name, tab] of this.tabNameToTab.entries()) {
 			tab.updateTabDisplayMode(name === clickedTabName);
-			tab.display();
 		}
 		this.selectedTab = clickedTabName;
 	}
