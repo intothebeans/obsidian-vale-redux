@@ -2,8 +2,7 @@
 import ValePlugin from "main";
 import { SettingsTab } from "./settings-tab";
 import { Notice, Setting, SettingGroup } from "obsidian";
-import { getValeStylesPath, testValeConnection } from "utils/vale-utils";
-import { shell } from "electron";
+import { testValeConnection } from "utils/vale-utils";
 import { notifyError } from "utils/error-utils";
 import { ensureAbsolutePath } from "utils/file-utils";
 
@@ -20,34 +19,33 @@ export class ValePluginSettingsTab extends SettingsTab {
 	}
 
 	display(): void {
-		this.addBasicSettings(this.contentEl);
-		this.addValeBinaryPathSetting(this.contentEl);
-		this.addValeConfigPathSetting(this.contentEl);
-		this.addQuickAccessButtons(this.contentEl);
-		this.addAdvancedSettings(this.contentEl);
+		this.addBasicSettings();
+		this.addValeBinaryPathSetting();
+		this.addValeConfigPathSetting();
+		this.addAdvancedSettings();
 	}
-	private addBasicSettings(containerEl: HTMLElement): void {
+	private addBasicSettings(): void {
 		this.addToggleSettingRequiringReload(
-			containerEl,
+			this.contentEl,
 			"Inline alerts",
 			"Show Vale issues directly in the editor. Requires plugin reload to take effect.",
 			"showInlineAlerts",
 		);
 
 		this.addToggleSettingRequiringReload(
-			containerEl,
+			this.contentEl,
 			"Automatic checking",
 			"Automatically check files on changes. Requires plugin reload to take effect.",
 			"automaticChecking",
 		);
 
 		this.addToggleSettingRequiringReload(
-			containerEl,
+			this.contentEl,
 			"Inline highlights",
 			"Show highlights when using the issues panel to navigate to issues. Requires plugin reload to take effect.",
 			"showInlineHighlights",
 		);
-		new SettingGroup(containerEl)
+		new SettingGroup(this.contentEl)
 			.setHeading("Backup settings")
 			.addSetting((setting) => {
 				setting
@@ -83,23 +81,23 @@ export class ValePluginSettingsTab extends SettingsTab {
 					.setName("Backup directory")
 					.setDesc("Directory to store backup files.")
 					.addText((text) => {
-					text.setPlaceholder("/some/directory")
-						.setValue(this.settings.valeConfigBackupDir)
-						.onChange(async (value) => {
-							const fullPath = ensureAbsolutePath(
-								value,
-								this.plugin.app.vault,
-							);
-							if (!fullPath) {
-								notifyError(
-									"Invalid backup directory. Please enter an existing, accessible path.",
+						text.setPlaceholder("/some/directory")
+							.setValue(this.settings.valeConfigBackupDir)
+							.onChange(async (value) => {
+								const fullPath = ensureAbsolutePath(
+									value,
+									this.plugin.app.vault,
 								);
-								return;
-							}
+								if (!fullPath) {
+									notifyError(
+										"Invalid backup directory. Please enter an existing, accessible path.",
+									);
+									return;
+								}
 
-							this.debouncedSave();
-						});
-				});
+								this.debouncedSave();
+							});
+					});
 			});
 	}
 
@@ -125,8 +123,8 @@ export class ValePluginSettingsTab extends SettingsTab {
 			});
 	}
 
-	private addValeBinaryPathSetting(containerEl: HTMLElement): void {
-		new Setting(containerEl)
+	private addValeBinaryPathSetting(): void {
+		new Setting(this.contentEl)
 			.setName("Vale binary path")
 			.setDesc(
 				"Absolute path to the Vale binary (e.g., /usr/local/bin/vale). Leave empty to use 'vale' from system PATH.",
@@ -155,8 +153,8 @@ export class ValePluginSettingsTab extends SettingsTab {
 			});
 	}
 
-	private addValeConfigPathSetting(containerEl: HTMLElement): void {
-		new Setting(containerEl)
+	private addValeConfigPathSetting(): void {
+		new Setting(this.contentEl)
 			.setName("Vale config path")
 			.setDesc(
 				"Path to Vale config file. Use relative path (from vault root) or absolute path.",
@@ -172,30 +170,8 @@ export class ValePluginSettingsTab extends SettingsTab {
 			});
 	}
 
-	private addQuickAccessButtons(containerEl: HTMLElement): void {
-		new Setting(containerEl)
-			.setName("Quick Access")
-			.addButton((button) => {
-				button.setButtonText("Open Styles Folder").onClick(async () => {
-					try {
-						const stylesPath = await getValeStylesPath(this.plugin);
-						await shell.openPath(stylesPath);
-					} catch (error) {
-						notifyError(
-							"Failed to open styles folder.",
-							8000,
-							`${error instanceof Error ? error.message : String(error)}`,
-						);
-					}
-				});
-			})
-			.addButton((btn) => {
-				return this.createOpenConfigButton(btn);
-			});
-	}
-
-	private addAdvancedSettings(containerEl: HTMLElement): void {
-		new SettingGroup(containerEl)
+	private addAdvancedSettings(): void {
+		new SettingGroup(this.contentEl)
 			.setHeading("Advanced")
 			.addSetting((setting) => {
 				setting
