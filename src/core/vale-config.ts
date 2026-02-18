@@ -64,9 +64,15 @@ export async function rotateBackups(plugin: ValePlugin): Promise<void> {
 		// name, "backup", ts.ini
 		const name = path.parse(p).name;
 		const tokens = name.split("_");
-		const tsToken = tokens.find((t) => t.endsWith(".ini"));
-		const ts = tsToken ? tsToken.replace(".ini", "") : "";
-		return { path: p, ts };
+		const ts = tokens.length == 3 ? tokens[tokens.length - 1] : null;
+		if (!ts) {
+			throw new Error(`Invalid backup filename format: ${p}`);
+		}
+		const isoTs = ts.replace(/-(\d{2})-(\d{2})-(\d{3})Z$/, ":$1:$2.$3Z");
+		if (!isoTs || isNaN(new Date(isoTs).getTime())) {
+			throw new Error(`Invalid backup timestamp format: ${p}`);
+		}
+		return { path: p, ts: isoTs };
 	});
 
 	parsed.sort((a, b) => b.ts.localeCompare(a.ts)); // Newest first
