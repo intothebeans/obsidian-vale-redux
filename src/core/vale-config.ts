@@ -1,21 +1,24 @@
-import { copyFile, readFile } from "fs/promises";
+import { copyFile, readFile, writeFile } from "fs/promises";
 import { ValeConfig } from "types";
 import { notifyError } from "utils/error-utils";
-import { parseValeIni } from "./vale-ini-parser";
+import { parseValeIni } from "./ini/parser";
+import { serializeValeConfig } from "./ini/writer";
 import ValePlugin from "main";
 import path from "path";
+import { ensureAbsolutePath } from "utils/file-utils";
+import { Notice } from "obsidian";
 
 export async function getExistingConfigOptions(
 	configPath: string,
-): Promise<ValeConfig | undefined> {
+): Promise<ValeConfig | void> {
 	const configContent = await readFile(configPath, "utf-8").catch((err) => {
 		notifyError(
 			`Failed to read Vale config file: ${err instanceof Error ? err.message : String(err)}`,
 		);
-		return undefined;
+		return;
 	});
 	if (!configContent) {
-		return undefined;
+		return;
 	}
 
 	try {
@@ -25,34 +28,39 @@ export async function getExistingConfigOptions(
 		notifyError(
 			`Failed to parse Vale config file: ${err instanceof Error ? err.message : String(err)}`,
 		);
-		return undefined;
+		return;
 	}
 }
-
+/** @throws file system errors */
 export async function backupExistingConfig(plugin: ValePlugin): Promise<void> {
+	let outputPath: string;
 	const settings = plugin.settings;
 	const configPath = settings.valeConfigPathAbsolute;
 	const backupName = generateBackupName(configPath);
-	let backupDir = settings.valeConfigBackupDir;
-	if (backupDir === "") {
-		backupDir =
+	if (settings.valeConfigBackupDir !== "") {
+		outputPath = path.join(settings.valeConfigBackupDir, backupName);
+	} else {
+		const attachmentPath =
 			await plugin.app.fileManager.getAvailablePathForAttachment(
 				backupName,
 			);
-		if (!backupDir) {
-			notifyError("Couldn't determine the default attachment directory");
-			return;
+		if (!attachmentPath) {
+			throw new Error(
+				"Failed to determine backup directory for Vale config. Please set a backup directory in the plugin settings.",
+			);
 		}
+		outputPath = ensureAbsolutePath(attachmentPath, plugin.app.vault);
 	}
-	try {
-		await copyFile(configPath, path.join(backupDir, backupName));
-	} catch (error) {
-		notifyError(
-			"Error creating backup!",
-			8000,
-			error instanceof Error ? error.message : String(error),
-		);
-	}
+	await copyFile(configPath, outputPath);
+}
+
+/** @throws file system errors */
+export async function writeConfigToFile(
+	configPath: string,
+	config: ValeConfig,
+): Promise<void> {
+	const content = serializeValeConfig(config);
+	await writeFile(configPath, content, "utf-8");
 }
 
 function generateBackupName(configPath: string): string {
@@ -60,4 +68,31 @@ function generateBackupName(configPath: string): string {
 	const fileName = pathParts.name;
 	const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
 	return `${fileName}_backup_${timestamp}${pathParts.ext}`;
+}
+
+export async function backupAndWriteConfig(
+	plugin: ValePlugin,
+	config: ValeConfig,
+): Promise<void> {
+	try {
+		await backupExistingConfig(plugin);
+	} catch (err) {
+		notifyError(
+			"Failed to backup existing config.",
+			8000,
+			err instanceof Error ? err.message : String(err),
+		);
+		return;
+	}
+
+	try {
+		await writeConfigToFile(plugin.settings.valeConfigPathAbsolute, config);
+	} catch (err) {
+		notifyError(
+			`Failed to write Vale config file: ${err instanceof Error ? err.message : String(err)}`,
+		);
+		return;
+	}
+
+	new Notice("Config saved successfully! Backup created.", 3000);
 }

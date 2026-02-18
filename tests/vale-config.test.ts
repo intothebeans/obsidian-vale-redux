@@ -72,7 +72,9 @@ describe("backupExistingConfig", () => {
 	test("uses attachment directory when backup dir is empty", async () => {
 		const getAvailablePathForAttachment = vi
 			.fn()
-			.mockResolvedValue("/vault/attachments");
+			.mockResolvedValue(
+				"/vault/attachments/.vale_backup_2025-01-15T10-30-00-000Z.ini",
+			);
 		const plugin = createMockPlugin({
 			valeConfigPathAbsolute: "/vault/.vale.ini",
 			valeConfigBackupDir: "",
@@ -91,66 +93,32 @@ describe("backupExistingConfig", () => {
 		);
 	});
 
-	test("notifies error when attachment directory cannot be determined", async () => {
+	test("throws error when attachment directory cannot be determined", async () => {
 		const plugin = createMockPlugin({
 			valeConfigBackupDir: "",
 			getAvailablePathForAttachment: vi.fn().mockResolvedValue(null),
 		});
 
-		await backupExistingConfig(plugin as ValePlugin);
-
-		expect(notifyError).toHaveBeenCalledWith(
-			"Couldn't determine the default attachment directory",
+		await expect(
+			backupExistingConfig(plugin as ValePlugin),
+		).rejects.toThrow(
+			"Failed to determine backup directory for Vale config. Please set a backup directory in the plugin settings.",
 		);
 		expect(copyFile).not.toHaveBeenCalled();
 	});
 
-	test("notifies error when getAvailablePathForAttachment returns empty string", async () => {
+	test("throws error when getAvailablePathForAttachment returns empty string", async () => {
 		const plugin = createMockPlugin({
 			valeConfigBackupDir: "",
 			getAvailablePathForAttachment: vi.fn().mockResolvedValue(""),
 		});
 
-		await backupExistingConfig(plugin as ValePlugin);
-
-		expect(notifyError).toHaveBeenCalledWith(
-			"Couldn't determine the default attachment directory",
+		await expect(
+			backupExistingConfig(plugin as ValePlugin),
+		).rejects.toThrow(
+			"Failed to determine backup directory for Vale config. Please set a backup directory in the plugin settings.",
 		);
 		expect(copyFile).not.toHaveBeenCalled();
-	});
-
-	test("notifies error when copyFile fails", async () => {
-		const plugin = createMockPlugin({
-			valeConfigBackupDir: "/vault/backups",
-		});
-
-		vi.mocked(copyFile).mockRejectedValueOnce(
-			new Error("Permission denied"),
-		);
-
-		await backupExistingConfig(plugin as ValePlugin);
-
-		expect(notifyError).toHaveBeenCalledWith(
-			"Error creating backup!",
-			8000,
-			"Permission denied",
-		);
-	});
-
-	test("handles non-Error thrown from copyFile", async () => {
-		const plugin = createMockPlugin({
-			valeConfigBackupDir: "/vault/backups",
-		});
-
-		vi.mocked(copyFile).mockRejectedValueOnce("string error");
-
-		await backupExistingConfig(plugin as ValePlugin);
-
-		expect(notifyError).toHaveBeenCalledWith(
-			"Error creating backup!",
-			8000,
-			"string error",
-		);
 	});
 
 	test("generates backup name from config filename", async () => {
