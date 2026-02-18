@@ -21,7 +21,7 @@ export interface ValeSyntaxSection {
 	BasedOnStyles?: string[];
 	BlockIgnores?: string[];
 	TokenIgnores?: string[];
-	CommentDelimeters?: [string, string];
+	CommentDelimiters?: [string, string];
 	/** UNUSED: for XML to HTML, not MD */
 	Transform?: string;
 	Lang?: string;
