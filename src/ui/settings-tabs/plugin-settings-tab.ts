@@ -79,7 +79,10 @@ export class ValePluginSettingsTab extends SettingsTab {
 					});
 			})
 			.addSetting((setting) => {
-				setting.addText((text) => {
+				setting
+					.setName("Backup directory")
+					.setDesc("Directory to store backup files.")
+					.addText((text) => {
 					text.setPlaceholder("/some/directory")
 						.setValue(this.settings.valeConfigBackupDir)
 						.onChange(async (value) => {
