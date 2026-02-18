@@ -6,7 +6,6 @@ import { serializeValeConfig } from "./ini/writer";
 import ValePlugin from "main";
 import path from "path";
 import { ensureAbsolutePath } from "utils/file-utils";
-import { Notice } from "obsidian";
 
 export async function getExistingConfigOptions(
 	configPath: string,
@@ -68,31 +67,4 @@ function generateBackupName(configPath: string): string {
 	const fileName = pathParts.name;
 	const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
 	return `${fileName}_backup_${timestamp}${pathParts.ext}`;
-}
-
-export async function backupAndWriteConfig(
-	plugin: ValePlugin,
-	config: ValeConfig,
-): Promise<void> {
-	try {
-		await backupExistingConfig(plugin);
-	} catch (err) {
-		notifyError(
-			"Failed to backup existing config.",
-			8000,
-			err instanceof Error ? err.message : String(err),
-		);
-		return;
-	}
-
-	try {
-		await writeConfigToFile(plugin.settings.valeConfigPathAbsolute, config);
-	} catch (err) {
-		notifyError(
-			`Failed to write Vale config file: ${err instanceof Error ? err.message : String(err)}`,
-		);
-		return;
-	}
-
-	new Notice("Config saved successfully! Backup created.", 3000);
 }

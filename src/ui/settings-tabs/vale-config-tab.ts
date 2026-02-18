@@ -6,8 +6,9 @@ import { getValeStylesPath, returnCodeFail } from "utils/vale-utils";
 import { ALERT_LEVEL_TO_STRING, AlertLevelString } from "utils/constants";
 import { shell } from "electron";
 import {
-	backupAndWriteConfig,
+	backupExistingConfig,
 	getExistingConfigOptions,
+	writeConfigToFile,
 } from "core/vale-config";
 import { spawnProcessWithOutput } from "utils/process-utils";
 import { notifyError } from "utils/error-utils";
@@ -46,10 +47,7 @@ export class ValeConfigTab extends SettingsTab {
 								"Save the current configuration to the vale config file. Also creates a backup.",
 							)
 							.onClick(async () => {
-								await backupAndWriteConfig(
-									this.plugin,
-									this.valeConfig,
-								);
+								await this.backupAndWriteConfig();
 							});
 					})
 					.addButton((btn) => {
@@ -409,5 +407,34 @@ export class ValeConfigTab extends SettingsTab {
 					`List of ${name.toLowerCase()}, one per line`,
 				);
 			});
+	}
+
+	private async backupAndWriteConfig(): Promise<void> {
+		const plugin = this.plugin;
+		const config = this.plugin.valeConfig;
+		try {
+			await backupExistingConfig(plugin);
+		} catch (err) {
+			notifyError(
+				"Failed to backup existing config.",
+				8000,
+				err instanceof Error ? err.message : String(err),
+			);
+			return;
+		}
+
+		try {
+			await writeConfigToFile(
+				plugin.settings.valeConfigPathAbsolute,
+				config,
+			);
+		} catch (err) {
+			notifyError(
+				`Failed to write Vale config file: ${err instanceof Error ? err.message : String(err)}`,
+			);
+			return;
+		}
+
+		new Notice("Config saved successfully! Backup created.", 3000);
 	}
 }
