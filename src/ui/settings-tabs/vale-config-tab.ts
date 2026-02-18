@@ -1,9 +1,16 @@
 import ValePlugin from "main";
 import { SettingsTab } from "./settings-tab";
-import { Setting, SettingGroup } from "obsidian";
-import { ValeConfig, ValeGlobalSection } from "types";
-import { getValeStylesPath } from "utils/vale-utils";
+import { Setting, SettingGroup, Notice } from "obsidian";
+import { ValeConfig, ValeGlobalSection, ValeProcess } from "types";
+import { getValeStylesPath, returnCodeFail } from "utils/vale-utils";
 import { ALERT_LEVEL_TO_STRING, AlertLevelString } from "utils/constants";
+import { shell } from "electron";
+import {
+	backupAndWriteConfig,
+	getExistingConfigOptions,
+} from "core/vale-config";
+import { spawnProcessWithOutput } from "utils/process-utils";
+import { notifyError } from "utils/error-utils";
 
 export class ValeConfigTab extends SettingsTab {
 	private valeConfig: ValeConfig;
@@ -19,38 +26,121 @@ export class ValeConfigTab extends SettingsTab {
 
 	display(): void {
 		if (this.valeConfig) {
-			new Setting(this.contentEl)
-				.setName("Save to file")
-				.setDesc(
-					"Save the current vale configuration to a file. Also creates a backup.",
-				)
-				.addButton((btn) => {
-					btn.setButtonText("Save")
-						.setClass("vale-config-save-button")
-						.onClick(() => {});
-				})
-				.addButton((btn) => {
-					btn.setButtonText("Sync from file")
-						.setClass("vale-config-sync-button")
-						.onClick(() => {});
-				});
+			this.createValeActions();
 			this.createCoreSettings();
 			this.createGlobalSettings();
 			this.createSyntaxSettings();
 		}
 	}
 
-	private createValeActions(): Setting {
-		return new Setting(this.contentEl)
-			.setName("Vale configuration actions")
-			.setClass("vale-config-actions")
-			.addButton((btn) => {
-				return this.createOpenConfigButton(btn);
+	private createValeActions(): void {
+		new SettingGroup(this.contentEl)
+			.setHeading("File management")
+			.addSetting((setting) => {
+				setting
+					.setName("Configuration")
+					.setDesc("Saving also creates a backup.")
+					.addButton((btn) => {
+						btn.setButtonText("Save to file")
+							.setTooltip(
+								"Save the current configuration to the vale config file. Also creates a backup.",
+							)
+							.onClick(async () => {
+								await backupAndWriteConfig(
+									this.plugin,
+									this.valeConfig,
+								);
+							});
+					})
+					.addButton((btn) => {
+						btn.setButtonText("Load from file")
+							.setTooltip(
+								"Load the current configuration from the vale config file.",
+							)
+							.onClick(async () => {
+								const notice = new Notice(
+									"Loading config...",
+									0,
+								);
+								const loadedConfig =
+									await getExistingConfigOptions(
+										this.plugin.settings
+											.valeConfigPathAbsolute,
+									);
+								if (loadedConfig) {
+									notice.hide();
+									new Notice(
+										"Config loaded successfully!",
+										3000,
+									);
+									this.valeConfig = loadedConfig;
+									this.contentEl.empty();
+									this.display();
+								}
+								notice.hide();
+							});
+					})
+					.addButton((btn) => {
+						btn.setButtonText("Open config file")
+							.setTooltip(
+								"Open the vale config file in the default editor.",
+							)
+							.onClick(async () => {
+								await shell.openPath(
+									this.plugin.settings.valeConfigPathAbsolute,
+								);
+							});
+					});
 			})
-			.addButton((btn) => {
-				btn.setButtonText("Sync styles")
-					.setTooltip("Sync the styles from the vale config file.")
-					.onClick(() => {});
+			.addSetting((setting) => {
+				setting
+					.setName("Styles")
+					.addButton((btn) => {
+						btn.setButtonText("Open styles folder")
+							.setTooltip(
+								"Open the folder containing vale styles.",
+							)
+							.onClick(async () => {
+								const stylesPath = await getValeStylesPath(
+									this.plugin,
+								);
+								if (stylesPath) {
+									await shell.openPath(stylesPath);
+								}
+							});
+					})
+					.addButton((btn) => {
+						btn.setButtonText("Sync styles")
+							.setTooltip("Run vale sync")
+							.onClick(async () => {
+								const settings = this.plugin.settings;
+								const process: ValeProcess = {
+									command: settings.valeBinaryPath,
+									args: [
+										"sync",
+										"--config",
+										settings.valeConfigPathAbsolute,
+									],
+									timeoutMs: 60000,
+									onClose: returnCodeFail,
+								};
+								try {
+									await spawnProcessWithOutput(process);
+									new Notice(
+										"Styles synced successfully!",
+										3000,
+									);
+								} catch (err) {
+									notifyError(
+										"Failed to sync styles.",
+										5000,
+										err instanceof Error
+											? err.message
+											: String(err),
+									);
+								}
+							});
+					});
 			});
 	}
 
@@ -235,8 +325,8 @@ export class ValeConfigTab extends SettingsTab {
 								text.setPlaceholder(
 									"Opening delimiter",
 								).setValue(
-									config?.CommentDelimeters
-										? config.CommentDelimeters[0]
+									config?.CommentDelimiters
+										? config.CommentDelimiters[0]
 										: "",
 								);
 							})
@@ -244,8 +334,8 @@ export class ValeConfigTab extends SettingsTab {
 								text.setPlaceholder(
 									"Closing delimiter",
 								).setValue(
-									config?.CommentDelimeters
-										? config.CommentDelimeters[1]
+									config?.CommentDelimiters
+										? config.CommentDelimiters[1]
 										: "",
 								);
 							});
