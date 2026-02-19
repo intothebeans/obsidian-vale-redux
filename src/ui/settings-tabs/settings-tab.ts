@@ -1,6 +1,5 @@
-import { shell } from "electron";
 import ValePlugin from "main";
-import { ButtonComponent, setIcon } from "obsidian";
+import { setIcon } from "obsidian";
 
 /** Setting tab implementation based on {@link https://github.com/platers/obsidian-linter | platers/obsidian-linter} plugin */
 export abstract class SettingsTab {
@@ -49,16 +48,5 @@ export abstract class SettingsTab {
 
 	private showElement(el: HTMLElement): void {
 		el.removeClass("vale-hidden");
-	}
-
-	public createOpenConfigButton(btn: ButtonComponent): ButtonComponent {
-		return btn
-			.setButtonText("Open config file")
-			.setTooltip("Open the vale config file in the default editor.")
-			.onClick(async () => {
-				await shell.openPath(
-					this.plugin.settings.valeConfigPathAbsolute,
-				);
-			});
 	}
 }
