@@ -35,7 +35,7 @@ function createMockPlugin(overrides: {
 	valeConfigPathAbsolute?: string;
 	valeConfigBackupDir?: string;
 	valeConfigBackupsToKeep?: number;
-	backupPaths?: string[];
+	backupPaths?: { ts: string; path: string }[];
 	getAvailablePathForAttachment?: (name: string) => Promise<string | null>;
 	getAbstractFileByPath?: (
 		path: string,
@@ -83,9 +83,9 @@ describe("backupExistingConfig", () => {
 		const plugin = createMockPlugin({
 			valeConfigPathAbsolute: "/vault/.vale.ini",
 			valeConfigBackupDir: "/vault/backups",
-		});
+		}) as ValePlugin;
 
-		await backupExistingConfig(plugin as ValePlugin);
+		await backupExistingConfig(plugin);
 
 		expect(copyFile).toHaveBeenCalledWith(
 			"/vault/.vale.ini",
@@ -94,6 +94,11 @@ describe("backupExistingConfig", () => {
 				".vale_backup_2025-01-15T10-30-00-000Z.ini",
 			),
 		);
+		expect(plugin.debounceSettingsSave).toHaveBeenCalledTimes(1);
+		expect(plugin.settings.backupPaths).toContainEqual({
+			ts: "2025-01-15T10:30:00.000Z",
+			path: "/vault/backups/.vale_backup_2025-01-15T10-30-00-000Z.ini",
+		});
 	});
 
 	test("uses attachment directory when backup dir is empty", async () => {
@@ -108,43 +113,70 @@ describe("backupExistingConfig", () => {
 			valeConfigBackupDir: "",
 			getAvailablePathForAttachment,
 			getAbstractFileByPath,
-		});
+		}) as ValePlugin;
 
-		await backupExistingConfig(plugin as ValePlugin);
+		await backupExistingConfig(plugin);
 
 		expect(getAvailablePathForAttachment).toHaveBeenCalled();
 		expect(copyFile).toHaveBeenCalledWith(
 			"/vault/.vale.ini",
 			"/vault/attachments/.vale_backup_2025-01-15T10-30-00-000Z.ini",
 		);
+		expect(plugin.settings.backupPaths).toContainEqual({
+			ts: "2025-01-15T10:30:00.000Z",
+			path: "attachments/.vale_backup_2025-01-15T10-30-00-000Z.ini",
+		});
+		expect(plugin.debounceSettingsSave).toHaveBeenCalledTimes(1);
+	});
+
+	test("stores resolved attachment path when available attachment differs from requested file name", async () => {
+		const getAvailablePathForAttachment = vi
+			.fn()
+			.mockResolvedValue(
+				"attachments/.vale_backup_2025-01-15T10-30-00-000Z 1.ini",
+			);
+		const plugin = createMockPlugin({
+			valeConfigPathAbsolute: "/vault/.vale.ini",
+			valeConfigBackupDir: "",
+			getAvailablePathForAttachment,
+		}) as ValePlugin;
+
+		await backupExistingConfig(plugin);
+
+		expect(copyFile).toHaveBeenCalledWith(
+			"/vault/.vale.ini",
+			"/vault/attachments/.vale_backup_2025-01-15T10-30-00-000Z 1.ini",
+		);
+		expect(plugin.settings.backupPaths).toContainEqual({
+			ts: "2025-01-15T10:30:00.000Z",
+			path: "attachments/.vale_backup_2025-01-15T10-30-00-000Z 1.ini",
+		});
 	});
 
 	test("throws error when attachment directory cannot be determined", async () => {
 		const plugin = createMockPlugin({
 			valeConfigBackupDir: "",
 			getAvailablePathForAttachment: vi.fn().mockResolvedValue(null),
-		});
+		}) as ValePlugin;
 
-		await expect(
-			backupExistingConfig(plugin as ValePlugin),
-		).rejects.toThrow(
+		await expect(backupExistingConfig(plugin)).rejects.toThrow(
 			"Failed to determine backup directory for Vale config. Please set a backup directory in the plugin settings.",
 		);
 		expect(copyFile).not.toHaveBeenCalled();
+		expect(plugin.debounceSettingsSave).not.toHaveBeenCalled();
 	});
 
 	test("throws error when getAvailablePathForAttachment returns empty string", async () => {
 		const plugin = createMockPlugin({
 			valeConfigBackupDir: "",
 			getAvailablePathForAttachment: vi.fn().mockResolvedValue(""),
-		});
+		}) as ValePlugin;
 
-		await expect(
-			backupExistingConfig(plugin as ValePlugin),
-		).rejects.toThrow(
+		await expect(backupExistingConfig(plugin)).rejects.toThrow(
 			"Failed to determine backup directory for Vale config. Please set a backup directory in the plugin settings.",
 		);
 		expect(copyFile).not.toHaveBeenCalled();
+		expect(plugin.debounceSettingsSave).not.toHaveBeenCalled();
 	});
 
 	test("generates backup name from config filename", async () => {
@@ -176,8 +208,14 @@ describe("rotateBackups", () => {
 		const plugin = createMockPlugin({
 			valeConfigBackupsToKeep: 5,
 			backupPaths: [
-				".vale_backup_2025-01-15T10-30-00-000Z.ini",
-				".vale_backup_2025-01-14T10-30-00-000Z.ini",
+				{
+					ts: "2025-01-15T10:30:00.000Z",
+					path: ".vale_backup_2025-01-15T10-30-00-000Z.ini",
+				},
+				{
+					ts: "2025-01-14T10:30:00.000Z",
+					path: ".vale_backup_2025-01-14T10-30-00-000Z.ini",
+				},
 			],
 			trashFile,
 		}) as ValePlugin;
@@ -193,9 +231,18 @@ describe("rotateBackups", () => {
 		const plugin = createMockPlugin({
 			valeConfigBackupsToKeep: 2,
 			backupPaths: [
-				".vale_backup_2025-01-15T10-30-00-000Z.ini",
-				".vale_backup_2025-01-14T10-30-00-000Z.ini",
-				".vale_backup_2025-01-13T10-30-00-000Z.ini",
+				{
+					ts: "2025-01-15T10:30:00.000Z",
+					path: ".vale_backup_2025-01-15T10-30-00-000Z.ini",
+				},
+				{
+					ts: "2025-01-14T10:30:00.000Z",
+					path: ".vale_backup_2025-01-14T10-30-00-000Z.ini",
+				},
+				{
+					ts: "2025-01-13T10:30:00.000Z",
+					path: ".vale_backup_2025-01-13T10-30-00-000Z.ini",
+				},
 			],
 			trashFile,
 			getAbstractFileByPath,
@@ -207,6 +254,17 @@ describe("rotateBackups", () => {
 		expect(getAbstractFileByPath).toHaveBeenCalledWith(
 			".vale_backup_2025-01-13T10-30-00-000Z.ini",
 		);
+		expect(plugin.settings.backupPaths).toEqual([
+			{
+				ts: "2025-01-15T10:30:00.000Z",
+				path: ".vale_backup_2025-01-15T10-30-00-000Z.ini",
+			},
+			{
+				ts: "2025-01-14T10:30:00.000Z",
+				path: ".vale_backup_2025-01-14T10-30-00-000Z.ini",
+			},
+		]);
+		expect(plugin.debounceSettingsSave).toHaveBeenCalledTimes(1);
 	});
 
 	test("skips trashing files that do not exist", async () => {
@@ -215,8 +273,14 @@ describe("rotateBackups", () => {
 		const plugin = createMockPlugin({
 			valeConfigBackupsToKeep: 1,
 			backupPaths: [
-				".vale_backup_2025-01-15T10-30-00-000Z.ini",
-				".vale_backup_2025-01-14T10-30-00-000Z.ini",
+				{
+					ts: "2025-01-15T10:30:00.000Z",
+					path: ".vale_backup_2025-01-15T10-30-00-000Z.ini",
+				},
+				{
+					ts: "2025-01-14T10:30:00.000Z",
+					path: ".vale_backup_2025-01-14T10-30-00-000Z.ini",
+				},
 			],
 			getAbstractFileByPath,
 			trashFile,
@@ -235,9 +299,18 @@ describe("rotateBackups", () => {
 		const plugin = createMockPlugin({
 			valeConfigBackupsToKeep: 1,
 			backupPaths: [
-				".vale_backup_2025-01-13T10-30-00-000Z.ini",
-				".vale_backup_2025-01-15T10-30-00-000Z.ini",
-				".vale_backup_2025-01-14T10-30-00-000Z.ini",
+				{
+					ts: "2025-01-13T10:30:00.000Z",
+					path: ".vale_backup_2025-01-13T10-30-00-000Z.ini",
+				},
+				{
+					ts: "2025-01-15T10:30:00.000Z",
+					path: ".vale_backup_2025-01-15T10-30-00-000Z.ini",
+				},
+				{
+					ts: "2025-01-14T10:30:00.000Z",
+					path: ".vale_backup_2025-01-14T10-30-00-000Z.ini",
+				},
 			],
 			getAbstractFileByPath,
 			trashFile,
@@ -266,17 +339,23 @@ describe("rotateBackups", () => {
 		expect(trashFile).not.toHaveBeenCalled();
 	});
 
-	test("throws error for invalid backup filename format", async () => {
+	test("throws error for missing file name", async () => {
 		const plugin = createMockPlugin({
 			valeConfigBackupsToKeep: 1,
 			backupPaths: [
-				"invalid_backup_name.ini",
-				".vale_backup_2025-01-15T10-30-00-000Z.ini",
+				{
+					ts: "2025-01-14T10:30:00.000Z",
+					path: "",
+				},
+				{
+					ts: "2025-01-15T10:30:00.000Z",
+					path: ".vale_backup_2025-01-15T10-30-00-000Z.ini",
+				},
 			],
 		}) as ValePlugin;
 
 		await expect(rotateBackups(plugin)).rejects.toThrow(
-			"Invalid backup timestamp format: invalid_backup_name.ini",
+			`Invalid backup entry: {"ts":"2025-01-14T10:30:00.000Z","path":""}. Each backup must have a timestamp and path.`,
 		);
 	});
 
@@ -284,27 +363,19 @@ describe("rotateBackups", () => {
 		const plugin = createMockPlugin({
 			valeConfigBackupsToKeep: 1,
 			backupPaths: [
-				".vale_backup_.ini",
-				".vale_backup_2025-01-15T10-30-00-000Z.ini",
+				{
+					ts: "",
+					path: ".vale_backup_.ini",
+				},
+				{
+					ts: "2025-01-15T10:30:00.000Z",
+					path: ".vale_backup_2025-01-15T10-30-00-000Z.ini",
+				},
 			],
 		}) as ValePlugin;
 
 		await expect(rotateBackups(plugin)).rejects.toThrow(
-			"Invalid backup filename format: .vale_backup_.ini",
-		);
-	});
-
-	test("throws error for backup with invalid date format", async () => {
-		const plugin = createMockPlugin({
-			valeConfigBackupsToKeep: 1,
-			backupPaths: [
-				".vale_backup_not-a-date.ini",
-				".vale_backup_2025-01-15T10-30-00-000Z.ini",
-			],
-		}) as ValePlugin;
-
-		await expect(rotateBackups(plugin)).rejects.toThrow(
-			"Invalid backup timestamp format: .vale_backup_not-a-date.ini",
+			`Invalid backup entry: {"ts":"","path":".vale_backup_.ini"}. Each backup must have a timestamp and path.`,
 		);
 	});
 
@@ -316,11 +387,26 @@ describe("rotateBackups", () => {
 		const plugin = createMockPlugin({
 			valeConfigBackupsToKeep: 2,
 			backupPaths: [
-				".vale_backup_2025-01-15T10-30-00-000Z.ini",
-				".vale_backup_2025-01-14T10-30-00-000Z.ini",
-				".vale_backup_2025-01-13T10-30-00-000Z.ini",
-				".vale_backup_2025-01-12T10-30-00-000Z.ini",
-				".vale_backup_2025-01-11T10-30-00-000Z.ini",
+				{
+					ts: "2025-01-15T10:30:00.000Z",
+					path: ".vale_backup_2025-01-15T10-30-00-000Z.ini",
+				},
+				{
+					ts: "2025-01-14T10:30:00.000Z",
+					path: ".vale_backup_2025-01-14T10-30-00-000Z.ini",
+				},
+				{
+					ts: "2025-01-13T10:30:00.000Z",
+					path: ".vale_backup_2025-01-13T10-30-00-000Z.ini",
+				},
+				{
+					ts: "2025-01-12T10:30:00.000Z",
+					path: ".vale_backup_2025-01-12T10-30-00-000Z.ini",
+				},
+				{
+					ts: "2025-01-11T10:30:00.000Z",
+					path: ".vale_backup_2025-01-11T10-30-00-000Z.ini",
+				},
 			],
 			getAbstractFileByPath,
 			trashFile,
@@ -329,19 +415,19 @@ describe("rotateBackups", () => {
 		await rotateBackups(plugin);
 
 		expect(trashFile).toHaveBeenCalledTimes(3);
+		expect(plugin.settings.backupPaths).toEqual([
+			{
+				ts: "2025-01-15T10:30:00.000Z",
+				path: ".vale_backup_2025-01-15T10-30-00-000Z.ini",
+			},
+			{
+				ts: "2025-01-14T10:30:00.000Z",
+				path: ".vale_backup_2025-01-14T10-30-00-000Z.ini",
+			},
+		]);
+		expect(plugin.debounceSettingsSave).toHaveBeenCalledTimes(1);
 	});
-
-	test("invalid filename format", async () => {
-		const plugin = createMockPlugin({
-			valeConfigBackupsToKeep: 1,
-			backupPaths: [
-				"invalid_backup_name_tokens.ini",
-				".vale_backup_2025-01-15T10-30-00-000Z.ini",
-			],
-		}) as ValePlugin;
-
-		await expect(rotateBackups(plugin)).rejects.toThrow(
-			"Invalid backup filename format: invalid_backup_name_tokens.ini",
+});
 		);
 	});
 });
