@@ -18,22 +18,33 @@ vi.mock("./vale-ini-parser", () => ({
 }));
 
 vi.mock("../src/utils/file-utils", () => ({
-	ensureAbsolutePath: vi.fn((attachmentPath) => `/vault/${attachmentPath}`),
+	ensureAbsolutePath: vi.fn((attachmentPath: string) => {
+		if (attachmentPath.startsWith("/")) {
+			return attachmentPath;
+		}
+		return `/vault/${attachmentPath}`;
+	}),
 }));
 
 import { copyFile } from "fs/promises";
 import type ValePlugin from "../src/main";
+import { TFolder } from "obsidian";
 
 function createMockPlugin(overrides: {
+	debounceSettingsSave?: () => void;
 	valeConfigPathAbsolute?: string;
 	valeConfigBackupDir?: string;
 	valeConfigBackupsToKeep?: number;
 	backupPaths?: string[];
 	getAvailablePathForAttachment?: (name: string) => Promise<string | null>;
-	getFileByPath?: (path: string) => { file: typeof TFile } | null;
+	getAbstractFileByPath?: (
+		path: string,
+	) => { file: typeof TFile | typeof TFolder | null } | null;
 	trashFile?: (file: typeof TFile) => Promise<void>;
+	getRoot?: () => { path: string };
 }) {
 	return {
+		debounceSettingsSave: vi.fn(),
 		settings: {
 			valeConfigPathAbsolute:
 				overrides.valeConfigPathAbsolute ?? "/vault/.vale.ini",
@@ -50,8 +61,12 @@ function createMockPlugin(overrides: {
 					overrides.trashFile ?? vi.fn().mockResolvedValue(undefined),
 			},
 			vault: {
-				getFileByPath:
-					overrides.getFileByPath ?? vi.fn().mockReturnValue(null),
+				getRoot:
+					overrides.getRoot ??
+					vi.fn().mockReturnValue({ path: "/vault" }),
+				getAbstractFileByPath:
+					overrides.getAbstractFileByPath ??
+					vi.fn().mockReturnValue(null),
 			},
 		},
 	} as unknown;
@@ -87,10 +102,12 @@ describe("backupExistingConfig", () => {
 			.mockResolvedValue(
 				"attachments/.vale_backup_2025-01-15T10-30-00-000Z.ini",
 			);
+		const getAbstractFileByPath = vi.fn().mockReturnValue(new TFile());
 		const plugin = createMockPlugin({
 			valeConfigPathAbsolute: "/vault/.vale.ini",
 			valeConfigBackupDir: "",
 			getAvailablePathForAttachment,
+			getAbstractFileByPath,
 		});
 
 		await backupExistingConfig(plugin as ValePlugin);
@@ -149,6 +166,11 @@ describe("backupExistingConfig", () => {
 });
 
 describe("rotateBackups", () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+		vi.useFakeTimers();
+		vi.setSystemTime(new Date("2025-01-15T10:30:00.000Z"));
+	});
 	test("returns early when backup count is within limit", async () => {
 		const trashFile = vi.fn().mockResolvedValue(undefined);
 		const plugin = createMockPlugin({
@@ -166,9 +188,8 @@ describe("rotateBackups", () => {
 
 	test("deletes oldest backups when exceeding max backups", async () => {
 		const trashFile = vi.fn().mockResolvedValue(undefined);
-		const getFileByPath = vi
-			.fn()
-			.mockImplementation((path: string) => ({ path }));
+		// return a real mocked TFile instance so `instanceof TFile` passes
+		const getAbstractFileByPath = vi.fn().mockReturnValue(new TFile());
 		const plugin = createMockPlugin({
 			valeConfigBackupsToKeep: 2,
 			backupPaths: [
@@ -176,28 +197,28 @@ describe("rotateBackups", () => {
 				".vale_backup_2025-01-14T10-30-00-000Z.ini",
 				".vale_backup_2025-01-13T10-30-00-000Z.ini",
 			],
-			getFileByPath,
 			trashFile,
+			getAbstractFileByPath,
 		}) as ValePlugin;
 
 		await rotateBackups(plugin);
 
 		expect(trashFile).toHaveBeenCalledTimes(1);
-		expect(getFileByPath).toHaveBeenCalledWith(
+		expect(getAbstractFileByPath).toHaveBeenCalledWith(
 			".vale_backup_2025-01-13T10-30-00-000Z.ini",
 		);
 	});
 
 	test("skips trashing files that do not exist", async () => {
 		const trashFile = vi.fn().mockResolvedValue(undefined);
-		const getFileByPath = vi.fn().mockReturnValue(null);
+		const getAbstractFileByPath = vi.fn().mockReturnValue(null);
 		const plugin = createMockPlugin({
 			valeConfigBackupsToKeep: 1,
 			backupPaths: [
 				".vale_backup_2025-01-15T10-30-00-000Z.ini",
 				".vale_backup_2025-01-14T10-30-00-000Z.ini",
 			],
-			getFileByPath,
+			getAbstractFileByPath,
 			trashFile,
 		}) as ValePlugin;
 
@@ -208,9 +229,9 @@ describe("rotateBackups", () => {
 
 	test("sorts backups by timestamp in descending order", async () => {
 		const trashFile = vi.fn().mockResolvedValue(undefined);
-		const getFileByPath = vi
+		const getAbstractFileByPath = vi
 			.fn()
-			.mockImplementation((path: string) => ({ path }));
+			.mockImplementation(() => new TFile());
 		const plugin = createMockPlugin({
 			valeConfigBackupsToKeep: 1,
 			backupPaths: [
@@ -218,17 +239,17 @@ describe("rotateBackups", () => {
 				".vale_backup_2025-01-15T10-30-00-000Z.ini",
 				".vale_backup_2025-01-14T10-30-00-000Z.ini",
 			],
-			getFileByPath,
+			getAbstractFileByPath,
 			trashFile,
 		}) as ValePlugin;
 
 		await rotateBackups(plugin);
 
 		expect(trashFile).toHaveBeenCalledTimes(2);
-		expect(getFileByPath).toHaveBeenCalledWith(
+		expect(getAbstractFileByPath).toHaveBeenCalledWith(
 			".vale_backup_2025-01-14T10-30-00-000Z.ini",
 		);
-		expect(getFileByPath).toHaveBeenCalledWith(
+		expect(getAbstractFileByPath).toHaveBeenCalledWith(
 			".vale_backup_2025-01-13T10-30-00-000Z.ini",
 		);
 	});
@@ -289,9 +310,9 @@ describe("rotateBackups", () => {
 
 	test("deletes multiple oldest backups when exceeding limit by more than one", async () => {
 		const trashFile = vi.fn().mockResolvedValue(undefined);
-		const getFileByPath = vi
+		const getAbstractFileByPath = vi
 			.fn()
-			.mockImplementation((path: string) => ({ path }));
+			.mockImplementation(() => new TFile());
 		const plugin = createMockPlugin({
 			valeConfigBackupsToKeep: 2,
 			backupPaths: [
@@ -301,7 +322,7 @@ describe("rotateBackups", () => {
 				".vale_backup_2025-01-12T10-30-00-000Z.ini",
 				".vale_backup_2025-01-11T10-30-00-000Z.ini",
 			],
-			getFileByPath,
+			getAbstractFileByPath,
 			trashFile,
 		}) as ValePlugin;
 
