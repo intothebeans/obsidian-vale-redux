@@ -8,6 +8,7 @@ import { shell } from "electron";
 import {
 	backupExistingConfig,
 	getExistingConfigOptions,
+	rotateBackups,
 	writeConfigToFile,
 } from "core/vale-config";
 import { spawnProcessWithOutput } from "utils/process-utils";
@@ -48,6 +49,7 @@ export class ValeConfigTab extends SettingsTab {
 							)
 							.onClick(async () => {
 								await this.backupAndWriteConfig();
+								await rotateBackups(this.plugin);
 							});
 					})
 					.addButton((btn) => {
