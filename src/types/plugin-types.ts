@@ -12,7 +12,6 @@ export interface ValePluginSettings {
 	automaticChecking: boolean;
 	valeProcessTimeoutMs: number;
 	valeConfigBackupsToKeep: number;
-	/** Absolute Path to backup directory */
 	valeConfigBackupDir: string;
 	backupPaths: string[];
 }

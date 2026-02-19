@@ -6,6 +6,7 @@ import { serializeValeConfig } from "./ini/writer";
 import ValePlugin from "main";
 import path from "path";
 import { ensureAbsolutePath } from "utils/file-utils";
+import { TFile } from "obsidian";
 
 export async function getExistingConfigOptions(
 	configPath: string,
@@ -30,7 +31,7 @@ export async function getExistingConfigOptions(
 		return;
 	}
 }
-/** @throws file system errors */
+
 export async function backupExistingConfig(plugin: ValePlugin): Promise<void> {
 	let outputPath: string;
 	const settings = plugin.settings;
@@ -48,9 +49,15 @@ export async function backupExistingConfig(plugin: ValePlugin): Promise<void> {
 				"Failed to determine backup directory for Vale config. Please set a backup directory in the plugin settings.",
 			);
 		}
-		outputPath = ensureAbsolutePath(attachmentPath, plugin.app.vault);
+
+		outputPath = attachmentPath;
 	}
-	await copyFile(configPath, outputPath);
+	await copyFile(
+		configPath,
+		ensureAbsolutePath(outputPath, plugin.app.vault),
+	);
+	settings.backupPaths.push(outputPath);
+	plugin.debounceSettingsSave();
 }
 
 export async function rotateBackups(plugin: ValePlugin): Promise<void> {
@@ -79,8 +86,8 @@ export async function rotateBackups(plugin: ValePlugin): Promise<void> {
 
 	const toDelete = parsed.slice(maxBackups);
 	for (const backup of toDelete) {
-		const file = plugin.app.vault.getFileByPath(backup.path);
-		if (file) {
+		const file = plugin.app.vault.getAbstractFileByPath(backup.path);
+		if (file && file instanceof TFile) {
 			await plugin.app.fileManager.trashFile(file);
 		}
 	}
