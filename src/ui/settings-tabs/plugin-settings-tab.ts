@@ -1,10 +1,9 @@
 /* eslint-disable obsidianmd/ui/sentence-case */
 import ValePlugin from "main";
 import { SettingsTab } from "./settings-tab";
-import { Notice, Setting, SettingGroup } from "obsidian";
+import { Notice, Setting, SettingGroup, TFolder } from "obsidian";
 import { testValeConnection } from "utils/vale-utils";
 import { notifyError } from "utils/error-utils";
-import { ensureAbsolutePath } from "utils/file-utils";
 
 export class ValePluginSettingsTab extends SettingsTab {
 	debouncedSave = this.plugin.debounceSettingsSave;
@@ -79,22 +78,30 @@ export class ValePluginSettingsTab extends SettingsTab {
 			.addSetting((setting) => {
 				setting
 					.setName("Backup directory")
-					.setDesc("Directory to store backup files.")
+					.setDesc(
+						"Directory to store backup files inside the vault. Defaults to attachments folder.",
+					)
 					.addText((text) => {
-						text.setPlaceholder("/some/directory")
+						text.setPlaceholder("some/directory")
 							.setValue(this.settings.valeConfigBackupDir)
 							.onChange(async (value) => {
-								const fullPath = ensureAbsolutePath(
-									value,
-									this.plugin.app.vault,
-								);
-								if (!fullPath) {
+								const path = value.trim();
+								if (path === "") {
+									this.settings.valeConfigBackupDir = "";
+									this.debouncedSave();
+									return;
+								}
+								const folder =
+									this.plugin.app.vault.getAbstractFileByPath(
+										value.trim(),
+									);
+								if (!folder || !(folder instanceof TFolder)) {
 									notifyError(
 										"Invalid backup directory. Please enter an existing, accessible path.",
 									);
 									return;
 								}
-
+								this.settings.valeConfigBackupDir = path;
 								this.debouncedSave();
 							});
 					});
