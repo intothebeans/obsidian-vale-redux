@@ -7,6 +7,7 @@ import ValePlugin from "main";
 import path from "path";
 import { ensureAbsolutePath } from "utils/file-utils";
 import { TFile } from "obsidian";
+import { Notice } from "obsidian";
 
 export async function getExistingConfigOptions(
 	configPath: string,
@@ -86,6 +87,7 @@ export async function rotateBackups(plugin: ValePlugin): Promise<void> {
 	for (const backup of toDelete) {
 		const file = plugin.app.vault.getAbstractFileByPath(backup.path);
 		if (file && file instanceof TFile) {
+			new Notice(`Removing old Vale config backup: ${backup.path}`);
 			await plugin.app.fileManager.trashFile(file);
 		}
 	}
@@ -106,11 +108,9 @@ function backupFileNameWithTimestamp(configPath: string): {
 	ts: string;
 	path: string;
 } {
-	const pathParts = path.parse(configPath);
-	const fileName = pathParts.name;
 	const timestamp = new Date().toISOString();
 	return {
 		ts: timestamp,
-		path: `${fileName}_backup_${timestamp.replace(/[:.]/g, "-")}${pathParts.ext}`,
+		path: `vale_config_backup_${timestamp.replace(/[:.]/g, "-")}`,
 	};
 }
