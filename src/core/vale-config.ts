@@ -36,13 +36,13 @@ export async function backupExistingConfig(plugin: ValePlugin): Promise<void> {
 	let outputPath: string;
 	const settings = plugin.settings;
 	const configPath = settings.valeConfigPathAbsolute;
-	const backupName = generateBackupName(configPath);
+	const backupObj = backupFileNameWithTimestamp(configPath);
 	if (settings.valeConfigBackupDir !== "") {
-		outputPath = path.join(settings.valeConfigBackupDir, backupName);
+		outputPath = path.join(settings.valeConfigBackupDir, backupObj.path);
 	} else {
 		const attachmentPath =
 			await plugin.app.fileManager.getAvailablePathForAttachment(
-				backupName,
+				backupObj.path,
 			);
 		if (!attachmentPath) {
 			throw new Error(
@@ -56,7 +56,7 @@ export async function backupExistingConfig(plugin: ValePlugin): Promise<void> {
 		configPath,
 		ensureAbsolutePath(outputPath, plugin.app.vault),
 	);
-	settings.backupPaths.push(outputPath);
+	settings.backupPaths.push({ ts: backupObj.ts, path: outputPath });
 	plugin.debounceSettingsSave();
 }
 
@@ -67,22 +67,20 @@ export async function rotateBackups(plugin: ValePlugin): Promise<void> {
 		return;
 	}
 
-	const parsed = backups.map((p) => {
-		// name, "backup", ts.ini
-		const name = path.parse(p).name;
-		const tokens = name.split("_");
-		const ts = tokens.length == 3 ? tokens[tokens.length - 1] : null;
-		if (!ts) {
-			throw new Error(`Invalid backup filename format: ${p}`);
+	for (const backup of backups) {
+		if (
+			!backup.ts ||
+			!backup.path ||
+			backup.ts.trim() === "" ||
+			backup.path.trim() === ""
+		) {
+			throw new Error(
+				`Invalid backup entry: ${JSON.stringify(backup)}. Each backup must have a timestamp and path.`,
+			);
 		}
-		const isoTs = ts.replace(/-(\d{2})-(\d{2})-(\d{3})Z$/, ":$1:$2.$3Z");
-		if (!isoTs || isNaN(new Date(isoTs).getTime())) {
-			throw new Error(`Invalid backup timestamp format: ${p}`);
-		}
-		return { path: p, ts: isoTs };
-	});
+	}
 
-	parsed.sort((a, b) => b.ts.localeCompare(a.ts)); // Newest first
+	const parsed = backups.sort((a, b) => b.ts.localeCompare(a.ts)); // Newest first
 
 	const toDelete = parsed.slice(maxBackups);
 	for (const backup of toDelete) {
@@ -91,6 +89,8 @@ export async function rotateBackups(plugin: ValePlugin): Promise<void> {
 			await plugin.app.fileManager.trashFile(file);
 		}
 	}
+	plugin.settings.backupPaths = parsed.filter((_, idx) => idx < maxBackups);
+	plugin.debounceSettingsSave();
 }
 
 /** @throws file system errors */
@@ -102,9 +102,15 @@ export async function writeConfigToFile(
 	await writeFile(configPath, content, "utf-8");
 }
 
-function generateBackupName(configPath: string): string {
+function backupFileNameWithTimestamp(configPath: string): {
+	ts: string;
+	path: string;
+} {
 	const pathParts = path.parse(configPath);
 	const fileName = pathParts.name;
-	const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-	return `${fileName}_backup_${timestamp}${pathParts.ext}`;
+	const timestamp = new Date().toISOString();
+	return {
+		ts: timestamp,
+		path: `${fileName}_backup_${timestamp.replace(/[:.]/g, "-")}${pathParts.ext}`,
+	};
 }

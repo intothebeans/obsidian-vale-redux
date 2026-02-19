@@ -13,7 +13,7 @@ export interface ValePluginSettings {
 	valeProcessTimeoutMs: number;
 	valeConfigBackupsToKeep: number;
 	valeConfigBackupDir: string;
-	backupPaths: string[];
+	backupPaths: { ts: string; path: string }[];
 }
 
 /** Represents a Vale process configuration and execution interface. */
