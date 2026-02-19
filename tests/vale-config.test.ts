@@ -1,11 +1,17 @@
 import { describe, test, expect, vi, beforeEach } from "vitest";
-import { backupExistingConfig, rotateBackups } from "../src/core/vale-config";
+import {
+	backupExistingConfig,
+	getExistingConfigOptions,
+	rotateBackups,
+	writeConfigToFile,
+} from "../src/core/vale-config";
 import path from "path";
 import { TFile } from "./__mocks__/obsidian";
 
 vi.mock("fs/promises", () => ({
 	copyFile: vi.fn(),
 	readFile: vi.fn(),
+	writeFile: vi.fn(),
 }));
 
 vi.mock("main", () => {
@@ -13,8 +19,16 @@ vi.mock("main", () => {
 	return { default: MockPlugin };
 });
 
-vi.mock("./vale-ini-parser", () => ({
+vi.mock("../src/core/ini/parser", () => ({
 	parseValeIni: vi.fn(),
+}));
+
+vi.mock("../src/core/ini/writer", () => ({
+	serializeValeConfig: vi.fn(),
+}));
+
+vi.mock("../src/utils/error-utils", () => ({
+	notifyError: vi.fn(),
 }));
 
 vi.mock("../src/utils/file-utils", () => ({
@@ -26,9 +40,12 @@ vi.mock("../src/utils/file-utils", () => ({
 	}),
 }));
 
-import { copyFile } from "fs/promises";
+import { copyFile, readFile, writeFile } from "fs/promises";
 import type ValePlugin from "../src/main";
 import { TFolder } from "obsidian";
+import { parseValeIni } from "../src/core/ini/parser";
+import { serializeValeConfig } from "../src/core/ini/writer";
+import { notifyError } from "../src/utils/error-utils";
 
 function createMockPlugin(overrides: {
 	debounceSettingsSave?: () => void;
@@ -428,6 +445,68 @@ describe("rotateBackups", () => {
 		expect(plugin.debounceSettingsSave).toHaveBeenCalledTimes(1);
 	});
 });
+
+describe("getExistingConfigOptions", () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
+
+	test("returns parsed config when file is readable and valid", async () => {
+		vi.mocked(readFile).mockResolvedValue("MinAlertLevel = warning");
+		vi.mocked(parseValeIni).mockReturnValue({ MinAlertLevel: 2 });
+
+		const result = await getExistingConfigOptions("/vault/.vale.ini");
+
+		expect(readFile).toHaveBeenCalledWith("/vault/.vale.ini", "utf-8");
+		expect(parseValeIni).toHaveBeenCalledWith("MinAlertLevel = warning");
+		expect(result).toEqual({ MinAlertLevel: 2 });
+		expect(notifyError).not.toHaveBeenCalled();
+	});
+
+	test("returns undefined and notifies when file read fails", async () => {
+		vi.mocked(readFile).mockRejectedValue(new Error("ENOENT"));
+
+		const result = await getExistingConfigOptions("/vault/.vale.ini");
+
+		expect(result).toBeUndefined();
+		expect(parseValeIni).not.toHaveBeenCalled();
+		expect(notifyError).toHaveBeenCalledWith(
+			"Failed to read Vale config file: ENOENT",
+		);
+	});
+
+	test("returns undefined and notifies when parse fails", async () => {
+		vi.mocked(readFile).mockResolvedValue("invalid-content");
+		vi.mocked(parseValeIni).mockImplementation(() => {
+			throw new Error("invalid format");
+		});
+
+		const result = await getExistingConfigOptions("/vault/.vale.ini");
+
+		expect(result).toBeUndefined();
+		expect(notifyError).toHaveBeenCalledWith(
+			"Failed to parse Vale config file: invalid format",
+		);
+	});
+});
+
+describe("writeConfigToFile", () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
+
+	test("serializes config and writes to disk", async () => {
+		vi.mocked(serializeValeConfig).mockReturnValue(
+			"MinAlertLevel = warning",
+		);
+
+		await writeConfigToFile("/vault/.vale.ini", { MinAlertLevel: 2 });
+
+		expect(serializeValeConfig).toHaveBeenCalledWith({ MinAlertLevel: 2 });
+		expect(writeFile).toHaveBeenCalledWith(
+			"/vault/.vale.ini",
+			"MinAlertLevel = warning",
+			"utf-8",
 		);
 	});
 });
