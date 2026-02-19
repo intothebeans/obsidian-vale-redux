@@ -49,7 +49,6 @@ export class ValeConfigTab extends SettingsTab {
 							)
 							.onClick(async () => {
 								await this.backupAndWriteConfig();
-								await rotateBackups(this.plugin);
 							});
 					})
 					.addButton((btn) => {
@@ -433,6 +432,17 @@ export class ValeConfigTab extends SettingsTab {
 		} catch (err) {
 			notifyError(
 				`Failed to write Vale config file: ${err instanceof Error ? err.message : String(err)}`,
+			);
+			return;
+		}
+
+		try {
+			await rotateBackups(plugin);
+		} catch (err) {
+			notifyError(
+				"Failed to rotate backups after saving config.",
+				8000,
+				err instanceof Error ? err.message : String(err),
 			);
 			return;
 		}
