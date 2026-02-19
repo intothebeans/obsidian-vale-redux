@@ -1,9 +1,13 @@
 import ValePlugin from "main";
 import { SettingsTab } from "./settings-tab";
 import { Setting, SettingGroup, Notice } from "obsidian";
-import { ValeConfig, ValeGlobalSection, ValeProcess } from "types";
+import { ValeCheckOverride, ValeProcess } from "types";
 import { getValeStylesPath, returnCodeFail } from "utils/vale-utils";
-import { ALERT_LEVEL_TO_STRING, AlertLevelString } from "utils/constants";
+import {
+	ALERT_LEVEL_TO_STRING,
+	ALERT_STRING_TO_LEVEL,
+	AlertLevelString,
+} from "utils/constants";
 import { shell } from "electron";
 import {
 	backupExistingConfig,
@@ -15,19 +19,17 @@ import { spawnProcessWithOutput } from "utils/process-utils";
 import { notifyError } from "utils/error-utils";
 
 export class ValeConfigTab extends SettingsTab {
-	private valeConfig: ValeConfig;
 	constructor(
 		navEl: HTMLElement,
 		settingsEl: HTMLElement,
 		plugin: ValePlugin,
 	) {
 		super(navEl, settingsEl, "Vale Config", plugin, "file-sliders");
-		this.valeConfig = plugin.valeConfig || null;
 		this.display();
 	}
 
 	display(): void {
-		if (this.valeConfig) {
+		if (this.plugin.valeConfig) {
 			this.createValeActions();
 			this.createCoreSettings();
 			this.createGlobalSettings();
@@ -72,7 +74,7 @@ export class ValeConfigTab extends SettingsTab {
 										"Config loaded successfully!",
 										3000,
 									);
-									this.valeConfig = loadedConfig;
+									this.plugin.valeConfig = loadedConfig;
 									this.contentEl.empty();
 									this.display();
 								}
@@ -144,12 +146,10 @@ export class ValeConfigTab extends SettingsTab {
 	}
 
 	private createCoreSettings(): SettingGroup {
+		const valeConfig = this.plugin.valeConfig;
 		return new SettingGroup(this.contentEl)
 			.setHeading("Core Settings")
 			.addClass("vale-config-core-settings")
-			.addSearch((search) => {
-				search.setPlaceholder("Search settings...");
-			})
 			.addSetting((setting) => {
 				setting
 					.setName("Styles path")
@@ -157,71 +157,100 @@ export class ValeConfigTab extends SettingsTab {
 					.addText(async (text) => {
 						const stylesPath =
 							(await getValeStylesPath(this.plugin)) || "";
-						text.setValue(stylesPath).setPlaceholder(
-							"Path to vale styles",
-						);
+						text.setValue(stylesPath)
+							.setPlaceholder("Path to vale styles")
+							.onChange((value) => {
+								valeConfig.StylesPath =
+									value.trim() === ""
+										? undefined
+										: value.trim();
+							});
 					});
 			})
 			.addSetting((setting) => {
 				this.stringArraySetting(
 					setting,
-					this.valeConfig.Vocab,
+					valeConfig.Vocab,
 					"Vocab",
 					"List of vocabularies to load.",
+					(value) => {
+						valeConfig.Vocab = value;
+					},
 				);
 			})
 			.addSetting((setting) => {
 				setting
 					.setName("Minimum alert level")
-					.setDisabled(true)
 					.setDesc(
 						"Minimum alert level to display. (e.g., suggestion, warning, error)",
 					)
 					.addText((text) => {
 						text.setValue(
 							ALERT_LEVEL_TO_STRING[
-								this.valeConfig
-									.MinAlertLevel as AlertLevelString
+								valeConfig.MinAlertLevel as AlertLevelString
 							] ?? "",
-						).setPlaceholder("Minimum alert level");
+						)
+							// eslint-disable-next-line obsidianmd/ui/sentence-case
+							.setPlaceholder("suggestion, warning, or error")
+							.onChange((value) => {
+								const normalized = value.trim().toLowerCase();
+								valeConfig.MinAlertLevel =
+									normalized in ALERT_STRING_TO_LEVEL
+										? ALERT_STRING_TO_LEVEL[
+												normalized as keyof typeof ALERT_STRING_TO_LEVEL
+											]
+										: undefined;
+							});
 					});
 			})
 			.addSetting((setting) => {
 				this.stringArraySetting(
 					setting,
-					this.valeConfig.Packages,
+					valeConfig.Packages,
 					"Packages",
 					"Packages to install with vale sync",
+					(value) => {
+						valeConfig.Packages = value;
+					},
 				);
 			})
 			.addSetting((setting) => {
 				this.stringArraySetting(
 					setting,
-					this.valeConfig.IgnoredScopes,
+					valeConfig.IgnoredScopes,
 					"Ignored scopes",
 					"List of inline-level HTML tags to ignore.",
+					(value) => {
+						valeConfig.IgnoredScopes = value;
+					},
 				);
 			})
 			.addSetting((setting) => {
 				this.stringArraySetting(
 					setting,
-					this.valeConfig.SkippedScopes,
+					valeConfig.SkippedScopes,
 					"Skipped scopes",
 					"List of block-level HTML tags to ignore",
+					(value) => {
+						valeConfig.SkippedScopes = value;
+					},
 				);
 			})
 			.addSetting((setting) => {
 				this.stringArraySetting(
 					setting,
-					this.valeConfig.IgnoredClasses,
+					valeConfig.IgnoredClasses,
 					"Ignored classes",
 					"Classes to ignore for both inline and block-level tags.",
+					(value) => {
+						valeConfig.IgnoredClasses = value;
+					},
 				);
 			});
 	}
 
 	private createGlobalSettings(): SettingGroup | void {
-		const globalConfig = this.valeConfig["*"] || null;
+		const globalConfig = this.plugin.valeConfig["*"] || null;
 		if (globalConfig) {
 			return new SettingGroup(this.contentEl)
 				.setHeading("Global Settings")
@@ -232,6 +261,9 @@ export class ValeConfigTab extends SettingsTab {
 						globalConfig?.BasedOnStyles,
 						"Based on styles",
 						"List of styles to apply globally.",
+						(value) => {
+							globalConfig.BasedOnStyles = value;
+						},
 					);
 				})
 				.addSetting((setting) => {
@@ -240,6 +272,9 @@ export class ValeConfigTab extends SettingsTab {
 						globalConfig?.BlockIgnores,
 						"Block ignores",
 						"List of block-level HTML tags to ignore globally.",
+						(value) => {
+							globalConfig.BlockIgnores = value;
+						},
 					);
 				})
 				.addSetting((setting) => {
@@ -248,6 +283,9 @@ export class ValeConfigTab extends SettingsTab {
 						globalConfig?.TokenIgnores,
 						"Token ignores",
 						"List of inline-level HTML tags to ignore globally.",
+						(value) => {
+							globalConfig.TokenIgnores = value;
+						},
 					);
 				})
 				.addSetting((setting) => {
@@ -255,11 +293,14 @@ export class ValeConfigTab extends SettingsTab {
 						.setName("Language")
 						.setDesc("Language to use for global checks.")
 						.addText((text) => {
-							text.setValue(
-								globalConfig?.Lang || "",
-							).setPlaceholder(
-								"Language code (e.g., en, fr, etc.)",
-							);
+							text.setValue(globalConfig?.Lang || "")
+								.setPlaceholder(
+									"Language code (e.g., en, fr, etc.)",
+								)
+								.onChange((value) => {
+									globalConfig.Lang =
+										value.trim() || undefined;
+								});
 						});
 				})
 				.addSetting((setting) => {
@@ -271,12 +312,15 @@ export class ValeConfigTab extends SettingsTab {
 						.addTextArea((text) => {
 							const overrideLines =
 								this.extractCheckOverrides(globalConfig);
-							text.setValue(
-								overrideLines.join("\n"),
-							).setPlaceholder(
-								// eslint-disable-next-line obsidianmd/ui/sentence-case
-								"One override per line, format: CheckName = Level or NO (to disable)",
-							);
+							text.setValue(overrideLines.join("\n"))
+								.setPlaceholder(
+									// eslint-disable-next-line obsidianmd/ui/sentence-case
+									"One override per line, format: CheckName = Level or NO (to disable)",
+								)
+								.onChange((value) => {
+									globalConfig.CheckOverrides =
+										this.parseCheckOverrides(value);
+								});
 						});
 				});
 		}
@@ -284,7 +328,7 @@ export class ValeConfigTab extends SettingsTab {
 	}
 
 	private createSyntaxSettings(): SettingGroup | void {
-		const sections = this.valeConfig.syntaxSections || null;
+		const sections = this.plugin.valeConfig.syntaxSections || null;
 		if (sections) {
 			for (const [syntax, config] of Object.entries(sections)) {
 				new SettingGroup(this.contentEl)
@@ -296,6 +340,9 @@ export class ValeConfigTab extends SettingsTab {
 							config.BasedOnStyles,
 							"Based on styles",
 							"List of styles to apply for this syntax.",
+							(value) => {
+								config.BasedOnStyles = value;
+							},
 						);
 					})
 					.addSetting((setting) => {
@@ -304,6 +351,9 @@ export class ValeConfigTab extends SettingsTab {
 							config.BlockIgnores,
 							"Block ignores",
 							"List of block-level HTML tags to ignore for this syntax.",
+							(value) => {
+								config.BlockIgnores = value;
+							},
 						);
 					})
 					.addSetting((setting) => {
@@ -312,31 +362,43 @@ export class ValeConfigTab extends SettingsTab {
 							config.TokenIgnores,
 							"Token ignores",
 							"List of inline-level HTML tags to ignore for this syntax.",
+							(value) => {
+								config.TokenIgnores = value;
+							},
 						);
 					})
 					.addSetting((setting) => {
 						setting
 							.setName("Comment delimiters")
 							.setDesc(
-								"Delimiters used to identify comments for this syntax.",
+								"Delimiters used to identify comments for this syntax, separated by a space.",
 							)
 							.addText((text) => {
 								text.setPlaceholder(
-									"Opening delimiter",
-								).setValue(
-									config?.CommentDelimiters
-										? config.CommentDelimiters[0]
-										: "",
-								);
-							})
-							.addText((text) => {
-								text.setPlaceholder(
-									"Closing delimiter",
-								).setValue(
-									config?.CommentDelimiters
-										? config.CommentDelimiters[1]
-										: "",
-								);
+									// eslint-disable-next-line obsidianmd/ui/sentence-case
+									"<!-- -->, # ---, etc. depending on syntax)",
+								)
+									.setValue(
+										(config.CommentDelimiters || []).join(
+											" ",
+										),
+									)
+									.onChange((value) => {
+										const parts = value
+											.split(" ")
+											.map((part) => part.trim())
+											.filter((part) => part !== "");
+										const opening = parts[0];
+										if (!opening) {
+											config.CommentDelimiters =
+												undefined;
+										} else {
+											config.CommentDelimiters = [
+												opening,
+												parts[1] || "",
+											];
+										}
+									});
 							});
 					})
 					.addSetting((setting) => {
@@ -344,11 +406,13 @@ export class ValeConfigTab extends SettingsTab {
 							.setName("Language")
 							.setDesc("Language to use for this syntax.")
 							.addText((text) => {
-								text.setValue(
-									config?.Lang || "",
-								).setPlaceholder(
-									"Language code (e.g., en, fr, etc.)",
-								);
+								text.setValue(config?.Lang || "")
+									.setPlaceholder(
+										"Language code (e.g., en, fr, etc.)",
+									)
+									.onChange((value) => {
+										config.Lang = value.trim() || undefined;
+									});
 							});
 					})
 					.addSetting((setting) => {
@@ -356,9 +420,12 @@ export class ValeConfigTab extends SettingsTab {
 							.setName("Blueprint")
 							.setDesc("Blueprint to use for this syntax.")
 							.addText((text) => {
-								text.setValue(
-									config?.Blueprint || "",
-								).setPlaceholder("Blueprint name");
+								text.setValue(config?.Blueprint || "")
+									.setPlaceholder("Blueprint name")
+									.onChange((value) => {
+										config.Blueprint =
+											value.trim() || undefined;
+									});
 							});
 					})
 					.addSetting((setting) => {
@@ -368,29 +435,66 @@ export class ValeConfigTab extends SettingsTab {
 							.addTextArea((text) => {
 								const overrideLines =
 									this.extractCheckOverrides(config);
-								text.setValue(
-									overrideLines.join("\n"),
-								).setPlaceholder(
-									// eslint-disable-next-line obsidianmd/ui/sentence-case
-									"One override per line, format: CheckName = Level or NO (to disable)",
-								);
+								text.setValue(overrideLines.join("\n"))
+									.setPlaceholder(
+										// eslint-disable-next-line obsidianmd/ui/sentence-case
+										"One override per line, format: CheckName = Level or NO (to disable)",
+									)
+									.onChange((value) => {
+										config.CheckOverrides =
+											this.parseCheckOverrides(value);
+									});
 							});
 					});
 			}
 		}
 	}
 
-	private extractCheckOverrides(globalConfig: ValeGlobalSection | undefined) {
-		const overrides = globalConfig?.CheckOverrides;
-		const overrideLines = [];
+	private extractCheckOverrides(section: {
+		CheckOverrides?: ValeCheckOverride[];
+	}) {
+		const overrides = section?.CheckOverrides;
+		const overrideLines: string[] = [];
 		if (overrides && overrides.length > 0) {
 			for (const override of overrides) {
 				overrideLines.push(
-					`${override.Check} = ${override?.Enabled === false ? "NO" : override?.Level || "no change"}`,
+					`${override.Check} = ${override.Enabled === false ? "NO" : override.Level || ""}`,
 				);
 			}
 		}
 		return overrideLines;
+	}
+
+	private parseCheckOverrides(
+		value: string,
+	): ValeCheckOverride[] | undefined {
+		const parsedOverrides: ValeCheckOverride[] = [];
+		for (const rawLine of value.split("\n")) {
+			const line = rawLine.trim();
+			if (line === "") {
+				continue;
+			}
+			const equalsIndex = line.indexOf("=");
+			if (equalsIndex === -1) {
+				continue;
+			}
+			const check = line.slice(0, equalsIndex).trim();
+			const rawLevel = line.slice(equalsIndex + 1).trim();
+			if (!check || !rawLevel) {
+				continue;
+			}
+			if (rawLevel.toUpperCase() === "NO") {
+				parsedOverrides.push({ Check: check, Enabled: false });
+			} else {
+				parsedOverrides.push({
+					Check: check,
+					Enabled: true,
+					Level: rawLevel,
+				});
+			}
+		}
+
+		return parsedOverrides.length > 0 ? parsedOverrides : undefined;
 	}
 
 	private stringArraySetting(
@@ -398,15 +502,23 @@ export class ValeConfigTab extends SettingsTab {
 		array: string[] | undefined,
 		name: string,
 		desc: string,
+		onChange: (value: string[] | undefined) => void,
 	): Setting {
 		return setting
 			.setName(name)
-			.setDisabled(true)
 			.setDesc(desc)
 			.addTextArea((text) => {
-				text.setValue(array ? array.join("\n") : "").setPlaceholder(
-					`List of ${name.toLowerCase()}, one per line`,
-				);
+				text.setValue(array ? array.join("\n") : "")
+					.setPlaceholder(
+						`List of ${name.toLowerCase()}, one per line`,
+					)
+					.onChange((value) => {
+						const parsed = value
+							.split("\n")
+							.map((line) => line.trim())
+							.filter((line) => line !== "");
+						onChange(parsed.length > 0 ? parsed : undefined);
+					});
 			});
 	}
 
