@@ -10,7 +10,24 @@ export function createValeIssuesStatusBar(
 	});
 	textbar.setText(updateValeIssuesStatusBar(plugin));
 	plugin.registerEvent(
-		plugin.issueManager.on("issues-updated", () => {
+		plugin.issueManager.on("issues-updated", (filePath) => {
+			textbar.setText(
+				updateValeIssuesStatusBar(plugin, filePath as string),
+			);
+		}),
+	);
+	plugin.registerEvent(
+		plugin.app.workspace.on("active-leaf-change", () => {
+			textbar.setText(updateValeIssuesStatusBar(plugin));
+		}),
+	);
+	plugin.registerEvent(
+		plugin.app.workspace.on("file-open", () => {
+			textbar.setText(updateValeIssuesStatusBar(plugin));
+		}),
+	);
+	plugin.registerEvent(
+		plugin.app.workspace.on("editor-change", () => {
 			textbar.setText(updateValeIssuesStatusBar(plugin));
 		}),
 	);
@@ -40,14 +57,15 @@ function updateValeStatusStatusBar(
 	setIcon(textbar, icon);
 }
 
-function updateValeIssuesStatusBar(plugin: ValePlugin): string {
-	const currentFile = plugin.app.workspace.getActiveFile();
+export function updateValeIssuesStatusBar(
+	plugin: ValePlugin,
+	filePath?: string,
+): string {
+	const currentFile = filePath || plugin.app.workspace.getActiveFile()?.path;
 	if (!currentFile) {
 		return "No file";
 	}
-	const issues = plugin.issueManager.getIssuesGroupedBySeverity(
-		currentFile.path,
-	);
+	const issues = plugin.issueManager.getIssuesGroupedBySeverity(currentFile);
 	const errorCount = issues.errors.length ? issues.errors.length : 0;
 	const warningCount = issues.warnings.length ? issues.warnings.length : 0;
 	const suggestionCount = issues.suggestions.length
