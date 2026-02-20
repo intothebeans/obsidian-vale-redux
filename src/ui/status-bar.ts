@@ -16,21 +16,23 @@ export function createValeIssuesStatusBar(
 			);
 		}),
 	);
-	plugin.registerEvent(
-		plugin.app.workspace.on("active-leaf-change", () => {
-			textbar.setText(updateValeIssuesStatusBar(plugin));
-		}),
-	);
-	plugin.registerEvent(
-		plugin.app.workspace.on("file-open", () => {
-			textbar.setText(updateValeIssuesStatusBar(plugin));
-		}),
-	);
-	plugin.registerEvent(
-		plugin.app.workspace.on("editor-change", () => {
-			textbar.setText(updateValeIssuesStatusBar(plugin));
-		}),
-	);
+	if (!plugin.settings.automaticChecking) {
+		plugin.registerEvent(
+			plugin.app.workspace.on("active-leaf-change", () => {
+				textbar.setText(updateValeIssuesStatusBar(plugin));
+			}),
+		);
+		plugin.registerEvent(
+			plugin.app.workspace.on("file-open", () => {
+				textbar.setText(updateValeIssuesStatusBar(plugin));
+			}),
+		);
+		plugin.registerEvent(
+			plugin.app.workspace.on("editor-change", () => {
+				textbar.setText(updateValeIssuesStatusBar(plugin));
+			}),
+		);
+	}
 }
 
 export function createValeStatusStatusBar(
