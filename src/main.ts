@@ -52,7 +52,9 @@ export default class ValePlugin extends Plugin {
 				new ValeIssuesView(leaf, this.issueManager),
 		);
 		this.addSettingTab(new ValePluginSettingTab(this.app, this));
-		this.registerEventListeners();
+		if (this.settings.automaticChecking) {
+			this.registerEventListeners();
+		}
 		this.registerEditorExtension(
 			buildValeEditorExtension(
 				this.app,
