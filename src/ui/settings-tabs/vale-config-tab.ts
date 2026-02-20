@@ -365,7 +365,7 @@ export class ValeConfigTab extends SettingsTab {
 							.addText((text) => {
 								text.setPlaceholder(
 									// eslint-disable-next-line obsidianmd/ui/sentence-case
-									"<!-- -->, # ---, etc. depending on syntax)",
+									"<!-- -->, # ---, etc. depending on syntax",
 								)
 									.setValue(
 										(config.CommentDelimiters || []).join(
