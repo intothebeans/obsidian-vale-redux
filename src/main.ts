@@ -10,6 +10,10 @@ import { openIssuesPanel, ValeIssuesView } from "ui/issues-panel";
 import { buildValeEditorExtension } from "core/editor";
 import { testValeConnection } from "utils/vale-utils";
 import { registerCommands } from "commands/register-commands";
+import {
+	createValeIssuesStatusBar,
+	createValeStatusStatusBar,
+} from "ui/status-bar";
 
 export const DEFAULT_SETTINGS: ValePluginSettings = {
 	valeBinaryPath: "vale",
@@ -70,6 +74,10 @@ export default class ValePlugin extends Plugin {
 				await openIssuesPanel(this);
 			},
 		);
+		const valeStatusBarItem = this.addStatusBarItem();
+		createValeStatusStatusBar(valeStatusBarItem, this);
+		const valeIssuesStatusBarItem = this.addStatusBarItem();
+		createValeIssuesStatusBar(valeIssuesStatusBarItem, this);
 
 		// Defer processes after load.
 		this.app.workspace.onLayoutReady(async () => {
