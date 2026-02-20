@@ -54,17 +54,12 @@ export class ValeConfigTab extends SettingsTab {
 								"Load the current configuration from the vale config file.",
 							)
 							.onClick(async () => {
-								const notice = new Notice(
-									"Loading config...",
-									0,
-								);
 								const loadedConfig =
 									await getExistingConfigOptions(
 										this.plugin.settings
 											.valeConfigPathAbsolute,
 									);
 								if (loadedConfig) {
-									notice.hide();
 									new Notice(
 										"Config loaded successfully!",
 										3000,
@@ -73,7 +68,6 @@ export class ValeConfigTab extends SettingsTab {
 									this.contentEl.empty();
 									this.display();
 								}
-								notice.hide();
 							});
 					})
 					.addButton((btn) => {
