@@ -6,8 +6,8 @@ A plugin that integrates the [Vale](https://vale.sh/) prose linter with Obsidian
 ## :sparkles: Features
 ### :tada: Fresh & Shiny Redux Exclusives
 - **Configuration management** - Manage your `.vale.ini` from Obsidian
-  >[!note]
-  	> The Obsidian settings UI is an interface for the file. The plugin does not store any configuration settings, it only reads them from the file. 
+>[!NOTE]
+> The Obsidian settings UI is an interface for the file. The plugin does not store any configuration settings, it only reads them from the file.
 - **Issues panel** - View issues in your document from a side panel with click to navigate functionality
 
 ### :dizzy: Other Great Features
@@ -32,6 +32,7 @@ This plugin is in very early development, so expect some weird behaviors and iss
 
 - [Plugin Settings](docs/plugin-settings.md)
 - [Configuration Management](docs/configuration-management.md)
+
 ## Credits
 
 This plugin was inspired by/forked from [obsidian-vale](https://github.com/ChrisChinchilla/obsidian-vale)
