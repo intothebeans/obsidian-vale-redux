@@ -108,13 +108,13 @@ describe("backupExistingConfig", () => {
 			"/vault/.vale.ini",
 			path.join(
 				"/vault/backups",
-				".vale_backup_2025-01-15T10-30-00-000Z.ini",
+				"vale_config_backup_2025-01-15T10-30-00-000Z",
 			),
 		);
 		expect(plugin.debounceSettingsSave).toHaveBeenCalledTimes(1);
 		expect(plugin.settings.backupPaths).toContainEqual({
 			ts: "2025-01-15T10:30:00.000Z",
-			path: "/vault/backups/.vale_backup_2025-01-15T10-30-00-000Z.ini",
+			path: "/vault/backups/vale_config_backup_2025-01-15T10-30-00-000Z",
 		});
 	});
 
@@ -194,23 +194,6 @@ describe("backupExistingConfig", () => {
 		);
 		expect(copyFile).not.toHaveBeenCalled();
 		expect(plugin.debounceSettingsSave).not.toHaveBeenCalled();
-	});
-
-	test("generates backup name from config filename", async () => {
-		const plugin = createMockPlugin({
-			valeConfigPathAbsolute: "/some/path/my-config.ini",
-			valeConfigBackupDir: "/backups",
-		});
-
-		await backupExistingConfig(plugin as ValePlugin);
-
-		expect(copyFile).toHaveBeenCalledWith(
-			"/some/path/my-config.ini",
-			path.join(
-				"/backups",
-				"my-config_backup_2025-01-15T10-30-00-000Z.ini",
-			),
-		);
 	});
 });
 
