@@ -43,7 +43,7 @@ export function createValeStatusStatusBar(
 	});
 	updateValeStatusStatusBar(plugin, textbar);
 	plugin.registerEvent(
-		plugin.issueManager.on("issues-updated", () => {
+		plugin.app.workspace.on("active-leaf-change", () => {
 			updateValeStatusStatusBar(plugin, textbar);
 		}),
 	);
