@@ -11,7 +11,7 @@
 		"test:coverage": "vitest run --coverage",
 		"css:build": "sass src/styles/main.scss styles.css",
 		"css:watch": "sass --watch --poll src/styles/main.scss styles.css",
-		"version": "git-cliff --bump && node version-bump.mjs",
+		"version": "node version-bump.mjs",
 		"fmt": "prettier --write .",
 		"lint": "eslint ."
 	},
