@@ -97,7 +97,7 @@ function serializeCheckOverride(override: ValeCheckOverride): string {
 	if (override.Level) {
 		return `${override.Check} = ${override.Level}`;
 	}
-	return `${override.Check} = NO`;
+	return "";
 }
 
 function pushTopLevelFields(lines: string[], config: ValeConfig): void {
