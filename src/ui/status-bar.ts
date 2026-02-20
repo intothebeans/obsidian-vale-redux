@@ -68,11 +68,9 @@ export function updateValeIssuesStatusBar(
 		return "No file";
 	}
 	const issues = plugin.issueManager.getIssuesGroupedBySeverity(currentFile);
-	const errorCount = issues.errors.length ? issues.errors.length : 0;
-	const warningCount = issues.warnings.length ? issues.warnings.length : 0;
-	const suggestionCount = issues.suggestions.length
-		? issues.suggestions.length
-		: 0;
+	const errorCount = issues.errors.length;
+	const warningCount = issues.warnings.length;
+	const suggestionCount = issues.suggestions.length;
 
 	return `${errorCount} error${errorCount !== 1 ? "s" : ""}, ${warningCount} warning${warningCount !== 1 ? "s" : ""}, ${suggestionCount} suggestion${suggestionCount !== 1 ? "s" : ""}`;
 }
