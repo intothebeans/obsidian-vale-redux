@@ -1,8 +1,11 @@
+import type { Severity } from "utils/constants";
+export type { Severity } from "utils/constants";
+
 /** Represents the Vale configuration options
  */
 export interface ValeConfig {
 	StylesPath?: string;
-	MinAlertLevel?: number;
+	MinAlertLevel?: Severity;
 	IgnoredScopes?: string[];
 	SkippedScopes?: string[];
 	IgnoredClasses?: string[];
@@ -21,7 +24,7 @@ export interface ValeSyntaxSection {
 	BasedOnStyles?: string[];
 	BlockIgnores?: string[];
 	TokenIgnores?: string[];
-	CommentDelimeters?: [string, string];
+	CommentDelimiters?: [string, string];
 	/** UNUSED: for XML to HTML, not MD */
 	Transform?: string;
 	Lang?: string;
@@ -39,7 +42,7 @@ export interface ValeGlobalSection {
 
 export interface ValeCheckOverride {
 	Check: string;
-	Level?: string | undefined;
+	Level?: Severity | undefined;
 	Enabled?: boolean | undefined;
 }
 
@@ -59,7 +62,7 @@ export interface ValeAlert {
 	Line: number;
 	Link: string;
 	Message: string;
-	Severity: string;
+	Severity: Severity;
 	Span: [number, number];
 	Match: string;
 }
@@ -83,6 +86,3 @@ export interface ValeIssue {
 	link?: string;
 	id: string;
 }
-
-/** Severity type - derived from SEVERITY_METADATA in constants */
-export type Severity = "error" | "warning" | "suggestion";

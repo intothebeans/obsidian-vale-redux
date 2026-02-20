@@ -181,14 +181,14 @@ export class ValeIssuesView extends ItemView {
 
 	private renderSeverityGroup(
 		container: HTMLElement,
-		severity: string,
+		severity: Severity,
 		label: string,
 		issues: ValeIssue[],
 	): void {
 		const group = container.createDiv({ cls: "vale-severity-group" });
 		const header = group.createDiv({ cls: "vale-severity-header" });
 		header.createSpan({
-			text: this.getSeverityIcon(severity as Severity),
+			text: this.getSeverityIcon(severity),
 			cls: "vale-severity-icon",
 		});
 		header.createSpan({ text: label });

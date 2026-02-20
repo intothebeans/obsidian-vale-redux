@@ -1,6 +1,29 @@
 {
 	"compilerOptions": {
 		"baseUrl": "src",
+		"paths": {
+			"utils/*": [
+				"utils/*"
+			],
+			"core/*": [
+				"core/*"
+			],
+			"ui/*": [
+				"ui/*"
+			],
+			"commands/*": [
+				"commands/*"
+			],
+			"types/*": [
+				"types/*"
+			],
+			"settings": [
+				"settings"
+			],
+			"main": [
+				"main"
+			]
+		},
 		"inlineSourceMap": true,
 		"inlineSources": true,
 		"module": "ESNext",

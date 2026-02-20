@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { parseValeIni } from "../src/core/vale-ini-parser";
+import { parseValeIni } from "../src/core/ini/parser";
 import { ValeConfig } from "../src/types/vale-types";
 
 test("Parses simple key-value pairs", () => {
