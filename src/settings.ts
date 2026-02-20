@@ -5,10 +5,9 @@ import ValePlugin from "main";
 import { SettingsTab } from "ui/settings-tabs/settings-tab";
 import { ValePluginSettingsTab } from "ui/settings-tabs/plugin-settings-tab";
 import { ValeConfigTab } from "ui/settings-tabs/vale-config-tab";
-import { ALERT_STRING_TO_LEVEL } from "utils/constants";
 export const DEFAULT_VALE_CONFIG: ValeConfig = {
 	StylesPath: ".vale/styles",
-	MinAlertLevel: ALERT_STRING_TO_LEVEL.suggestion,
+	MinAlertLevel: "suggestion",
 	Packages: ["Microsoft", "write-good"],
 	Vocab: ["Base"],
 	formats: { mdx: "md" },

@@ -436,13 +436,15 @@ describe("getExistingConfigOptions", () => {
 
 	test("returns parsed config when file is readable and valid", async () => {
 		vi.mocked(readFile).mockResolvedValue("MinAlertLevel = warning");
-		vi.mocked(parseValeIni).mockReturnValue({ MinAlertLevel: 2 });
+		vi.mocked(parseValeIni).mockReturnValue({
+			MinAlertLevel: "warning",
+		});
 
 		const result = await getExistingConfigOptions("/vault/.vale.ini");
 
 		expect(readFile).toHaveBeenCalledWith("/vault/.vale.ini", "utf-8");
 		expect(parseValeIni).toHaveBeenCalledWith("MinAlertLevel = warning");
-		expect(result).toEqual({ MinAlertLevel: 2 });
+		expect(result).toEqual({ MinAlertLevel: "warning" });
 		expect(notifyError).not.toHaveBeenCalled();
 	});
 
@@ -483,9 +485,13 @@ describe("writeConfigToFile", () => {
 			"MinAlertLevel = warning",
 		);
 
-		await writeConfigToFile("/vault/.vale.ini", { MinAlertLevel: 2 });
+		await writeConfigToFile("/vault/.vale.ini", {
+			MinAlertLevel: "warning",
+		});
 
-		expect(serializeValeConfig).toHaveBeenCalledWith({ MinAlertLevel: 2 });
+		expect(serializeValeConfig).toHaveBeenCalledWith({
+			MinAlertLevel: "warning",
+		});
 		expect(writeFile).toHaveBeenCalledWith(
 			"/vault/.vale.ini",
 			"MinAlertLevel = warning",

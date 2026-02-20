@@ -1,13 +1,8 @@
 import ValePlugin from "main";
 import { SettingsTab } from "./settings-tab";
 import { Setting, SettingGroup, Notice } from "obsidian";
-import { ValeCheckOverride, ValeProcess } from "types";
+import { Severity, ValeCheckOverride, ValeProcess } from "types";
 import { getValeStylesPath, returnCodeFail } from "utils/vale-utils";
-import {
-	ALERT_LEVEL_TO_STRING,
-	ALERT_STRING_TO_LEVEL,
-	AlertLevelString,
-} from "utils/constants";
 import { shell } from "electron";
 import {
 	backupExistingConfig,
@@ -185,21 +180,12 @@ export class ValeConfigTab extends SettingsTab {
 						"Minimum alert level to display. (e.g., suggestion, warning, error)",
 					)
 					.addText((text) => {
-						text.setValue(
-							ALERT_LEVEL_TO_STRING[
-								valeConfig.MinAlertLevel as AlertLevelString
-							] ?? "",
-						)
+						text.setValue(valeConfig.MinAlertLevel ?? "")
 							// eslint-disable-next-line obsidianmd/ui/sentence-case
 							.setPlaceholder("suggestion, warning, or error")
 							.onChange((value) => {
-								const normalized = value.trim().toLowerCase();
 								valeConfig.MinAlertLevel =
-									normalized in ALERT_STRING_TO_LEVEL
-										? ALERT_STRING_TO_LEVEL[
-												normalized as keyof typeof ALERT_STRING_TO_LEVEL
-											]
-										: undefined;
+									(value as Severity) ?? undefined;
 							});
 					});
 			})
@@ -486,10 +472,14 @@ export class ValeConfigTab extends SettingsTab {
 			if (rawLevel.toUpperCase() === "NO") {
 				parsedOverrides.push({ Check: check, Enabled: false });
 			} else {
+				const level = (rawLevel as Severity) ?? undefined;
+				if (!level) {
+					continue;
+				}
 				parsedOverrides.push({
 					Check: check,
 					Enabled: true,
-					Level: rawLevel,
+					Level: level,
 				});
 			}
 		}

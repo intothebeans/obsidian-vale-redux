@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /** Any typing allowed for generic data parsing, the data is validated and typed later */
-import { ValeConfig } from "types";
+import { Severity, ValeConfig } from "types";
 
 export function parseValeIni(content: string): ValeConfig {
 	// generic ini data being stored
@@ -88,8 +88,12 @@ function transformToValeConfig(parsed: any): ValeConfig {
 			continue;
 		} else {
 			// Top-level config values
+			const normalizedValue =
+				key === "MinAlertLevel" && typeof value === "string"
+					? (value.toLowerCase() as Severity)
+					: value;
 			(config as any)[key] = ensureArray(
-				value,
+				normalizedValue,
 				[
 					"IgnoredScopes",
 					"SkippedScopes",

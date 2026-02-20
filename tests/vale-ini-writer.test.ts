@@ -11,21 +11,21 @@ test("Serialize empty config", () => {
 test("Serialize top-level scalar fields", () => {
 	const config: ValeConfig = {
 		StylesPath: ".vale/styles",
-		MinAlertLevel: 1,
+		MinAlertLevel: "suggestion",
 	};
 	const result = serializeValeConfig(config);
 	expect(result).toContain("StylesPath = .vale/styles");
 	expect(result).toContain("MinAlertLevel = suggestion");
 });
 
-test("Serialize MinAlertLevel numbers to strings", () => {
-	expect(serializeValeConfig({ MinAlertLevel: 1 })).toContain(
+test("Serialize MinAlertLevel severities", () => {
+	expect(serializeValeConfig({ MinAlertLevel: "suggestion" })).toContain(
 		"MinAlertLevel = suggestion",
 	);
-	expect(serializeValeConfig({ MinAlertLevel: 2 })).toContain(
+	expect(serializeValeConfig({ MinAlertLevel: "warning" })).toContain(
 		"MinAlertLevel = warning",
 	);
-	expect(serializeValeConfig({ MinAlertLevel: 3 })).toContain(
+	expect(serializeValeConfig({ MinAlertLevel: "error" })).toContain(
 		"MinAlertLevel = error",
 	);
 });
@@ -149,7 +149,7 @@ test("Omit undefined/empty optional fields", () => {
 test("Round-trip: serialize then parse produces equivalent config", () => {
 	const original: ValeConfig = {
 		StylesPath: "styles",
-		MinAlertLevel: 1,
+		MinAlertLevel: "suggestion",
 		Packages: ["Microsoft", "write-good"],
 		Vocab: ["Base"],
 		formats: { mdx: "md" },

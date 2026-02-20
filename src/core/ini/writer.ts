@@ -4,7 +4,6 @@ import {
 	ValeGlobalSection,
 	ValeSyntaxSection,
 } from "types";
-import { ALERT_LEVEL_TO_STRING } from "utils/constants";
 
 const TOP_LEVEL_SCALAR_FIELDS = [
 	"StylesPath",
@@ -105,13 +104,7 @@ function pushTopLevelFields(lines: string[], config: ValeConfig): void {
 	pushScalarFields(lines, config, TOP_LEVEL_SCALAR_FIELDS);
 
 	if (config.MinAlertLevel !== undefined) {
-		const levelStr =
-			ALERT_LEVEL_TO_STRING[
-				config.MinAlertLevel as keyof typeof ALERT_LEVEL_TO_STRING
-			];
-		if (levelStr) {
-			lines.push(`MinAlertLevel = ${levelStr}`);
-		}
+		lines.push(`MinAlertLevel = ${config.MinAlertLevel}`);
 	}
 
 	pushArrayFields(lines, config, TOP_LEVEL_ARRAY_FIELDS);
