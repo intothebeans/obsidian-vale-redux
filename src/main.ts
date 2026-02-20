@@ -21,7 +21,7 @@ export const DEFAULT_SETTINGS: ValePluginSettings = {
 	debounceMs: 500,
 	disabledFiles: [],
 	automaticChecking: true,
-	valeProcessTimeoutMs: 10000,
+	valeProcessTimeoutMs: 5000,
 	valeConfigBackupsToKeep: 2,
 	valeConfigBackupDir: "",
 	backupPaths: [],
