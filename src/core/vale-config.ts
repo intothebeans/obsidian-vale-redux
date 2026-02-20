@@ -3,7 +3,7 @@ import { ValeConfig } from "types";
 import { notifyError } from "utils/error-utils";
 import { parseValeIni } from "./ini/parser";
 import { serializeValeConfig } from "./ini/writer";
-import ValePlugin from "main";
+import type ValePlugin from "main";
 import path from "path";
 import { ensureAbsolutePath } from "utils/file-utils";
 import { TFile } from "obsidian";
