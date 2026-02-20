@@ -99,7 +99,16 @@ export class ValeConfigTab extends SettingsTab {
 							.onClick(async () => {
 								const stylesPath = await getValeStylesPath(
 									this.plugin,
-								);
+								).catch((err) => {
+									notifyError(
+										"Failed to get styles path.",
+										5000,
+										err instanceof Error
+											? err.message
+											: String(err),
+									);
+									return null;
+								});
 								if (stylesPath) {
 									await shell.openPath(stylesPath);
 								}

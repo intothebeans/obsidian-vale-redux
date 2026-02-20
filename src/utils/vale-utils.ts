@@ -74,6 +74,9 @@ export async function testValeConnection(
 	}
 }
 export async function getValeStylesPath(plugin: ValePlugin): Promise<string> {
+	if (plugin.valeConfig.StylesPath) {
+		return plugin.valeConfig.StylesPath;
+	}
 	const settings = plugin.settings;
 	const valeProcess = {
 		command: settings.valeBinaryPath,
