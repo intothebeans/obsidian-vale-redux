@@ -6,7 +6,7 @@ import { ensureAbsolutePath } from "utils/file-utils";
 import { IssueManager } from "core/issue-manager";
 import { getExistingConfigOptions } from "core/vale-config";
 import { ISSUES_PANEL_VIEW_TYPE } from "utils/constants";
-import { ValeIssuesView } from "ui/issues-panel";
+import { openIssuesPanel, ValeIssuesView } from "ui/issues-panel";
 import { buildValeEditorExtension } from "core/editor";
 import { testValeConnection } from "utils/vale-utils";
 import { registerCommands } from "commands/register-commands";
@@ -63,6 +63,13 @@ export default class ValePlugin extends Plugin {
 			),
 		);
 		registerCommands(this);
+		this.addRibbonIcon(
+			"spell-check",
+			"Open vale issues panel",
+			async () => {
+				await openIssuesPanel(this);
+			},
+		);
 
 		// Defer processes after load.
 		this.app.workspace.onLayoutReady(async () => {
