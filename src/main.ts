@@ -22,6 +22,8 @@ export const DEFAULT_SETTINGS: ValePluginSettings = {
 	excludedFiles: [],
 	showInlineAlerts: true,
 	showInlineHighlights: true,
+	showValeStatusInStatusBar: true,
+	showIssuesInStatusBar: true,
 	debounceMs: 500,
 	disabledFiles: [],
 	automaticChecking: true,
@@ -74,10 +76,14 @@ export default class ValePlugin extends Plugin {
 				await openIssuesPanel(this);
 			},
 		);
-		const valeStatusBarItem = this.addStatusBarItem();
-		createValeStatusStatusBar(valeStatusBarItem, this);
-		const valeIssuesStatusBarItem = this.addStatusBarItem();
-		createValeIssuesStatusBar(valeIssuesStatusBarItem, this);
+		if (this.settings.showValeStatusInStatusBar) {
+			const valeStatusBarItem = this.addStatusBarItem();
+			createValeStatusStatusBar(valeStatusBarItem, this);
+		}
+		if (this.settings.showIssuesInStatusBar) {
+			const valeIssuesStatusBarItem = this.addStatusBarItem();
+			createValeIssuesStatusBar(valeIssuesStatusBarItem, this);
+		}
 
 		// Defer processes after load.
 		this.app.workspace.onLayoutReady(async () => {
