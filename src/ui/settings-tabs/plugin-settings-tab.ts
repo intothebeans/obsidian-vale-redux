@@ -21,6 +21,7 @@ export class ValePluginSettingsTab extends SettingsTab {
 		this.addBasicSettings();
 		this.addValeBinaryPathSetting();
 		this.addValeConfigPathSetting();
+		this.addBackupSettings();
 		this.addAdvancedSettings();
 	}
 	private addBasicSettings(): void {
@@ -44,6 +45,9 @@ export class ValePluginSettingsTab extends SettingsTab {
 			"Show highlights when using the issues panel to navigate to issues. Requires plugin reload to take effect.",
 			"showInlineHighlights",
 		);
+	}
+
+	private addBackupSettings(): void {
 		new SettingGroup(this.contentEl)
 			.setHeading("Backup settings")
 			.addSetting((setting) => {
