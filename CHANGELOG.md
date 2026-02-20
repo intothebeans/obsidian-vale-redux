@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 ---
+## [0.4.0](https://github.com/intothebeans/obsidian-vale-redux/compare/0.3.0..0.4.0) - 2026-02-20
+
+### :rocket: Features
+
+- **(settings)** add settings to toggle status bar items - ([8fcae1b](https://github.com/intothebeans/obsidian-vale-redux/commit/8fcae1b49a745139a62741f1c6b5f845d8e06dd9)) - intothebeans
+- **(ui)** add ribbon icon to open issue panel - ([c66d9c2](https://github.com/intothebeans/obsidian-vale-redux/commit/c66d9c21737fb23a532f2d2b79f51bcc6bfd9b6a)) - intothebeans
+- **(ui)** add status bar elements for vale status and grouped issues - ([0914b59](https://github.com/intothebeans/obsidian-vale-redux/commit/0914b590093a29cc2a0a628a5fb8b25afc503b16)) - intothebeans
+
+### :bug: Bug Fixes
+
+- **(ui)** status bar updates automatically even if auto checking is disabled - ([826a295](https://github.com/intothebeans/obsidian-vale-redux/commit/826a29507cb47e8c09409abdeaa39ef0db26eaca)) - intothebeans
+- **(ui)** update vale status status bar item whenever the active leaf changes - ([c386436](https://github.com/intothebeans/obsidian-vale-redux/commit/c386436a69ca66e58722c572e33dfbd1ce6af4cc)) - intothebeans
+- **(ui)** issues only refresh on obsidian events if automatic checking disabled - ([7a67658](https://github.com/intothebeans/obsidian-vale-redux/commit/7a67658db84e3851bb3437a55eb17f215f3aa72d)) - intothebeans
+- remove redundant ternary operator - ([3f76e7e](https://github.com/intothebeans/obsidian-vale-redux/commit/3f76e7e16162cb6a3257b9eaa0c2915ca9bbc2c9)) - intothebeans
+
+### :memo: Documentation
+
+- readme formatting - ([fa00359](https://github.com/intothebeans/obsidian-vale-redux/commit/fa00359ad806f88e8a926116accb05726e400070)) - Aiden
+
+---
 ## [0.3.0](https://github.com/intothebeans/obsidian-vale-redux/compare/0.2.1..0.3.0) - 2026-02-20
 
 ### :rocket: Features

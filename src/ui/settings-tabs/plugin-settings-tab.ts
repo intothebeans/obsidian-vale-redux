@@ -28,22 +28,32 @@ export class ValePluginSettingsTab extends SettingsTab {
 		this.addToggleSettingRequiringReload(
 			this.contentEl,
 			"Inline alerts",
-			"Show Vale issues directly in the editor. Requires plugin reload to take effect.",
+			"Show Vale issues directly in the editor.",
 			"showInlineAlerts",
 		);
-
+		this.addToggleSettingRequiringReload(
+			this.contentEl,
+			"Inline navigation highlights",
+			"Show highlights when using the issues panel to navigate to issues.",
+			"showInlineHighlights",
+		);
 		this.addToggleSettingRequiringReload(
 			this.contentEl,
 			"Automatic checking",
-			"Automatically check files on changes. Requires plugin reload to take effect.",
+			"Automatically check files on changes.",
 			"automaticChecking",
 		);
-
 		this.addToggleSettingRequiringReload(
 			this.contentEl,
-			"Inline highlights",
-			"Show highlights when using the issues panel to navigate to issues. Requires plugin reload to take effect.",
-			"showInlineHighlights",
+			"Show vale status in status bar",
+			"Show an icon in the status bar indicating whether Vale is available.",
+			"showValeStatusInStatusBar",
+		);
+		this.addToggleSettingRequiringReload(
+			this.contentEl,
+			"Show issues count in status bar",
+			"Show the number of Vale issues for the current file in the status bar.",
+			"showIssuesInStatusBar",
 		);
 	}
 
@@ -120,7 +130,7 @@ export class ValePluginSettingsTab extends SettingsTab {
 	): void {
 		new Setting(containerEl)
 			.setName(name)
-			.setDesc(desc)
+			.setDesc(desc + " Requires plugin reload to take effect.")
 			.addToggle((toggle) => {
 				toggle
 					.setValue(this.settings[settingKey] as boolean)

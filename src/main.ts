@@ -6,10 +6,14 @@ import { ensureAbsolutePath } from "utils/file-utils";
 import { IssueManager } from "core/issue-manager";
 import { getExistingConfigOptions } from "core/vale-config";
 import { ISSUES_PANEL_VIEW_TYPE } from "utils/constants";
-import { ValeIssuesView } from "ui/issues-panel";
+import { openIssuesPanel, ValeIssuesView } from "ui/issues-panel";
 import { buildValeEditorExtension } from "core/editor";
 import { testValeConnection } from "utils/vale-utils";
 import { registerCommands } from "commands/register-commands";
+import {
+	createValeIssuesStatusBar,
+	createValeStatusStatusBar,
+} from "ui/status-bar";
 
 export const DEFAULT_SETTINGS: ValePluginSettings = {
 	valeBinaryPath: "vale",
@@ -18,6 +22,8 @@ export const DEFAULT_SETTINGS: ValePluginSettings = {
 	excludedFiles: [],
 	showInlineAlerts: true,
 	showInlineHighlights: true,
+	showValeStatusInStatusBar: true,
+	showIssuesInStatusBar: true,
 	debounceMs: 500,
 	disabledFiles: [],
 	automaticChecking: true,
@@ -63,6 +69,21 @@ export default class ValePlugin extends Plugin {
 			),
 		);
 		registerCommands(this);
+		this.addRibbonIcon(
+			"spell-check",
+			"Open vale issues panel",
+			async () => {
+				await openIssuesPanel(this);
+			},
+		);
+		if (this.settings.showValeStatusInStatusBar) {
+			const valeStatusBarItem = this.addStatusBarItem();
+			createValeStatusStatusBar(valeStatusBarItem, this);
+		}
+		if (this.settings.showIssuesInStatusBar) {
+			const valeIssuesStatusBarItem = this.addStatusBarItem();
+			createValeIssuesStatusBar(valeIssuesStatusBarItem, this);
+		}
 
 		// Defer processes after load.
 		this.app.workspace.onLayoutReady(async () => {

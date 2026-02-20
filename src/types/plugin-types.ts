@@ -7,6 +7,8 @@ export interface ValePluginSettings {
 	excludedFiles: string[];
 	showInlineAlerts: boolean;
 	showInlineHighlights: boolean;
+	showValeStatusInStatusBar: boolean;
+	showIssuesInStatusBar: boolean;
 	debounceMs: number;
 	disabledFiles: string[];
 	automaticChecking: boolean;
