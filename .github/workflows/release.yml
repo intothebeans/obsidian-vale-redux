@@ -13,9 +13,10 @@ on:
 
 env:
   PLUGIN_NAME: obsidian-vale-redux
+  TAG: "${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}"
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -37,19 +38,21 @@ jobs:
           npm run build
           mkdir ${{ env.PLUGIN_NAME }}
           cp -r main.js manifest.json styles.css CHANGELOG.md ${{ env.PLUGIN_NAME }}
+      - name: Create release notes
+        id: git-cliff
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: .github/cliff.toml
+          args: -l
+        env:
+          GIT_CLIFF_TAG: "${{ env.TAG }}"
 
       - uses: softprops/action-gh-release@v2
         name: Create Release
         with:
-          generate_release_notes: true
-          body: |
-            ## Installation
-
-            Download and extract the files from the assets below into your vault's `.obsidian/plugins/obsidian-vale-redux/` directory.
-
-            See [CHANGELOG.md](CHANGELOG.md) for full release history.
+          body: ${{ steps.git-cliff.outputs.content }}
           files: |
             ${{ env.PLUGIN_NAME }}/main.js
             ${{ env.PLUGIN_NAME }}/manifest.json
             ${{ env.PLUGIN_NAME }}/styles.css
-          tag_name: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+          tag_name: ${{ env.TAG }}
