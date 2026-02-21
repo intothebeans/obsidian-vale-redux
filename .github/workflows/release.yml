@@ -44,8 +44,6 @@ jobs:
         with:
           config: .github/cliff.toml
           args: -l
-        env:
-          GIT_CLIFF_TAG: "${{ env.TAG }}"
 
       - uses: softprops/action-gh-release@v2
         name: Create Release
