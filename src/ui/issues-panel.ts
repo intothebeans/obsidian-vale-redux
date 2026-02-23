@@ -9,13 +9,7 @@ import {
 } from "utils/constants";
 import { notifyError } from "utils/error-utils";
 
-import { EditorView } from "@codemirror/view";
-import { calculateIssuePosition } from "utils/position-utils";
-import {
-	addIssueHighlight,
-	clearIssueHighlight,
-	highlightIssueInEditor,
-} from "core/editor/highlights";
+import { highlightIssueInEditor } from "core/editor/highlights";
 
 export class ValeIssuesView extends ItemView {
 	private issueManager: IssueManager;
@@ -323,14 +317,37 @@ export class ValeIssuesView extends ItemView {
 }
 
 export async function openIssuesPanel(plugin: ValePlugin): Promise<void> {
-	await plugin.app.workspace.getRightLeaf(false)?.setViewState({
-		type: ISSUES_PANEL_VIEW_TYPE,
-		active: true,
-	});
-	const leaf = plugin.app.workspace.getLeavesOfType(
-		ISSUES_PANEL_VIEW_TYPE,
-	)[0];
-	if (leaf) {
-		await plugin.app.workspace.revealLeaf(leaf);
+	const workspace = plugin.app.workspace;
+	let leaf: WorkspaceLeaf | null = null;
+	const leaves = workspace.getLeavesOfType(ISSUES_PANEL_VIEW_TYPE);
+	try {
+		if (leaves.length > 0) {
+			leaf = leaves[0] || null;
+		} else {
+			leaf = workspace.getRightLeaf(false);
+			if (!leaf) {
+				throw new Error(
+					"Unable to create a new leaf for the issues panel",
+				);
+			}
+			await leaf.setViewState({
+				type: ISSUES_PANEL_VIEW_TYPE,
+				active: true,
+			});
+		}
+		if (!leaf) {
+			throw new Error(
+				"Failed to find or create a leaf for the issues panel",
+			);
+		}
+		await workspace.revealLeaf(leaf);
+	} catch (err) {
+		notifyError(
+			"Failed to open issues panel",
+			2000,
+			err instanceof Error ? err.message : "Unknown error",
+		);
+		return;
 	}
+	await workspace.revealLeaf(leaf);
 }
