@@ -34,7 +34,7 @@
 		"@types/node": "^24",
 		"electron": "^40.8.5",
 		"@vitest/coverage-v8": "^4.1.8",
-		"esbuild": "0.25.5",
+		"esbuild": "0.28.1",
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-obsidianmd": "0.1.9",
 		"eslint-plugin-prettier": "^5.5.5",
