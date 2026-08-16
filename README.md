@@ -1,3 +1,5 @@
+>[!warning]
+>This project is no longer actively maintained. I switched to over to [Harper](https://writewithharper.com/)
 
 # Obsidian Vale Redux
 
